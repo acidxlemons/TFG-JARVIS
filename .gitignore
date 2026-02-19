@@ -1,0 +1,164 @@
+# ============================================
+# 🔐 ENTERPRISE RAG SYSTEM - GITIGNORE
+# ============================================
+# IMPORTANTE: Este .gitignore está diseñado para preparar
+# el repositorio para subir a GitHub de forma SEGURA.
+#
+# Última actualización: 2026-01-13
+# ============================================
+
+# ============================================
+# 🔴 CREDENCIALES Y SECRETS (CRÍTICO)
+# ============================================
+.env
+.env.*
+*.env
+.env.local
+.env.production
+.env.development
+
+# Script con credenciales hardcodeadas
+services/indexer/app/force_sync_*.py
+
+# ============================================
+# 🔴 CONFIGURACIÓN CON IDs AZURE (CRÍTICO)
+# ============================================
+config/sharepoint_sites.json
+
+# ============================================
+# 🟠 DOCUMENTACIÓN INTERNA (SI CONTIENE IPs/CREDENCIALES)
+# ============================================
+# NOTA: La mayoría de docs se SUBEN al repo (ya sanitizados).
+# Solo ignoramos docs con información muy específica:
+docs/SHAREPOINT_RAG_GUIDE.md
+docs/DEPLOYMENT_GANTT.md
+docs/USER_FEEDBACK_FORM.md
+
+# ============================================
+# 🟠 DATASETS DE ENTRENAMIENTO (INFO SENSIBLE)
+# ============================================
+# Contienen: emails @europavia.es, nombres de empleados,
+# contenido de documentos internos, planes de calidad, etc.
+data/finetune_*.json
+data/lora_*.json
+data/processed/
+data/sharepoint/
+data/uploads/
+data/watch/
+
+# Tests con datos reales
+tests/data/synthetic_gold_dataset.json
+tests/data/evaluation_results.json
+
+# ============================================
+# 🟠 ASSETS CORPORATIVOS (BRANDING)
+# ============================================
+services/openwebui/static/logo.png
+services/openwebui/static/*.png
+services/openwebui/static/*.ico
+
+# ============================================
+# 🟡 ARCHIVOS TEMPORALES Y CACHE
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ============================================
+# 🟡 MODELOS Y WEIGHTS (MUY GRANDES)
+# ============================================
+models/
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+
+# Embeddings fine-tuned (modelo, no dataset)
+finetuned_embeddings/
+
+# ============================================
+# 🟡 DOCKER Y VOLÚMENES LOCALES
+# ============================================
+# NO subir datos de volúmenes Docker
+postgres_data/
+qdrant_data/
+redis_data/
+minio_data/
+ollama_data/
+
+# Docker logs
+*.log
+
+# ============================================
+# 🟡 CERTIFICADOS SSL
+# ============================================
+config/nginx/ssl/*.pem
+config/nginx/ssl/*.key
+config/nginx/ssl/*.crt
+*.pem
+*.key
+*.crt
+
+# ============================================
+# 🟡 IDE Y SISTEMA
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================
+# 🟡 ARCHIVOS DE TEST TEMPORALES
+# ============================================
+test_*.py
+tests/reproduce_*.py
+*.ps1
+
+# ============================================
+# ⚠️ ARCHIVOS QUE REQUIEREN REVISIÓN MANUAL
+# ============================================
+# Estos archivos contienen IPs/URLs que podrían ser sensibles.
+# Revisar antes de subir y sanitizar si es necesario:
+#
+# - docs/TECHNICAL_ARCHITECTURE.md (contiene 10.0.0.41)
+# - docs/CHANGELOG.md (contiene 10.0.0.41)
+# - docs/STUDENT_GUIDE.md (menciona red 10.0.0.x)
+# - README.md (revisar ejemplos de configuración)
+# - PROJECT_DOCUMENTATION.md (email raiz@europavia.es)
+# - docker-compose.yml (email raiz@europavia.es)
+#
+# Recomendación: Reemplazar IPs reales por ejemplos como:
+#   10.0.0.41 → YOUR_SERVER_IP o 192.168.1.100
+#   raiz@europavia.es → admin@example.com
+# ============================================

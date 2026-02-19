@@ -1,0 +1,17 @@
+# Grafana Dashboard Provisioning
+# Auto-import dashboards from the dashboards folder
+# Docs: https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+apiVersion: 1
+
+providers:
+  - name: 'JARVIS RAG Dashboards'
+    orgId: 1
+    folder: ''
+    folderUid: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

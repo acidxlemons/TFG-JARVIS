@@ -1,0 +1,15 @@
+/* =============================================
+   EUROPAVIA CORPORATE THEME — v3.9
+   ============================================= */
+
+/* Dark Mode (Default) overrides */
+.dark body,
+.dark html {
+    background-color: #0f172a !important;
+}
+
+/* Brand Colors */
+:root {
+    --brand-blue: #004d99;
+    --brand-orange: #ff6600;
+}

@@ -1,0 +1,15 @@
+{
+  "providers": [
+    {
+      "provider": "oidc",
+      "client_id": "${AZURE_CLIENT_ID}",
+      "client_secret": "${AZURE_CLIENT_SECRET}",
+      "issuer": "https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0",
+      "authorization_endpoint": "https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/authorize",
+      "token_endpoint": "https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token",
+      "userinfo_endpoint": "https://graph.microsoft.com/oidc/userinfo",
+      "scopes": ["openid", "profile", "email"],
+      "redirect_uri": "${APP_URL:-http://localhost}/oauth/oidc/callback"
+    }
+  ]
+}

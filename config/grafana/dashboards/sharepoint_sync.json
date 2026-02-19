@@ -1,0 +1,390 @@
+{
+    "id": null,
+    "uid": "sharepoint-sync",
+    "title": "📤 SharePoint Sync Monitor",
+    "description": "Real-time monitoring of SharePoint synchronization to Qdrant",
+    "tags": [
+        "sharepoint",
+        "sync",
+        "rag"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "10s",
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "panels": [
+        {
+            "id": 1,
+            "title": "🔄 Sync Status per Site",
+            "description": "Current sync status (1=syncing, 0=idle)",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "sharepoint_sync_in_progress",
+                    "legendFormat": "{{site}}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "orientation": "horizontal",
+                "textMode": "auto",
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [
+                        {
+                            "type": "value",
+                            "options": {
+                                "0": {
+                                    "text": "⏸️ Idle",
+                                    "color": "green"
+                                }
+                            }
+                        },
+                        {
+                            "type": "value",
+                            "options": {
+                                "1": {
+                                    "text": "🔄 Syncing",
+                                    "color": "yellow"
+                                }
+                            }
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 2,
+            "title": "📊 Total Syncs (Success vs Error)",
+            "description": "Total sync operations per site",
+            "type": "piechart",
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 12,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "sum(sharepoint_sync_total) by (site, status)",
+                    "legendFormat": "{{site}} - {{status}}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "right"
+                },
+                "pieType": "pie"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    }
+                }
+            }
+        },
+        {
+            "id": 3,
+            "title": "📥 Files Downloaded from SharePoint",
+            "description": "Total files downloaded per site over time",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 4
+            },
+            "targets": [
+                {
+                    "expr": "rate(sharepoint_files_downloaded_total[5m]) * 300",
+                    "legendFormat": "{{site}} downloads/5min",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "fillOpacity": 20,
+                        "lineWidth": 2
+                    },
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "short"
+                }
+            }
+        },
+        {
+            "id": 4,
+            "title": "📤 Files Indexed to Qdrant",
+            "description": "Total files successfully indexed per site",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 6
+            },
+            "targets": [
+                {
+                    "expr": "rate(sharepoint_files_indexed_total[5m]) * 300",
+                    "legendFormat": "{{site}} indexed/5min",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "fillOpacity": 20,
+                        "lineWidth": 2
+                    },
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "short"
+                }
+            }
+        },
+        {
+            "id": 5,
+            "title": "⏱️ Sync Duration",
+            "description": "Time taken for last sync operation",
+            "type": "gauge",
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 12
+            },
+            "targets": [
+                {
+                    "expr": "sharepoint_sync_duration_seconds",
+                    "legendFormat": "{{site}}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s",
+                    "min": 0,
+                    "max": 300,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 60
+                            },
+                            {
+                                "color": "red",
+                                "value": 180
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 6,
+            "title": "🕐 Last Sync Time",
+            "description": "Timestamp of last successful sync",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 6,
+                "y": 12
+            },
+            "targets": [
+                {
+                    "expr": "time() - sharepoint_last_sync_timestamp_seconds",
+                    "legendFormat": "{{site}} ago",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "value",
+                "graphMode": "none"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 600
+                            },
+                            {
+                                "color": "red",
+                                "value": 900
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 7,
+            "title": "📈 Cumulative Totals",
+            "description": "Total downloads and indexed files since start",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 12,
+                "y": 14
+            },
+            "targets": [
+                {
+                    "expr": "sum(sharepoint_files_downloaded_total)",
+                    "legendFormat": "Downloads",
+                    "refId": "A"
+                },
+                {
+                    "expr": "sum(sharepoint_files_indexed_total)",
+                    "legendFormat": "Indexed",
+                    "refId": "B"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 8,
+            "title": "🔥 Sync Activity Heatmap",
+            "description": "Sync activity over time by site",
+            "type": "heatmap",
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 16
+            },
+            "targets": [
+                {
+                    "expr": "increase(sharepoint_sync_total[5m])",
+                    "legendFormat": "{{site}}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "yAxis": {
+                    "axisPlacement": "left"
+                },
+                "cellGap": 1,
+                "color": {
+                    "mode": "scheme",
+                    "scheme": "Oranges"
+                }
+            }
+        }
+    ],
+    "templating": {
+        "list": []
+    },
+    "annotations": {
+        "list": []
+    }
+}

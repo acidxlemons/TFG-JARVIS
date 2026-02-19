@@ -1,0 +1,542 @@
+# docker-compose-tfg.yml
+# VERSIÓN TFG / LOCAL - "LITE"
+# ==============================================================================
+# Esta configuración elimina dependencias externas como SharePoint y Azure SSO
+# para permitir una ejecución 100% local y portable para demostraciones.
+# ==============================================================================
+
+x-env: &default-env
+  env_file:
+    - .env
+
+networks:
+  rag-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  minio_data:
+  ollama_data:
+  openwebui_data:
+  ocr_cache:
+  prometheus_data:
+  grafana_data:
+
+
+services:
+  # =========================
+  # BASE DE DATOS
+  # =========================
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rag-postgres
+    <<: *default-env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-rag_system}
+      POSTGRES_USER: ${POSTGRES_USER:-rag_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rag_user} -d ${POSTGRES_DB:-rag_system}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis
+    command: [ "redis-server", "--appendonly", "yes" ]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli -h 127.0.0.1 ping | grep PONG" ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # VECTOR DATABASE
+  # =========================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: rag-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -c 'echo >/dev/tcp/localhost/6333' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # MINIO (S3)
+  # =========================
+  minio:
+    image: minio/minio:latest
+    container_name: rag-minio
+    <<: *default-env
+    command: [ "server", "/data", "--console-address", ":9001" ]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio_password}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9000/minio/health/ready || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  minio-setup:
+    image: minio/mc:latest
+    container_name: rag-minio-setup
+    depends_on:
+      minio:
+        condition: service_started
+    <<: *default-env
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - >
+        set -e; echo "⏳ Esperando a MinIO..."; for i in `seq 1 60`; do
+          mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-minio_admin} ${MINIO_ROOT_PASSWORD:-minio_password} && break || sleep 2;
+        done; mc mb -p local/${MINIO_BUCKET:-documents} || true; mc anonymous set download local/${MINIO_BUCKET:-documents} || true; echo "✅ MinIO bootstrap done";
+    networks:
+      - rag-network
+    restart: "no"
+
+  # =========================
+  # MODELOS
+  # =========================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ "gpu" ]
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      OLLAMA_HOST: "0.0.0.0:11434"
+      OLLAMA_KEEP_ALIVE: "24h"
+      OLLAMA_NUM_PARALLEL: "10" # Optimizado para RTX 5090 (32GB VRAM)
+      OLLAMA_MAX_LOADED_MODELS: "2"
+    healthcheck:
+      test: [ "CMD", "ollama", "list" ]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  ollama-setup:
+    image: curlimages/curl:8.9.1
+    container_name: rag-ollama-setup
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./scripts/pull_models.sh:/pull_models.sh:ro
+    entrypoint: [ "/bin/sh", "/pull_models.sh" ]
+    networks:
+      - rag-network
+    restart: "no"
+
+  # Proxy LLM
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: rag-litellm
+    depends_on:
+      ollama:
+        condition: service_started
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    <<: *default-env
+    volumes:
+      - ./services/litellm/config.yaml:/app/config.yaml:ro
+    environment:
+      # DATABASE_URL: postgresql://${POSTGRES_USER:-rag_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/litellm
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-1234}
+      LITELLM_LOG: INFO
+
+    ports:
+      - "4000:4000"
+    command: [ "--config", "/app/config.yaml", "--port", "4000", "--host", "0.0.0.0", "--num_workers", "4" ]
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # PRECALENTADO OCR
+  # =========================
+  ocr-bootstrap:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: "3.11"
+        INSTALL_PLAYWRIGHT: "true"
+    container_name: rag-ocr-bootstrap
+    <<: *default-env
+    working_dir: /workspace/app
+    volumes:
+      - ./backend/app:/workspace/app
+      - ocr_cache:/workspace/app/cache
+      - ocr_cache:/root/.paddleocr
+    environment:
+      PADDLE_HOME: /root/.paddleocr
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ "gpu" ]
+    shm_size: "2gb"
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -e
+        python3 - <<'PY'
+        from paddleocr import PaddleOCR
+        PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False)
+        PaddleOCR(use_angle_cls=True, lang='latin', use_gpu=False)
+        print('PaddleOCR models pre-downloaded to /root/.paddleocr')
+        PY
+        echo "✅ OCR warmup done"
+        exit 0
+    networks:
+      - rag-network
+    restart: "no"
+
+  # =========================
+  # BACKEND / API
+  # =========================
+  rag-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: "3.11"
+        INSTALL_PLAYWRIGHT: "true"
+    container_name: rag-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      litellm:
+        condition: service_started
+      minio:
+        condition: service_started
+      ocr-bootstrap:
+        condition: service_completed_successfully
+    <<: *default-env
+    volumes:
+      - ./backend/app:/workspace/app
+      - ocr_cache:/workspace/app/cache
+      - ocr_cache:/root/.paddleocr
+      - ./models:/workspace/models # Fine-tuned models
+    environment:
+      POSTGRES_URL: postgresql+psycopg2://${POSTGRES_USER:-rag_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-rag_system}
+      QDRANT_URL: http://qdrant:6333
+      REDIS_URL: redis://redis:6379
+      LITELLM_URL: http://litellm:4000
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY:-sk-1234}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minio_admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minio_password}
+      MINIO_BUCKET: ${MINIO_BUCKET:-documents}
+      DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-tenant-default}
+      # Fine-tuned embedding model (fallback to base if not found)
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-/workspace/models/finetuned_embeddings}
+      # Fine-tuned reranker (cross-encoder for better ranking)
+      RERANKER_MODEL: ${RERANKER_MODEL:-/workspace/models/finetuned_reranker}
+      OCR_NUM_WORKERS: "6"
+      OCR_USE_GPU: "true"
+      LOG_LEVEL: INFO
+      PADDLE_HOME: /root/.paddleocr
+      PYTHONPATH: /workspace
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ "gpu" ]
+    working_dir: /workspace
+    shm_size: "2gb"
+    command: [ "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # INDEXER (LOCAL-ONLY)
+  # =========================
+  indexer:
+    build:
+      context: ./services/indexer
+    container_name: rag-indexer
+    depends_on:
+      rag-backend:
+        condition: service_healthy
+    <<: *default-env
+    volumes:
+      - ./services/indexer/app:/app/app
+      - ./backend/app/integrations:/app/app/integrations
+      - ./config/sharepoint_sites.json:/app/config/sharepoint_sites.json:ro
+      - ocr_cache:/app/cache
+      - ./data/watch:/app/watch # CARPETA LOCAL PARA INDEXAR
+      - ./models:/workspace/models:ro # Fine-tuned models
+    environment:
+      BACKEND_URL: http://rag-backend:8000
+
+      # [TFG-DISABLED] SharePoint Integration
+      # AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+      # AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+      # AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+      SHAREPOINT_MULTI_SITE: "false"
+      # SHAREPOINT_SITE_ID: ${SHAREPOINT_SITE_ID}
+      # SHAREPOINT_FOLDER_PATH: ${SHAREPOINT_FOLDER_PATH:-Documents}
+
+      # Webhook Secret (mantenido pero no usado para SP)
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-changeme}
+
+      SYNC_INTERVAL: ${SYNC_INTERVAL:-300}
+      SYNC_ON_START: "false" # No intentar full sync al inicio
+
+      # Fine-tuned embedding model (same as backend)
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-/workspace/models/finetuned_embeddings}
+      LOG_LEVEL: INFO
+      PYTHONPATH: /app
+    ports:
+      - "8001:8001"
+    command: [ "uvicorn", "app.main:app", "--app-dir", "/app", "--host", "0.0.0.0", "--port", "8001" ]
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # PIPELINES (OpenWebUI)
+  # =========================
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:main
+    container_name: rag-pipelines
+    ports:
+      - "9099:9099"
+    volumes:
+      - ./services/openwebui/pipelines:/app/pipelines
+    env_file:
+      - .env
+    environment:
+      PIPELINES_API_KEY: 0p3n-w3bu!
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # INTERFAZ (LOCAL AUTH)
+  # =========================
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: rag-openwebui
+    depends_on:
+      litellm:
+        condition: service_started
+      postgres:
+        condition: service_started
+    <<: *default-env
+    volumes:
+      - openwebui_data:/app/backend/data
+      - ./services/openwebui/config:/app/backend/config
+      - ./services/openwebui/static/logo.png:/app/build/static/logo.png
+      - ./services/openwebui/static/logo.png:/app/build/static/splash.png
+      - ./services/openwebui/static/logo.png:/app/build/static/splash-dark.png
+      - ./services/openwebui/static/logo.png:/app/build/static/favicon.png
+      - ./services/openwebui/static/favicon.svg:/app/build/static/favicon.svg
+      # Custom CSS theme (URJC colors)
+      - ./services/openwebui/static/urjc-theme.css:/app/build/static/custom.css
+    environment:
+      # Multiple OpenAI-compatible API endpoints: LiteLLM + Pipelines (JARVIS)
+      OPENAI_API_BASE_URLS: "http://litellm:4000/v1;http://pipelines:9099"
+      OPENAI_API_KEYS: "${LITELLM_MASTER_KEY:-sk-1234};0p3n-w3bu!"
+      # Fix for missing models/500 logs: Allow OpenWebUI to reach Ollama directly
+      OLLAMA_BASE_URL: http://ollama:11434
+
+      # [TFG-MODIFIED] Local Authentication Only
+      WEBUI_AUTH: "true"
+      ENABLE_SIGNUP: "true" # Permitir registro local
+      ENABLE_LOGIN_FORM: "true"
+
+      # [TFG-DISABLED] Azure SSO
+      ENABLE_OAUTH_SIGNUP: "false"
+      # OAUTH_PROVIDER: oidc
+      # OPENID_PROVIDER_URL: https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0/.well-known/openid-configuration
+
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rag_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-rag_system}
+      # Set JARVIS as the default and primary model
+      DEFAULT_MODELS: "JARVIS"
+      # Force env vars to take precedence over DB config (needed for DEFAULT_MODELS)
+      ENABLE_PERSISTENT_CONFIG: "False"
+      # Make ALL models visible to ALL users (bypass admin-only visibility)
+      BYPASS_MODEL_ACCESS_CONTROL: "True"
+      ENABLE_RAG_WEB_SEARCH: "false"
+      ENABLE_IMAGE_GENERATION: "false"
+      RAG_EMBEDDING_MODEL: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+      RAG_TOP_K: "5"
+      CHUNK_SIZE: "500"
+      CHUNK_OVERLAP: "50"
+    ports:
+      - "3000:8080"
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # MONITOREO
+  # =========================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rag-prometheus
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    ports:
+      - "9090:9090"
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # NVIDIA GPU Metrics Exporter (DCGM)
+  dcgm-exporter:
+    image: nvidia/dcgm-exporter:3.3.0-3.2.0-ubuntu22.04
+    container_name: rag-dcgm-exporter
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - "9400:9400"
+    networks:
+      - rag-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rag-grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/enterprise_rag.json
+    ports:
+      - "3001:3000"
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # PGADMIN (PostgreSQL UI)
+  # =========================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: rag-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@tfg.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rag-network
+    restart: unless-stopped
+
+  # =========================
+  # NGINX
+  # =========================
+  nginx:
+    image: nginx:alpine
+    container_name: rag-nginx
+    depends_on:
+      openwebui:
+        condition: service_started
+      rag-backend:
+        condition: service_started
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - rag-network
+    restart: unless-stopped

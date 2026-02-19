@@ -1,0 +1,136 @@
+model_list:
+  # Modelo principal para chat y RAG - FINE-TUNED (JARVIS)
+  - model_name: JARVIS
+    litellm_params:
+      model: ollama/rag-qwen-ft:latest
+      api_base: http://ollama:11434
+      temperature: 0.1
+      max_tokens: 4096
+      top_p: 0.9
+      stream: true
+    model_info:
+      mode: chat
+      supports_function_calling: false
+      supports_vision: false
+      context_window: 8192
+
+  # Llama 3.1 8B (para uso general)
+  - model_name: llama3.1-8b
+    litellm_params:
+      model: ollama/llama3.1:8b-instruct-q8_0
+      api_base: http://ollama:11434
+      temperature: 0.7
+      max_tokens: 4096
+      stream: true
+    model_info:
+      mode: chat
+      supports_function_calling: true
+      supports_vision: false
+
+  # Qwen 2.5 VL (Vision Language) - Nuevo modelo detectado
+  - model_name: qwen2.5vl
+    litellm_params:
+      model: ollama/qwen2.5vl:7b
+      api_base: http://ollama:11434
+      temperature: 0.3
+      max_tokens: 4096
+      stream: true
+    model_info:
+      mode: chat
+      supports_vision: true
+
+  # Modelo de visión/OCR (Legacy)
+  - model_name: llava
+    litellm_params:
+      model: ollama/llava:13b
+      api_base: http://ollama:11434
+      temperature: 0.3
+      max_tokens: 2048
+      stream: true
+    model_info:
+      mode: chat
+      supports_vision: true
+
+  # Modelo ligero para resúmenes rápidos
+  - model_name: llama3.1-summarize
+    litellm_params:
+      model: ollama/llama3.1:8b-instruct-q4_0
+      api_base: http://ollama:11434
+      temperature: 0.5
+      max_tokens: 1024
+      stream: false
+    model_info:
+      mode: chat
+      supports_function_calling: false
+      supports_vision: false
+      context_window: 4096
+
+litellm_settings:
+  set_verbose: false
+  json_logs: true
+  redact_headers: true
+  redact_request_body: true
+  redact_response_body: false
+
+  rpm: 100
+  tpm: 50000
+  per_user_rpm: 60
+  per_user_tpm: 30000
+
+  request_timeout: 120
+  num_retries: 3
+  retry_backoff: exponential
+  retry_backoff_factor: 2
+  retry_on_status_codes: [408, 429, 500, 502, 503, 504]
+
+  cache: true
+  cache_params:
+    type: redis
+    host: redis
+    port: 6379
+    namespace: "litellm"
+
+  enable_cors: true
+  allowed_origins: ["*"]
+
+  # 🔴 IMPORTANTE: estas claves se aceptan SIN ir a DB
+  proxy_api_keys:
+    - "sk-1234"
+
+router_settings:
+  routing_strategy: simple-shuffle
+  model_group_alias:
+    gpt-3.5-turbo: JARVIS
+    gpt-4: JARVIS
+    gpt-4o: JARVIS
+    gpt-4o-mini: JARVIS
+
+  fallbacks:
+    - JARVIS: [llama3.1-summarize]
+
+  health_check_interval: 10
+  health_check_timeout: 3
+  circuit_breaker:
+    failure_threshold: 5
+    recovery_time_seconds: 30
+    half_open_success_threshold: 2
+
+general_settings:
+  database:
+    enabled: false          # ⬅️ desactivamos DB totalmente
+  store_model_in_db: false  # ⬅️ que no intente guardar modelos en DB
+
+  master_key: "sk-1234"     # ⬅️ coincide con tu .env
+
+  max_request_body_size: 5000000
+  max_response_body_size: 10000000
+
+
+spend_logs:
+  enabled: false          # <- Nada de logs en DB
+
+environment_variables:
+  PORT: "4000"
+  PROMETHEUS_PORT: "4001"
+  ENABLE_HEALTH_SERVER: "true"
+  HEALTHCHECK_PATH: "/health"

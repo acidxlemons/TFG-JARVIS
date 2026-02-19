@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "boe": {
+            "command": "python",
+            "args": [
+                "mcp_boe_server.py"
+            ],
+            "cwd": "."
+        }
+    }
+}

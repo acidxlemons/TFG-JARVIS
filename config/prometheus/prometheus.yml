@@ -1,0 +1,51 @@
+# Prometheus configuration for Enterprise RAG System
+# Docs: https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  
+  external_labels:
+    monitor: 'enterprise-rag'
+
+# Scrape configurations - only targets that expose /metrics
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+
+  # RAG Backend (FastAPI) - main target with metrics
+  - job_name: 'rag-backend'
+    static_configs:
+      - targets: ['rag-backend:8000']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # Qdrant Vector Database - has built-in metrics
+  - job_name: 'qdrant'
+    static_configs:
+      - targets: ['qdrant:6333']
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # RAG Indexer - SharePoint sync metrics
+  - job_name: 'rag-indexer'
+    static_configs:
+      - targets: ['indexer:8001']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # NVIDIA GPU Exporter (DCGM) - GPU memory, utilization, temperature
+  - job_name: 'dcgm-exporter'
+    static_configs:
+      - targets: ['dcgm-exporter:9400']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # Note: The following services don't expose /metrics by default:
+  # - litellm: Would need to enable metrics in config
+  # - ollama: Has limited metrics support
+  # - minio: Requires authentication for metrics
+  # - redis: Needs redis_exporter sidecar

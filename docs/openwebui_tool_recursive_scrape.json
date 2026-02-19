@@ -1,0 +1,27 @@
+{
+    "name": "recursive_scrape_tool",
+    "description": "Herramienta para analizar sitios web completos navegando recursivamente por sus enlaces. Útil para entender la estructura de una web o indexar documentación completa. Usa el endpoint /scrape/recursive del backend.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "url": {
+                "type": "string",
+                "description": "La URL inicial del sitio web a analizar (ej: https://europavia.es)"
+            },
+            "max_depth": {
+                "type": "integer",
+                "description": "Profundidad máxima de navegación (recomendado: 2). Profundidad 1 solo sigue enlaces de la home.",
+                "default": 2
+            },
+            "max_pages": {
+                "type": "integer",
+                "description": "Número máximo de páginas totales a leer (recomendado: 10-20 para no tardar mucho).",
+                "default": 10
+            }
+        },
+        "required": [
+            "url"
+        ]
+    },
+    "script": "import requests\nimport json\n\ndef recursive_scrape_tool(url: str, max_depth: int = 2, max_pages: int = 10) -> str:\n    \"\"\"\n    Llama al backend RAG para iniciar un crawling recursivo de la web especificada.\n    \"\"\"\n    payload = {\n        \"url\": url,\n        \"max_depth\": max_depth,\n        \"max_pages\": max_pages\n    }\n    \n    # La URL interna del backend dentro de la red Docker es http://rag-backend:8000\n    # Pero si OpenWebUI ejecuta esto, puede que necesite la URL accesible desde el contenedor de OpenWebUI.\n    # Asumimos que la tool corre en el contexto de OpenWebUI que tiene acceso a 'rag-backend'.\n    \n    api_url = \"http://rag-backend:8000/api/scrape/recursive\"\n    \n    try:\n        response = requests.post(api_url, json=payload, timeout=5)\n        if response.status_code == 200:\n            data = response.json()\n            return json.dumps(data, ensure_ascii=False)\n        else:\n            return f\"Error {response.status_code}: {response.text}\"\n    except Exception as e:\n        return f\"Error de conexión: {str(e)}\"\n"
+}

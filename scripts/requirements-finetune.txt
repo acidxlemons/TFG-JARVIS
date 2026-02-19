@@ -1,0 +1,25 @@
+# Fine-tuning dependencies for LoRA training
+# Install with: pip install -r scripts/requirements-finetune.txt
+
+# Core ML
+torch>=2.0.0
+transformers>=4.40.0
+
+# LoRA/PEFT
+peft>=0.10.0
+bitsandbytes>=0.43.0  # For 4-bit/8-bit quantization
+trl>=0.8.0            # Training utilities
+
+# Data handling
+datasets>=2.18.0
+
+# Acceleration
+accelerate>=0.28.0
+
+# NOTE: For GGUF conversion, use llama.cpp CLI instead of llama-cpp-python
+# (llama-cpp-python requires Visual Studio Build Tools on Windows)
+# Download llama.cpp from: https://github.com/ggerganov/llama.cpp/releases
+
+# Evaluation
+rouge-score>=0.1.2
+nltk>=3.8.0

@@ -1,0 +1,706 @@
+{
+    "id": null,
+    "uid": "storage-memory",
+    "title": "💾 Storage & Memory Usage",
+    "description": "Database storage, memory usage, and resource consumption by component",
+    "tags": [
+        "storage",
+        "memory",
+        "database"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 3,
+    "refresh": "30s",
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "panels": [
+        {
+            "id": 100,
+            "title": "📚 Guía de Componentes de Almacenamiento",
+            "type": "text",
+            "gridPos": {
+                "h": 5,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "options": {
+                "mode": "markdown",
+                "content": "## ¿Qué almacena cada componente?\n\n| Componente | Qué almacena | Escala con... | Tamaño típico |\n|------------|--------------|---------------|---------------|\n| **Qdrant** | Vectores de documentos (embeddings 384-dim) | Nº de chunks de documentos | ~1MB por cada 100 docs |\n| **PostgreSQL** | Conversaciones, usuarios, historial, estados | Nº de conversaciones | Crece lento (~1KB/conversación) |\n| **Redis** | Cache de respuestas LLM, tokens temporales | Requests repetidos | Auto-limpia (TTL 1h) |\n| **Backend** | 4 Workers Python (Modelos ML x4) | Fijo al iniciar | **40-50GB RAM** |\n| **Ollama** | Modelos LLM (llama3.1, llava) en GPU | Modelos descargados | 5-15GB VRAM |\n\n> **Nota**: El Backend Memory alto (45GB) es **NORMAL** con 4 workers (Production Mode)."
+            }
+        },
+        {
+            "id": 1,
+            "title": "🧠 Backend Memory",
+            "description": "Memoria RAM del proceso Python (4 Workers)",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 5
+            },
+            "targets": [
+                {
+                    "expr": "process_resident_memory_bytes{job=\"rag-backend\"}",
+                    "legendFormat": "RSS Memory",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "graphMode": "area"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "bytes",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 40000000000
+                            },
+                            {
+                                "color": "red",
+                                "value": 80000000000
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 2,
+            "title": "🗄️ Qdrant Memory",
+            "description": "Memoria usada por Qdrant para vectores",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 6,
+                "y": 5
+            },
+            "targets": [
+                {
+                    "expr": "memory_active_bytes{job=\"qdrant\"}",
+                    "legendFormat": "Active Memory",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "graphMode": "area"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "bytes",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 4000000000
+                            },
+                            {
+                                "color": "red",
+                                "value": 8000000000
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 3,
+            "title": "📊 Indexer Memory",
+            "description": "Memoria del indexer (OCR, procesamiento)",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 12,
+                "y": 5
+            },
+            "targets": [
+                {
+                    "expr": "process_resident_memory_bytes{job=\"rag-indexer\"}",
+                    "legendFormat": "Indexer RSS",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "graphMode": "area"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "bytes",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 4000000000
+                            },
+                            {
+                                "color": "red",
+                                "value": 8000000000
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 4,
+            "title": "⏱️ Backend Uptime",
+            "description": "Tiempo desde último reinicio",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 18,
+                "y": 5
+            },
+            "targets": [
+                {
+                    "expr": "time() - process_start_time_seconds{job=\"rag-backend\"}",
+                    "legendFormat": "Uptime",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "value",
+                "graphMode": "none"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "yellow",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 3600
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 5,
+            "title": "📈 Memoria Over Time",
+            "description": "Evolución de memoria (detecta memory leaks)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 9
+            },
+            "targets": [
+                {
+                    "expr": "process_resident_memory_bytes{job=\"rag-backend\"}",
+                    "legendFormat": "Backend",
+                    "refId": "A"
+                },
+                {
+                    "expr": "process_resident_memory_bytes{job=\"rag-indexer\"}",
+                    "legendFormat": "Indexer",
+                    "refId": "B"
+                },
+                {
+                    "expr": "memory_active_bytes{job=\"qdrant\"}",
+                    "legendFormat": "Qdrant",
+                    "refId": "C"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "fillOpacity": 15,
+                        "lineWidth": 2
+                    },
+                    "unit": "bytes",
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "min": 0,
+                    "max": 137438953472
+                }
+            }
+        },
+        {
+            "id": 6,
+            "title": "🗃️ Qdrant IO por Colección",
+            "description": "Bytes leídos/escritos por colección",
+            "type": "bargauge",
+            "gridPos": {
+                "h": 7,
+                "w": 6,
+                "x": 12,
+                "y": 9
+            },
+            "targets": [
+                {
+                    "expr": "collection_hardware_metric_payload_io_read",
+                    "legendFormat": "{{id}} reads",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "orientation": "horizontal",
+                "displayMode": "gradient",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "bytes",
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 7,
+            "title": "💡 Cuándo preocuparse [RTX 5090 Edition]",
+            "type": "text",
+            "gridPos": {
+                "h": 7,
+                "w": 6,
+                "x": 18,
+                "y": 9
+            },
+            "options": {
+                "mode": "markdown",
+                "content": "### ⚠️ Alertas:\n\n**Backend > 80GB**\n- Reiniciar backend\n\n**Memory creciendo**\n- Posible memory leak\n\n**GPU VRAM > 30GB**\n- Límite físico de RTX 5090\n\n---\n\n### ✅ Normal (Producción):\n- Backend: 40-50GB (4 Workers)\n- Indexer: 1-4GB\n- Qdrant: 100-500MB"
+            }
+        },
+        {
+            "id": 8,
+            "title": "🔄 CPU Usage",
+            "description": "Uso de CPU por proceso",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 6,
+                "w": 12,
+                "x": 0,
+                "y": 16
+            },
+            "targets": [
+                {
+                    "expr": "(sum(rate(process_cpu_seconds_total{job=\"rag-backend\"}[5m])) / 64) * 100",
+                    "legendFormat": "Backend CPU % (normalized)",
+                    "refId": "A"
+                },
+                {
+                    "expr": "(rate(process_cpu_seconds_total{job=\"rag-indexer\"}[5m]) / 64) * 100",
+                    "legendFormat": "Indexer CPU % (normalized)",
+                    "refId": "B"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "fillOpacity": 10
+                    },
+                    "unit": "percent",
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "min": 0,
+                    "max": 100
+                }
+            }
+        },
+        {
+            "id": 9,
+            "title": "📊 Qdrant Operations",
+            "description": "Operaciones realizadas en Qdrant",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 6,
+                "w": 12,
+                "x": 12,
+                "y": 16
+            },
+            "targets": [
+                {
+                    "expr": "rate(rest_responses_duration_seconds_count{job=\"qdrant\"}[5m])",
+                    "legendFormat": "{{method}} {{endpoint}}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": []
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "fillOpacity": 10
+                    },
+                    "unit": "reqps",
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "min": 0
+                }
+            }
+        },
+        {
+            "id": 10,
+            "title": "🐘 PostgreSQL & Redis",
+            "type": "text",
+            "gridPos": {
+                "h": 4,
+                "w": 12,
+                "x": 0,
+                "y": 22
+            },
+            "options": {
+                "mode": "markdown",
+                "content": "### 📊 Estado de Bases de Datos\n\n| BD | Puerto | Cómo verificar | Notas |\n|----|--------|----------------|-------|\n| **PostgreSQL** | 5432 | `docker compose exec rag-postgres psql -U rag -c \"SELECT pg_database_size('rag');\"` | Conversaciones, estados |\n| **Redis** | 6379 | `docker compose exec rag-redis redis-cli INFO memory` | Cache LLM, auto-limpia |\n\n> **Nota**: PostgreSQL y Redis no exponen métricas Prometheus por defecto. Usa los comandos para verificar."
+            }
+        },
+        {
+            "id": 11,
+            "title": "🎮 GPU Memory Usage",
+            "description": "VRAM usada por Ollama/CUDA",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 6,
+                "w": 12,
+                "x": 12,
+                "y": 22
+            },
+            "targets": [
+                {
+                    "expr": "DCGM_FI_DEV_FB_USED{job=\"dcgm-exporter\"}",
+                    "legendFormat": "GPU {{gpu}} Used (MB)",
+                    "refId": "A"
+                },
+                {
+                    "expr": "DCGM_FI_DEV_FB_FREE{job=\"dcgm-exporter\"} + DCGM_FI_DEV_FB_USED{job=\"dcgm-exporter\"}",
+                    "legendFormat": "GPU {{gpu}} Total (MB)",
+                    "refId": "B"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "fillOpacity": 20,
+                        "lineWidth": 2
+                    },
+                    "unit": "mbytes",
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "min": 0,
+                    "max": 34359738368
+                }
+            }
+        },
+        {
+            "id": 15,
+            "title": "💻 CPU Utilization %",
+            "description": "Uso total de CPU (normalizado a 12 cores)",
+            "type": "gauge",
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 0,
+                "y": 26
+            },
+            "targets": [
+                {
+                    "expr": "(sum(rate(process_cpu_seconds_total{job=\"rag-backend\"}[5m])) / 64) * 100",
+                    "legendFormat": "Total CPU %",
+                    "refId": "A",
+                    "instant": true
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 85
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 12,
+            "title": "🔥 GPU Utilization %",
+            "description": "Porcentaje de uso de GPU",
+            "type": "gauge",
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 6,
+                "y": 26
+            },
+            "targets": [
+                {
+                    "expr": "DCGM_FI_DEV_GPU_UTIL{job=\"dcgm-exporter\"}",
+                    "legendFormat": "GPU {{gpu}}",
+                    "refId": "A",
+                    "instant": true
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 13,
+            "title": "🌡️ GPU Temperature",
+            "description": "Temperatura de la GPU",
+            "type": "gauge",
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 6,
+                "y": 28
+            },
+            "targets": [
+                {
+                    "expr": "DCGM_FI_DEV_GPU_TEMP{job=\"dcgm-exporter\"}",
+                    "legendFormat": "GPU {{gpu}}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "celsius",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 85
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 14,
+            "title": "⚡ GPU Power Usage",
+            "description": "Consumo de energía de la GPU",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 6,
+                "w": 12,
+                "x": 12,
+                "y": 28
+            },
+            "targets": [
+                {
+                    "expr": "DCGM_FI_DEV_POWER_USAGE{job=\"dcgm-exporter\"}",
+                    "legendFormat": "GPU {{gpu}} Watts",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "fillOpacity": 15,
+                        "lineWidth": 2
+                    },
+                    "unit": "watt",
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "min": 0
+                }
+            }
+        }
+    ],
+    "templating": {
+        "list": []
+    }
+}

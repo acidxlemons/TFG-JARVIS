@@ -1,0 +1,4 @@
+  qdrant:
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./config/qdrant:/qdrant/config
