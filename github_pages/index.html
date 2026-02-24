@@ -84,50 +84,49 @@
                     classDef default fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
                     classDef model fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc,stroke-dasharray: 5 5;
                     classDef db fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc;
-                    classDef external fill:#334155,stroke:#cbd5e1,stroke-width:2px,color:#f8fafc;
+                    classDef external fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fff;
                     classDef monitor fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
 
-                    USER((Usuario)):::default -->|Azure AD SSO OIDC| NGINX[NGINX Reverse Proxy SSL 8443]
-                    NGINX --> OWUI[OpenWebUI Frontend]
-                    OWUI -->|HTTP REST| JARVIS{JARVIS Pipeline - Agente Enrutador Python}
+                    USER((Usuario)) -->|SSO Azure AD| NGINX[NGINX SSL :8443]
+                    NGINX --> OWUI[OpenWebUI]
+                    OWUI -->|REST| JARVIS{JARVIS Pipeline}
 
-                    JARVIS -->|Modo RAG / Search / Scrape| BACKEND[FastAPI Backend - Motor RAG Central]
+                    JARVIS -->|RAG / Search / Scrape| BACKEND[FastAPI Backend]
 
-                    BACKEND -->|Modo Web Search| DDG[DuckDuckGo HTML Scraper]:::external
-                    BACKEND -->|Modo Scraping URL| PW[Playwright Headless - Renderizado JS]
-                    PW -.->|Limpieza DOM| TRAF((Trafilatura + Readability Fallback)):::model
-                    BACKEND -.->|PDF Escaneado| OCR((PaddleOCR - OCR GPU CUDA)):::model
-                    BACKEND -->|Chunking Semantico| EMBED
+                    BACKEND --> DDG[DuckDuckGo]:::external
+                    BACKEND --> PW[Playwright]
+                    PW -.-> TRAF((Trafilatura)):::model
+                    BACKEND -.->|OCR| OCR((PaddleOCR GPU)):::model
+                    BACKEND --> EMBED
 
-                    INDEXER[Indexer API Worker - Cron Autonomo 5min] -->|Microsoft Graph API MSAL| SP[Microsoft
-                    SharePoint]:::external
-                    INDEXER -->|Nuevos Ficheros| BACKEND
+                    INDEXER[Indexer Cron 5min] -->|Graph API MSAL| SP[SharePoint]:::external
+                    INDEXER -->|Ficheros| BACKEND
 
-                    JARVIS -->|Modo Legal| MCP[FastMCP Server - Model Context Protocol]
-                    MCP -->|HTTP GET/POST| BOEAPI[API Datos Abiertos BOE]:::external
+                    JARVIS --> MCP[FastMCP BOE]
+                    MCP --> BOEAPI[API BOE]:::external
 
-                    JARVIS -->|Imagen Adjunta| VISION((qwen2.5vl 7b + llava 13b - Vision Multimodal)):::model
+                    JARVIS -->|Vision| VISION((Qwen2.5VL + LLaVA)):::model
 
-                    BACKEND -->|Vectores 384d HNSW| QDRANT[(Qdrant - DB Vectorial)]:::db
-                    BACKEND -->|Historial y Usuarios| PG[(PostgreSQL + pgvector)]:::db
-                    BACKEND -->|Cache TTL 1h| REDIS[(Redis - Respuestas en Memoria)]:::db
-                    BACKEND -->|Backup Objetos| MINIO[(MinIO S3 Storage)]:::db
+                    BACKEND --> QDRANT[(Qdrant)]:::db
+                    BACKEND --> PG[(PostgreSQL)]:::db
+                    BACKEND --> REDIS[(Redis)]:::db
+                    BACKEND --> MINIO[(MinIO S3)]:::db
 
-                    BACKEND --> LITELLM[LiteLLM Proxy - Router de Modelos]
-                    EMBED((paraphrase-multilingual-MiniLM-L12-v2 - Embeddings 384d)):::model
+                    BACKEND --> LITELLM[LiteLLM Proxy]
+                    EMBED((MiniLM-L12-v2 384d)):::model
                     LITELLM -.->|Embeddings| EMBED
-                    LITELLM -.->|Chat y RAG| LLM1((llama3.1 8b-instruct-q8_0 - LLaMA 3.1 Q8)):::model
-                    LITELLM -.->|Resumenes Rapidos| LLM2((llama3.1 8b-instruct-q4_0 - LLaMA 3.1 Q4)):::model
-                    LITELLM -.->|Respuestas Corporativas| LLM3((rag-qwen-ft latest - Qwen 2.5 Fine-Tuned LoRA)):::model
+                    LITELLM -.->|Chat| LLM1((LLaMA 3.1 8B Q8)):::model
+                    LITELLM -.->|Resumenes| LLM2((LLaMA 3.1 8B Q4)):::model
+                    LITELLM -.->|Corporativo| LLM3((Qwen 2.5 LoRA FT)):::model
 
-                    subgraph Observabilidad [Stack de Monitorizacion]
-                    PROM[Prometheus Metricas]:::monitor
-                    GRAF[Grafana Dashboards]:::monitor
-                    DCGM[NVIDIA DCGM Exporter - GPU VRAM]:::monitor
-                    PGADMIN[pgAdmin 4 - Auditoria SQL]:::monitor
+                    subgraph Observabilidad [Monitorizacion]
+                    GRAF[Grafana]:::monitor
+                    PROM[Prometheus]:::monitor
+                    DCGM[DCGM GPU]:::monitor
+                    PGADMIN[pgAdmin]:::monitor
                     GRAF -->|PromQL| PROM
-                    PROM -->|Scrapea GPU| DCGM
-                    PROM -->|Scrapea /metrics| BACKEND
+                    PROM --> DCGM
+                    PROM -->|/metrics| BACKEND
                     end
                 </div>
             </div>
