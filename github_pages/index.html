@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise RAG System - TFG</title>
+    <meta name="description" content="Sistema RAG Corporativo Inteligente - TFG Universidad Rey Juan Carlos">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">
+            <span class="gradient-text">RAG</span>System
+        </div>
+        <div class="nav-links">
+            <a href="#arquitectura" class="nav-link">Arquitectura</a>
+            <a href="#funcionalidades" class="nav-link">Capacidades</a>
+            <a href="#demo" class="nav-link">Demo</a>
+            <a href="https://github.com/acidxlemons/TFG-JARVIS" target="_blank" class="btn btn-outline">
+                <i class="fab fa-github"></i> Código
+            </a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Home Section -->
+        <section id="hero" class="hero">
+            <div class="hero-content">
+                <div class="badge glass-panel">
+                    <span class="pulse-dot"></span> TFG - Ing. Computadores
+                </div>
+                <h1 class="hero-title">
+                    Inteligencia Corporativa <br>
+                    <span class="gradient-text">Aumentada por Recuperación</span> (RAG)
+                </h1>
+                <p class="hero-subtitle">
+                    Transformando conocimiento base (SharePoint, Web, BOE e Imágenes) en respuestas accionables mediante Inteligencia Artificial local y Open Source.
+                </p>
+                <div class="hero-actions">
+                    <a href="#demo" class="btn btn-primary">Ver Demo <i class="fas fa-play ml-2"></i></a>
+                    <a href="#arquitectura" class="btn btn-secondary">Arquitectura Técnica</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="terminal-window glass-panel">
+                    <div class="terminal-header">
+                        <div class="terminal-dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="terminal-title">tfg-backend (8002)</span>
+                    </div>
+                    <div class="terminal-body" id="typewriter">
+                        <!-- JS Typewriter text -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Arquitectura Section -->
+        <section id="arquitectura" class="section">
+            <div class="section-header text-center">
+                <h2>Arquitectura del Sistema</h2>
+                <p class="text-muted">Despliegue 100% On-Premise. Privacidad asegurada.</p>
+            </div>
+            
+            <div class="grid cards-grid">
+                <div class="card glass-panel tilt-card">
+                    <div class="card-icon"><i class="fas fa-brain"></i></div>
+                    <h3>Modelos Locales</h3>
+                    <p>Uso eficiente de VRAM mediante Q8 y Q4 Quantization con herramientas como <strong>Ollama</strong> y <strong>LiteLLM</strong>. (Llama 3.1 & Qwen).</p>
+                </div>
+                
+                <div class="card glass-panel tilt-card">
+                    <div class="card-icon"><i class="fas fa-database"></i></div>
+                    <h3>Vector Store</h3>
+                    <p>Indexado e inferencia semántica optimizada usando <strong>Qdrant</strong> con modelos SentenceTransformer (MiniLM).</p>
+                </div>
+
+                <div class="card glass-panel tilt-card">
+                    <div class="card-icon"><i class="fas fa-robot"></i></div>
+                    <h3>Pipelines Dinámicos</h3>
+                    <p>Decisiones de enrutamiento automáticas detectando cuándo scrapear, cuándo buscar y cuándo invocar al RAG de la BD documental.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Funcionalidades -->
+        <section id="funcionalidades" class="section features-section">
+            <div class="feature-row">
+                <div class="feature-text">
+                    <h2 class="gradient-text">Conexiones Multicanal</h2>
+                    <p>Integración automática (Webhooks y Cronjobs) con Microsoft SharePoint extraída vía MSAL. Se complementa con Web Scraping recursivo renderizando JS a través de Playwright, y búsquedas en tiempo real en DuckDuckGo.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Sincronización Delta Incremental</li>
+                        <li><i class="fas fa-check-circle"></i> HTML a Texto Limpio (Deep Scraping)</li>
+                        <li><i class="fas fa-check-circle"></i> Extracción PaddleOCR para PDFs Escaneados</li>
+                    </ul>
+                </div>
+                <div class="feature-visual glass-panel">
+                    <div class="mock-data">
+                        <div class="log-line success">[✓] Conectado a SharePoint (Tenant X)</div>
+                        <div class="log-line info">[*] Detectados 45 nuevos documentos PDF</div>
+                        <div class="log-line info">[*] Executando OCR en GPU sobre 15 imágenes...</div>
+                        <div class="log-line success">[✓] Embeddings generados y cargados a Qdrant</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-row reverse">
+                <div class="feature-text">
+                    <h2 class="gradient-text">Consulta Jurídica Inteligente</h2>
+                    <p>Conexión directa vía <strong>Model Context Protocol (MCP)</strong> con la API nativa del BOE Español. Busca normativas consolidadas, resume legislación y analiza documentos.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Agente MCP FastMCP Nativo</li>
+                        <li><i class="fas fa-check-circle"></i> Resolución Semántica (e.g. "Ley de Datos" -> BOE-A-2018-16673)</li>
+                        <li><i class="fas fa-check-circle"></i> Summaries ejecutivos con Llama 3</li>
+                    </ul>
+                </div>
+                <div class="feature-visual glass-panel flex-center">
+                    <div class="boe-mockup">
+                        <i class="fas fa-balance-scale fa-4x text-accent"></i>
+                        <h4>BOE Explorer</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo / Vídeo Section -->
+        <section id="demo" class="section">
+            <div class="section-header text-center">
+                <h2>Demo Interactiva</h2>
+                <p class="text-muted">Revisa el vídeo descriptivo donde probamos todo el flujo funcional en OpenWebUI.</p>
+            </div>
+            <div class="video-container glass-panel">
+                <!-- Se recomienda usar de momento marco nativo o de Youtube (embed) -->
+                <div class="video-placeholder">
+                    <!-- Aquí se inyectará el video si lo facilitas, de momento mostramos un iframe con mensaje o marco vacío moderno -->
+                    <i class="fas fa-play-circle fa-5x"></i>
+                    <p class="mt-4">El vídeo de demostración se insertará aquí</p>
+                    <small>(Por defecto: Inserta tu enlace de Youtube/Vimeo en HTML)</small>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer glass-panel">
+        <div class="footer-content">
+            <div class="footer-left">
+                <h3>Enterprise RAG</h3>
+                <p>Trabajo de Fin de Grado</p>
+                <p>Universidad Rey Juan Carlos 2026</p>
+            </div>
+            <div class="footer-right">
+                <p>Autor: <strong>Ángel Ballesteros</strong></p>
+                <div class="social-links">
+                    <a href="https://github.com/acidxlemons" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
