@@ -80,6 +80,7 @@
                 style="margin-bottom: 3rem; padding: 2rem; border-radius: 16px; overflow-x: auto;">
                 <h3 class="text-center" style="margin-bottom: 1.5rem;">Ecosistema Lógico y Modelos de IA Usados</h3>
                 <div class="mermaid text-center" style="font-family: 'Inter', sans-serif;">
+                    %%{init: {'theme':'dark', 'themeVariables': {'clusterBkg':'#0f172a','clusterBorder':'#334155'}}}%%
                     graph TD
                     classDef default fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
                     classDef model fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc,stroke-dasharray: 5 5;
@@ -128,6 +129,24 @@
                     PROM --> DCGM
                     PROM -->|/metrics| BACKEND
                     end
+                </div>
+                <div
+                    style="display:flex; flex-wrap:wrap; justify-content:center; gap:1.5rem; margin-top:1.5rem; font-size:0.85rem;">
+                    <span style="display:flex; align-items:center; gap:0.4rem;"><span
+                            style="width:14px;height:14px;border-radius:3px;background:#1e293b;border:2px solid #3b82f6;display:inline-block;"></span>
+                        Microservicios Propios</span>
+                    <span style="display:flex; align-items:center; gap:0.4rem;"><span
+                            style="width:14px;height:14px;border-radius:3px;background:#7c2d12;border:2px solid #fb923c;display:inline-block;"></span>
+                        Servicios Externos</span>
+                    <span style="display:flex; align-items:center; gap:0.4rem;"><span
+                            style="width:14px;height:14px;border-radius:50%;background:#0f172a;border:2px dashed #10b981;display:inline-block;"></span>
+                        Modelos de IA</span>
+                    <span style="display:flex; align-items:center; gap:0.4rem;"><span
+                            style="width:14px;height:14px;border-radius:3px;background:#0f172a;border:2px solid #8b5cf6;display:inline-block;"></span>
+                        Bases de Datos</span>
+                    <span style="display:flex; align-items:center; gap:0.4rem;"><span
+                            style="width:14px;height:14px;border-radius:3px;background:#1e293b;border:2px solid #f59e0b;display:inline-block;"></span>
+                        Observabilidad</span>
                 </div>
             </div>
 
