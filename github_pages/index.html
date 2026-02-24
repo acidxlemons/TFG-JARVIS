@@ -87,44 +87,47 @@
                     classDef external fill:#334155,stroke:#cbd5e1,stroke-width:2px,color:#f8fafc;
                     classDef monitor fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
 
-                    USER((Usuario Corporativo)):::default -->|SSO Azure AD| NGINX[Nginx Reverse Proxy & SSL]
-                    NGINX -->|HTTPS 8443| UI[Frontend OpenWebUI]
-                    UI -->|Llamadas API REST| JARVIS{Agente Enrutador JARVIS<br />Pipeline Python}
+                    USER((Usuario)):::default -->|Azure AD SSO OIDC| NGINX[NGINX Reverse Proxy SSL 8443]
+                    NGINX --> OWUI[OpenWebUI Frontend]
+                    OWUI -->|HTTP REST| JARVIS{JARVIS Pipeline - Agente Enrutador Python}
 
-                    %% Rutas de Extracción y Búsqueda
-                    JARVIS -->|Búsqueda Perimetral| SEARCH[Motor de Búsqueda<br />DuckDuckGo / SearXNG]:::external
-                    JARVIS -->|Extracción Web Dinámica| SCRAPER[Playwright Headless]
-                    SCRAPER -.->|Filtrado de Ruido HTML| M1((Algoritmo NLP<br />Trafilatura / Readability)):::model
+                    JARVIS -->|Modo Web Search| DDG[DuckDuckGo HTML Scraper]:::external
+                    JARVIS -->|Modo Scraping URL| PW[Playwright Headless - Renderizado JS]
+                    PW -.->|Limpieza DOM| TRAF((Trafilatura + Readability Fallback)):::model
 
-                    %% Rutas Documentales
-                    JARVIS -->|Sincronización Cron| INDEXER[Python Indexer API Worker]
-                    INDEXER -->|MSAL OAuth| SP[Microsoft SharePoint Site]:::external
-                    INDEXER -.->|Extracción de Imágenes| M2((Modelo OCR por GPU<br />PaddleOCR)):::model
+                    JARVIS -->|Modo RAG| BACKEND[FastAPI Backend - Motor RAG Central]
+                    BACKEND -->|Chunking Semantico| EMBED
+                    BACKEND -.->|PDF Escaneado| OCR((PaddleOCR - OCR GPU CUDA)):::model
 
-                    %% Rutas de Persistencia
-                    JARVIS -->|Incrustaciones Vectoriales| QDRANT[(Vector DB Qdrant)]:::db
-                    JARVIS -->|Trazabilidad y Conversaciones| PG[(PostgreSQL + pgvector)]:::db
-                    JARVIS -->|Aligeramiento de Carga| REDIS[(Cache Rápida Redis TTL)]:::db
+                    INDEXER[Indexer API Worker - Cron 5min]:::external -->|Microsoft Graph API MSAL| SP[Microsoft
+                    SharePoint]:::external
+                    INDEXER -->|Nuevos Ficheros| BACKEND
 
-                    %% Rutas LLM
-                    JARVIS --> |Delegación de Razonamiento| LITELLM[LiteLLM Proxy Endpoint]
-                    LITELLM -.-> |Cálculo RAG Semántico| M3((Modelo Semántico<br />MiniLM L6-v2)):::model
-                    LITELLM -.-> |Lógica Básica| M4((LLM Cuantizado Q8<br />Meta LLaMA 3.1 8B)):::model
-                    LITELLM -.-> |Lógica Adaptada al Negocio| M5((LLM Fine-Tuned<br />Adaptación de Pesos LoRA)):::model
+                    JARVIS -->|Modo Legal| MCP[FastMCP Server - Model Context Protocol]
+                    MCP -->|HTTP GET/POST| BOEAPI[API Datos Abiertos BOE]:::external
 
-                    %% Ruta BOE
-                    JARVIS -->|Consulta Legal| MCP[FastMCP BOE Server]
-                    MCP -->|Peticiones GET/POST| BOE[API Abierta del BOE]:::external
+                    JARVIS -->|Imagen Adjunta| VISION((qwen2.5vl 7b + llava 13b - Vision Multimodal)):::model
 
-                    %% Monitorización
-                    subgraph Telemetría [Stack de Observabilidad y Métricas]
-                    PROM[Prometheus Server]:::monitor
+                    BACKEND -->|Vectores 384d HNSW| QDRANT[(Qdrant - DB Vectorial)]:::db
+                    BACKEND -->|Historial y Usuarios| PG[(PostgreSQL + pgvector)]:::db
+                    BACKEND -->|Cache TTL 1h| REDIS[(Redis - Respuestas en Memoria)]:::db
+                    BACKEND -->|Backup Objetos| MINIO[(MinIO S3 Storage)]:::db
+
+                    BACKEND --> LITELLM[LiteLLM Proxy - Router de Modelos]
+                    EMBED((paraphrase-multilingual-MiniLM-L12-v2 - Embeddings 384d)):::model
+                    LITELLM -.->|Embeddings| EMBED
+                    LITELLM -.->|Chat y RAG| LLM1((llama3.1 8b-instruct-q8_0 - LLaMA 3.1 Q8)):::model
+                    LITELLM -.->|Resumenes Rapidos| LLM2((llama3.1 8b-instruct-q4_0 - LLaMA 3.1 Q4)):::model
+                    LITELLM -.->|Respuestas Corporativas| LLM3((rag-qwen-ft latest - Qwen 2.5 Fine-Tuned LoRA)):::model
+
+                    subgraph Observabilidad [Stack de Monitorizacion]
+                    PROM[Prometheus Metricas]:::monitor
                     GRAF[Grafana Dashboards]:::monitor
-                    DCGM[NVIDIA DCGM Exporter]:::monitor
-
-                    GRAF -->|Consulta| PROM
+                    DCGM[NVIDIA DCGM Exporter - GPU VRAM]:::monitor
+                    PGADMIN[pgAdmin 4 - Auditoria SQL]:::monitor
+                    GRAF -->|PromQL| PROM
                     PROM -->|Scrapea GPU| DCGM
-                    PROM -->|Scrapea Backend| JARVIS
+                    PROM -->|Scrapea /metrics| BACKEND
                     end
                 </div>
             </div>
