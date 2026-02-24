@@ -84,24 +84,48 @@
                     classDef default fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
                     classDef model fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc,stroke-dasharray: 5 5;
                     classDef db fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc;
+                    classDef external fill:#334155,stroke:#cbd5e1,stroke-width:2px,color:#f8fafc;
+                    classDef monitor fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
 
-                    UI[Frontend OpenWebUI] -->|API REST HTTP| JARVIS{Pipeline RAG Engine}
+                    USER((Usuario Corporativo)):::default -->|SSO Azure AD| NGINX[Nginx Reverse Proxy & SSL]
+                    NGINX -->|HTTPS 8443| UI[Frontend OpenWebUI]
+                    UI -->|Llamadas API REST| JARVIS{Agente Enrutador JARVIS<br />Pipeline Python}
 
-                    JARVIS -->|1. Extracción Web| SCRAPER[Playwright Headless]
-                    SCRAPER -.->|Filtrado NLP| M1((Algoritmo Textual<br />Trafilatura)):::model
+                    %% Rutas de Extracción y Búsqueda
+                    JARVIS -->|Búsqueda Perimetral| SEARCH[Motor de Búsqueda<br />DuckDuckGo / SearXNG]:::external
+                    JARVIS -->|Extracción Web Dinámica| SCRAPER[Playwright Headless]
+                    SCRAPER -.->|Filtrado de Ruido HTML| M1((Algoritmo NLP<br />Trafilatura / Readability)):::model
 
-                    JARVIS -->|2. Ingesta Continua| INDEXER[Python Indexer API]
-                    INDEXER -.->|Reconocimiento de Imagen| M2((Modelo OCR por GPU<br />PaddleOCR)):::model
+                    %% Rutas Documentales
+                    JARVIS -->|Sincronización Cron| INDEXER[Python Indexer API Worker]
+                    INDEXER -->|MSAL OAuth| SP[Microsoft SharePoint Site]:::external
+                    INDEXER -.->|Extracción de Imágenes| M2((Modelo OCR por GPU<br />PaddleOCR)):::model
 
-                    JARVIS -->|3. Memoria Vectorial| QDRANT[(Vector DB Qdrant)]:::db
-                    JARVIS -->|4. Memoria Relacional| PG[(PostgreSQL)]:::db
+                    %% Rutas de Persistencia
+                    JARVIS -->|Incrustaciones Vectoriales| QDRANT[(Vector DB Qdrant)]:::db
+                    JARVIS -->|Trazabilidad y Conversaciones| PG[(PostgreSQL + pgvector)]:::db
+                    JARVIS -->|Aligeramiento de Carga| REDIS[(Cache Rápida Redis TTL)]:::db
 
-                    JARVIS --> |5. Generación de Respuestas| LITELLM[LiteLLM Proxy Endpoint]
+                    %% Rutas LLM
+                    JARVIS --> |Delegación de Razonamiento| LITELLM[LiteLLM Proxy Endpoint]
+                    LITELLM -.-> |Cálculo RAG Semántico| M3((Modelo Semántico<br />MiniLM L6-v2)):::model
+                    LITELLM -.-> |Lógica Básica| M4((LLM Cuantizado Q8<br />Meta LLaMA 3.1 8B)):::model
+                    LITELLM -.-> |Lógica Adaptada al Negocio| M5((LLM Fine-Tuned<br />Adaptación de Pesos LoRA)):::model
 
-                    LITELLM -.-> |Cálculo de Embeddings| M3((Modelo Semántico<br />MiniLM L6-v2)):::model
-                    LITELLM -.-> |Razonamiento y Lógica Legal| M4((LLM Cuantizado<br />Meta LLaMA 3.1 8B)):::model
+                    %% Ruta BOE
+                    JARVIS -->|Consulta Legal| MCP[FastMCP BOE Server]
+                    MCP -->|Peticiones GET/POST| BOE[API Abierta del BOE]:::external
 
-                    JARVIS -->|6. Búsqueda Jurídica| MCP[FastMCP BOE Server]
+                    %% Monitorización
+                    subgraph Telemetría [Stack de Observabilidad y Métricas]
+                    PROM[Prometheus Server]:::monitor
+                    GRAF[Grafana Dashboards]:::monitor
+                    DCGM[NVIDIA DCGM Exporter]:::monitor
+
+                    GRAF -->|Consulta| PROM
+                    PROM -->|Scrapea GPU| DCGM
+                    PROM -->|Scrapea Backend| JARVIS
+                    end
                 </div>
             </div>
 
