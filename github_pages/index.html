@@ -78,22 +78,30 @@
             </div>
             <div class="architecture-diagram glass-panel"
                 style="margin-bottom: 3rem; padding: 2rem; border-radius: 16px; overflow-x: auto;">
-                <h3 class="text-center" style="margin-bottom: 1.5rem;">Diagrama de Flujo Lógico</h3>
-                <div class="mermaid text-center">
+                <h3 class="text-center" style="margin-bottom: 1.5rem;">Ecosistema Lógico y Modelos de IA Usados</h3>
+                <div class="mermaid text-center" style="font-family: 'Inter', sans-serif;">
                     graph TD
-                    classDef darkBg fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
-                    classDef lightBg fill:#0f172a,stroke:#06b6d4,stroke-width:2px,color:#f8fafc;
+                    classDef default fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+                    classDef model fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc,stroke-dasharray: 5 5;
+                    classDef db fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc;
 
-                    A[OpenWebUI Frontend]:::darkBg -->|HTTPS| B(Nginx Proxy):::lightBg
-                    B --> C{JARVIS Pipeline}:::darkBg
-                    C -->|Modo RAG| D[FastAPI Backend]:::lightBg
-                    C -->|Modo Scraping| E[Web Extractor]:::lightBg
-                    C -->|Modo Legal| F[MCP BOE Server]:::lightBg
+                    UI[Frontend OpenWebUI] -->|API REST HTTP| JARVIS{Pipeline RAG Engine}
 
-                    D --> G[(Qdrant Vectores)]:::darkBg
-                    D --> H[(PostgreSQL Memoria)]:::darkBg
-                    D --> I[LiteLLM Router]:::lightBg
-                    I --> J[Ollama LLaMA 3.1]:::darkBg
+                    JARVIS -->|1. Extracción Web| SCRAPER[Playwright Headless]
+                    SCRAPER -.->|Filtrado NLP| M1((Algoritmo Textual<br />Trafilatura)):::model
+
+                    JARVIS -->|2. Ingesta Continua| INDEXER[Python Indexer API]
+                    INDEXER -.->|Reconocimiento de Imagen| M2((Modelo OCR por GPU<br />PaddleOCR)):::model
+
+                    JARVIS -->|3. Memoria Vectorial| QDRANT[(Vector DB Qdrant)]:::db
+                    JARVIS -->|4. Memoria Relacional| PG[(PostgreSQL)]:::db
+
+                    JARVIS --> |5. Generación de Respuestas| LITELLM[LiteLLM Proxy Endpoint]
+
+                    LITELLM -.-> |Cálculo de Embeddings| M3((Modelo Semántico<br />MiniLM L6-v2)):::model
+                    LITELLM -.-> |Razonamiento y Lógica Legal| M4((LLM Cuantizado<br />Meta LLaMA 3.1 8B)):::model
+
+                    JARVIS -->|6. Búsqueda Jurídica| MCP[FastMCP BOE Server]
                 </div>
             </div>
 
@@ -179,11 +187,16 @@
                         <li><i class="fas fa-check-circle"></i> Control de carga GPU y VRAM (DCGM Exporter)</li>
                     </ul>
                 </div>
-                <div class="feature-visual glass-panel flex-center">
-                    <div class="boe-mockup">
-                        <i class="fas fa-chart-line fa-4x" style="color: #10b981; margin-bottom: 1rem;"></i>
-                        <h4>Grafana Telemetry</h4>
-                    </div>
+                <div class="feature-visual glass-panel flex-center"
+                    style="flex-direction: column; text-align: center; padding: 2rem;">
+                    <!-- Caja preparada como Placeholder para un Video/GIF -->
+                    <i class="fas fa-chart-line fa-4x" style="color: #10b981; margin-bottom: 1rem;"></i>
+                    <h4 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Dashboard NVIDIA & Grafana</h4>
+                    <p class="text-muted" style="font-size: 0.9rem; margin-top: 1rem; line-height: 1.5;">
+                        <em>(Sustituye esta tarjeta HTML por un <code>&lt;img src="tu_gif.gif"&gt;</code> o un
+                            <code>&lt;iframe&gt;</code> de Youtube donde muestres en movimiento el panel de telemetría
+                            de Grafana y el consumo en vivo)</em>
+                    </p>
                 </div>
             </div>
         </section>
