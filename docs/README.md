@@ -58,10 +58,10 @@ Bienvenido a la documentación del sistema. Esta guía te ayudará a encontrar l
 
 ## 🔗 Enlaces Rápidos
 
-- **Interfaz de Chat**: `http://localhost:3000`
-- **Grafana (Monitoreo)**: `http://localhost:3001`
-- **API Backend**: `http://localhost:8000/docs`
-- **Qdrant Dashboard**: `http://localhost:6333/dashboard`
+- **Interfaz de Chat**: `http://localhost:3002`
+- **Grafana (Monitoreo)**: `http://localhost:3003`
+- **API Backend**: `http://localhost:8002/docs`
+- **Qdrant Dashboard**: `http://localhost:6335/dashboard`
 
 ---
 

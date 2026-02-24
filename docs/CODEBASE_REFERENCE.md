@@ -171,20 +171,20 @@ Define los 14 microservicios:
 
 | Servicio | Puerto | Descripción |
 |----------|--------|-------------|
-| `nginx` | 443, 80 | Reverse proxy + SSL |
-| `openwebui` | 3000 | Interfaz de chat |
-| `rag-backend` | 8000 | API principal |
-| `mcp-boe` | 8010 | Servidor MCP |
-| `qdrant` | 6333 | Base de datos vectorial |
-| `postgres` | 5432 | Metadatos y usuarios |
-| `redis` | 6379 | Cache |
-| `litellm` | 4000 | Proxy de LLMs |
-| `ollama` | 11434 | Servidor de modelos |
-| `indexer` | 8001 | Sincronización |
-| `prometheus` | 9090 | Métricas |
-| `grafana` | 3001 | Dashboards |
-| `minio` | 9000 | Almacenamiento S3 |
-| `dcgm-exporter` | 9400 | Métricas GPU |
+| `nginx` | 8443, 80 | Reverse proxy + SSL |
+| `openwebui` | 3002 | Interfaz de chat |
+| `tfg-backend` | 8002 | API principal |
+| `mcp-boe` | 8011 | Servidor MCP |
+| `qdrant` | 6335 | Base de datos vectorial |
+| `postgres` | 5433 | Metadatos y usuarios |
+| `redis` | 6380 | Cache |
+| `litellm` | 4001 | Proxy de LLMs |
+| `ollama` | 11435 | Servidor de modelos |
+| `indexer` | 8003 | Sincronización |
+| `prometheus` | 9091 | Métricas |
+| `grafana` | 3003 | Dashboards |
+| `minio` | 9002 | Almacenamiento S3 |
+| `dcgm-exporter` | 9401 | Métricas GPU |
 
 ---
 

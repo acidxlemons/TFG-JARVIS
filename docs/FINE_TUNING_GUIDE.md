@@ -81,7 +81,7 @@ Cualquier ingeniero puede replicar esto siguiendo estos comandos.
 Asegúrate de que Docker está corriendo.
 ```powershell
 docker ps
-# Debes ver rag-backend, rag-indexer, rag-qdrant, rag-ollama...
+# Debes ver tfg-backend, tfg-indexer, tfg-qdrant, tfg-ollama...
 ```
 
 ### Paso 1: Generar "El Examen" (Dataset)
@@ -100,15 +100,15 @@ Ejecutamos el entrenamiento dentro del contenedor Docker (donde están las libre
 
 1. **Copiar** el dataset y el script al contenedor:
 ```powershell
-docker cp data/finetune_dataset_new_embeddings.json rag-backend:/workspace/
-docker cp scripts/finetune_embeddings_v2.py rag-backend:/workspace/
+docker cp data/finetune_dataset_new_embeddings.json tfg-backend:/workspace/
+docker cp scripts/finetune_embeddings_v2.py tfg-backend:/workspace/
 ```
 
 2. **Ejecutar** el entrenamiento:
    - `--epochs 3`: Número de pasadas completas por los datos.
    - `--cpu`: Fuerza uso de CPU (necesario si la GPU no es compatible con la versión de PyTorch actual).
 ```powershell
-docker exec rag-backend python3 /workspace/finetune_embeddings_v2.py --epochs 3 --dataset /workspace/finetune_dataset_new_embeddings.json --output /workspace/models/finetuned_embeddings --cpu
+docker exec tfg-backend python3 /workspace/finetune_embeddings_v2.py --epochs 3 --dataset /workspace/finetune_dataset_new_embeddings.json --output /workspace/models/finetuned_embeddings --cpu
 ```
 
 ### Paso 3: Desplegar y Re-Indexar
@@ -116,15 +116,15 @@ Una vez entrenado, aplicamos los cambios.
 
 1. **Guardar** el modelo en tu máquina local (por seguridad):
 ```powershell
-docker cp rag-backend:/workspace/models/finetuned_embeddings models/
+docker cp tfg-backend:/workspace/models/finetuned_embeddings models/
 ```
 
 2. **Limpiar** la base de datos antigua (Opcional pero recomendado para limpieza):
 ```powershell
 # Borra las colecciones actuales
-Invoke-RestMethod -Method Delete -Uri "http://localhost:6333/collections/documents"
-Invoke-RestMethod -Method Delete -Uri "http://localhost:6333/collections/documents_CALIDAD"
-Invoke-RestMethod -Method Delete -Uri "http://localhost:6333/collections/documents_deptA"
+Invoke-RestMethod -Method Delete -Uri "http://localhost:6335/collections/documents"
+Invoke-RestMethod -Method Delete -Uri "http://localhost:6335/collections/documents_CALIDAD"
+Invoke-RestMethod -Method Delete -Uri "http://localhost:6335/collections/documents_deptA"
 
 # Borra los marcadores de sincronización para obligar a re-leer todo
 Remove-Item -Force data\watch\.delta_*.txt -ErrorAction SilentlyContinue
@@ -134,13 +134,13 @@ Remove-Item -Force data\watch\.synced_* -ErrorAction SilentlyContinue
 3. **Reiniciar** servicios para aplicar el nuevo modelo:
    Asegúrate de que en `.env` tengas `EMBEDDING_MODEL=/workspace/models/finetuned_embeddings`.
 ```powershell
-docker compose restart rag-backend indexer
+docker compose restart tfg-backend indexer
 ```
 
 4. **Forzar Inicio de Indexación**:
    El indexer comenzará a trabajar. Puedes acelerarlo forzando un escaneo:
 ```powershell
-Invoke-RestMethod -Method Post -Uri "http://localhost:8001/scan"
+Invoke-RestMethod -Method Post -Uri "http://localhost:8003/scan"
 ```
 
 ---

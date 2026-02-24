@@ -126,10 +126,10 @@ Cuando se sube un PDF **escaneado** (sin texto seleccionable) directamente en el
 
 ## 🧩 Componentes Detallados
 
-### 1. Backend (rag-backend)
+### 1. Backend (tfg-backend)
 
 **Tecnología**: FastAPI + Uvicorn  
-**Puerto**: 8000  
+**Puerto**: 8002  
 **Lenguaje**: Python 3.11  
 **Responsabilidades**: Core logic, RAG, OCR, Web scraping
 
@@ -218,7 +218,7 @@ configs/
 **ChatRequest**:
 ```python
 class ChatRequest(BaseModel):
-    message: str = Field(..., min_length=1, max_length=4000)
+    message: str = Field(..., min_length=1, max_length=4001)
     conversation_id: Optional[int] = None
     user_id: Optional[int] = None
     azure_id: Optional[str] = None
@@ -395,8 +395,8 @@ GET /web-search?q=significado+nombre+Orla
 ```python
 class Pipeline:
     class Valves(BaseModel):
-        BACKEND_URL: str = "http://rag-backend:8000"
-        LITELLM_URL: str = "http://litellm:4000"
+        BACKEND_URL: str = "http://tfg-backend:8002"
+        LITELLM_URL: str = "http://litellm:4001"
         DEBUG_MODE: bool = True
         TEXT_MODEL: str = "llama3.1-8b"
         VISION_MODEL: str = "llava"
@@ -448,7 +448,7 @@ class Pipeline:
 
 ### 3. LiteLLM Proxy
 
-**Puerto**: 4000  
+**Puerto**: 4001  
 **Framework**: LiteLLM  
 **Responsabilidad**: Router unificado para múltiples LLM providers
 
@@ -460,7 +460,7 @@ model_list:
   - model_name: llama3.1-8b
     litellm_params:
       model: ollama/llama3.1:8b-instruct-q8_0
-      api_base: http://ollama:11434
+      api_base: http://ollama:11435
       temperature: 0.7
       max_tokens: 4096
       top_p: 0.9
@@ -475,7 +475,7 @@ model_list:
   - model_name: llava
     litellm_params:
       model: ollama/llava:13b
-      api_base: http://ollama:11434
+      api_base: http://ollama:11435
       temperature: 0.3
       max_tokens: 2048
       stream: true
@@ -488,7 +488,7 @@ model_list:
   - model_name: llama3.1-summarize
     litellm_params:
       model: ollama/llama3.1:8b-instruct-q4_0
-      api_base: http://ollama:11434
+      api_base: http://ollama:11435
       temperature: 0.5
       max_tokens: 1024
       stream: false
@@ -498,7 +498,7 @@ litellm_settings:
   cache_params:
     type: redis
     host: redis
-    port: 6379
+    port: 6380
   
   rpm: 100              # Requests per minute
   tpm: 50000            # Tokens per minute
@@ -532,7 +532,7 @@ router_settings:
 
 ### 4. Qdrant (Vector Database)
 
-**Puerto**: 6333 (HTTP), 6334 (gRPC)  
+**Puerto**: 6335 (HTTP), 6336 (gRPC)  
 **Versión**: latest  
 **Responsabilidad**: Almacenamiento y búsqueda de vectores
 
@@ -619,7 +619,7 @@ combined = rerank(dense_results, sparse_results)
 
 ### 5. PostgreSQL (Memory Store)
 
-**Puerto**: 5432  
+**Puerto**: 5433  
 **Imagen**: pgvector/pgvector:pg16  
 **Responsabilidad**: Memoria conversacional, metadatos
 
@@ -684,7 +684,7 @@ class MemoryManager:
 
 ### 6. Ollama (LLM Runtime)
 
-**Puerto**: 11434  
+**Puerto**: 11435  
 **GPU**: NVIDIA CUDA required  
 **Responsabilidad**: Ejecutar modelos de lenguaje localmente
 
@@ -1050,7 +1050,7 @@ python-json-logger==2.0.7
 
 ### 1. Nivel de Transporte (HTTPS)
 El sistema utiliza **Nginx** como Reverse Proxy para la terminación SSL.
-- **Protocolo**: HTTPS (Puerto 443).
+- **Protocolo**: HTTPS (Puerto 8443).
 - **Certificados**: Autofirmados (generados para IP `YOUR_SERVER_IP`).
 - **Headers**: `X-Forwarded-Proto: https` inyectado para downstream apps.
 
@@ -1070,8 +1070,8 @@ La autenticación de usuarios se delega en **Microsoft Entra ID (Azure AD)**.
   - *Implementado mediante Metadata Filters en Qdrant.*
 
 ### 4. Aislamiento de Red
-- **Docker Network**: `rag-network` (bridge).
-- **Exposición**: Solo Nginx (443/80) y PostgreSQL (5432, solo local) exponen puertos. El resto de servicios (Ollama, Backend) son internos.
+- **Docker Network**: `tfg-network` (bridge).
+- **Exposición**: Solo Nginx (8443/80) y PostgreSQL (5433, solo local) exponen puertos. El resto de servicios (Ollama, Backend) son internos.
 
 ### Multi-Tenancy
 
@@ -1130,7 +1130,7 @@ def get_user_from_token(token: str) -> Dict:
                          ┌─────────────────┐
     Internet ──┬──────►  │     Nginx       │
                │         │ (Reverse Proxy) │
-               │         │   :80 / :443    │
+               │         │   :8080 / :8443    │
                │         └────────┬────────┘
                │                  │
                │    ┌─────────────┼───────────────┐
@@ -1138,7 +1138,7 @@ def get_user_from_token(token: str) -> Dict:
                ▼    ▼             ▼               ▼
         ┌──────────┐  ┌──────────────┐  ┌──────────────┐
         │ OpenWebUI│  │   Backend    │  │   LiteLLM    │
-        │   :3000  │  │    :8000     │  │    :4000     │
+        │   :3002  │  │    :8002     │  │    :4001     │
         └──────────┘  └──────────────┘  └──────────────┘
 ```
 
@@ -1164,11 +1164,11 @@ docker run --rm -v ${PWD}/config/nginx/ssl:/ssl alpine/openssl \
 | Puerto | Servicio | Protocolo |
 |--------|----------|-----------|
 | 80 | Nginx HTTP | HTTP → HTTPS redirect |
-| 443 | Nginx HTTPS | SSL/TLS |
-| 3000 | OpenWebUI (directo) | HTTP |
-| 8000 | Backend API (directo) | HTTP |
+| 8443 | Nginx HTTPS | SSL/TLS |
+| 3002 | OpenWebUI (directo) | HTTP |
+| 8002 | Backend API (directo) | HTTP |
 
-> **Nota**: En producción, exponer solo puertos 80/443 via nginx.
+> **Nota**: En producción, exponer solo puertos 80/8443 via nginx.
 
 ---
 
@@ -1191,8 +1191,8 @@ docker run --rm -v ${PWD}/config/nginx/ssl:/ssl alpine/openssl \
 ```yaml
 # docker-compose.yml (ejemplo con réplicas)
 services:
-  rag-backend:
-    image: rag-backend:latest
+  tfg-backend:
+    image: tfg-backend:latest
     deploy:
       replicas: 3  # 3 instancias
       resources:
@@ -1205,13 +1205,13 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     ports:
-      - "80:80"
+      - "80:8080"
 ```
 
 **nginx.conf**:
 ```nginx
 upstream backend {
-    server rag-backend:8000 weight=1;
+    server tfg-backend:8002 weight=1;
     # Si hay múltiples réplicas, Docker DNS hace round-robin
 }
 
@@ -1263,7 +1263,7 @@ server {
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    CAPA DE VISUALIZACIÓN                             │
 │  ┌───────────────────────────────────────────────────────────────┐  │
-│  │                      GRAFANA (3001)                            │  │
+│  │                      GRAFANA (3003)                            │  │
 │  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐  │  │
 │  │  │  Backend   │ │  Qdrant    │ │  Requests  │ │   Memory   │  │  │
 │  │  │  Status    │ │  Status    │ │    /sec    │ │   Usage    │  │  │
@@ -1275,12 +1275,12 @@ server {
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    CAPA DE MÉTRICAS                                  │
 │  ┌───────────────────────────────────────────────────────────────┐  │
-│  │                    PROMETHEUS (9090)                           │  │
+│  │                    PROMETHEUS (9091)                           │  │
 │  │                                                                │  │
 │  │  Scrape Jobs:                                                  │  │
-│  │  • rag-backend:8000/metrics  (cada 10s)                       │  │
-│  │  • qdrant:6333/metrics       (cada 30s)                       │  │
-│  │  • prometheus:9090/metrics   (cada 15s)                       │  │
+│  │  • tfg-backend:8002/metrics  (cada 10s)                       │  │
+│  │  • qdrant:6335/metrics       (cada 30s)                       │  │
+│  │  • prometheus:9091/metrics   (cada 15s)                       │  │
 │  │                                                                │  │
 │  │  Storage: 15 días retención                                   │  │
 │  └───────────────────────────────────────────────────────────────┘  │
@@ -1291,7 +1291,7 @@ server {
 │                    CAPA DE APLICACIÓN                                │
 │                                                                      │
 │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐   │
-│  │   rag-backend    │  │     qdrant       │  │    prometheus    │   │
+│  │   tfg-backend    │  │     qdrant       │  │    prometheus    │   │
 │  │   GET /metrics   │  │   GET /metrics   │  │   GET /metrics   │   │
 │  │                  │  │                  │  │                  │   │
 │  │ • http_requests  │  │ • collections    │  │ • scrape_dur     │   │
@@ -1362,16 +1362,16 @@ global:
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['localhost:9091']
 
-  - job_name: 'rag-backend'
+  - job_name: 'tfg-backend'
     static_configs:
-      - targets: ['rag-backend:8000']
+      - targets: ['tfg-backend:8002']
     scrape_interval: 10s
 
   - job_name: 'qdrant'
     static_configs:
-      - targets: ['qdrant:6333']
+      - targets: ['qdrant:6335']
     scrape_interval: 30s
 ```
 
@@ -1381,15 +1381,15 @@ El dashboard `JARVIS RAG System` contiene:
 
 | Panel | Query PromQL | Tipo |
 |-------|-------------|------|
-| Backend Status | `up{job="rag-backend"}` | Stat |
+| Backend Status | `up{job="tfg-backend"}` | Stat |
 | Qdrant Status | `up{job="qdrant"}` | Stat |
 | Prometheus Status | `up{job="prometheus"}` | Stat |
-| Total Requests | `sum(http_requests_total{job="rag-backend"})` | Stat |
+| Total Requests | `sum(http_requests_total{job="tfg-backend"})` | Stat |
 | Requests/s | `sum(rate(http_requests_total[1m])) by (endpoint)` | Time Series |
 | Latency p50/p95 | `histogram_quantile(0.95, ...)` | Time Series |
-| Memory | `process_resident_memory_bytes{job="rag-backend"}` | Stat |
-| CPU Time | `process_cpu_seconds_total{job="rag-backend"}` | Stat |
-| Open Files | `process_open_fds{job="rag-backend"}` | Stat |
+| Memory | `process_resident_memory_bytes{job="tfg-backend"}` | Stat |
+| CPU Time | `process_cpu_seconds_total{job="tfg-backend"}` | Stat |
+| Open Files | `process_open_fds{job="tfg-backend"}` | Stat |
 
 ### Instrumentación del Backend
 
@@ -1452,21 +1452,21 @@ async def track_requests(request: Request, call_next):
 │                        INTERNET                                   │
 └───────────────────────────┬──────────────────────────────────────┘
                             │
-                            ▼ HTTPS (443)
+                            ▼ HTTPS (8443)
 ┌───────────────────────────────────────────────────────────────────┐
 │                         NGINX                                      │
 │                    (Reverse Proxy + SSL)                           │
 │                                                                    │
 │  ┌─────────────────────────────────────────────────────────────┐  │
-│  │ location / → proxy_pass http://openwebui:3000               │  │
-│  │ location /api/ → proxy_pass http://rag-backend:8000         │  │
+│  │ location / → proxy_pass http://openwebui:3002               │  │
+│  │ location /api/ → proxy_pass http://tfg-backend:8002         │  │
 │  │ SSL: config/nginx/ssl/cert.pem + key.pem                    │  │
 │  └─────────────────────────────────────────────────────────────┘  │
 └───────────────────┬─────────────────────────┬────────────────────┘
                     │                         │
           ┌─────────▼─────────┐     ┌─────────▼─────────┐
           │    OpenWebUI      │     │    RAG Backend    │
-          │    (port 3000)    │     │    (port 8000)    │
+          │    (port 3002)    │     │    (port 8002)    │
           └───────────────────┘     └───────────────────┘
 ```
 
@@ -1475,12 +1475,12 @@ async def track_requests(request: Request, call_next):
 | Puerto | Servicio | Protocolo | Público |
 |--------|----------|-----------|---------|
 | 80 | Nginx | HTTP | Sí (redirect a HTTPS) |
-| 443 | Nginx | HTTPS | Sí |
-| 3000 | OpenWebUI | HTTP | Solo interno |
-| 3001 | Grafana | HTTP | Desarrollo |
-| 8000 | Backend | HTTP | Solo interno |
-| 9090 | Prometheus | HTTP | Desarrollo |
-| 6333 | Qdrant | HTTP | Solo interno |
+| 8443 | Nginx | HTTPS | Sí |
+| 3002 | OpenWebUI | HTTP | Solo interno |
+| 3003 | Grafana | HTTP | Desarrollo |
+| 8002 | Backend | HTTP | Solo interno |
+| 9091 | Prometheus | HTTP | Desarrollo |
+| 6335 | Qdrant | HTTP | Solo interno |
 
 ### Generación de Certificados SSL
 
@@ -1610,11 +1610,11 @@ Si detectas duplicados en Qdrant (por ejemplo, tras un error):
 
 ```powershell
 # Ejecutar script de limpieza
-docker compose exec rag-backend python3 -c "
+docker compose exec tfg-backend python3 -c "
 from qdrant_client import QdrantClient
 from collections import defaultdict
 
-client = QdrantClient(host='qdrant', port=6333)
+client = QdrantClient(host='qdrant', port=6335)
 collection = 'documents'  # o 'documents_CALIDAD', etc.
 
 all_points, _ = client.scroll(collection, limit=25000, with_payload=True, with_vectors=False)
@@ -1654,10 +1654,10 @@ for fn, points in file_points.items():
 
 | Dashboard | URL | Descripción |
 |-----------|-----|-------------|
-| **Grafana** | http://localhost:3001 | Dashboards visuales |
-| **Prometheus** | http://localhost:9090 | Métricas raw |
-| **Backend Metrics** | http://localhost:8000/metrics | Métricas del backend |
-| **Indexer Metrics** | http://localhost:8001/metrics | Métricas de SharePoint sync |
+| **Grafana** | http://localhost:3003 | Dashboards visuales |
+| **Prometheus** | http://localhost:9091 | Métricas raw |
+| **Backend Metrics** | http://localhost:8002/metrics | Métricas del backend |
+| **Indexer Metrics** | http://localhost:8003/metrics | Métricas de SharePoint sync |
 
 ### Dashboard: 💾 Storage & Memory Usage
 
@@ -1707,11 +1707,11 @@ El sistema RAG usa **4 workers Python** y cada worker puede usar múltiples core
 
 ```promql
 # Antes (valores sin sentido):
-rate(process_cpu_seconds_total{job="rag-backend"}[5m]) * 100
+rate(process_cpu_seconds_total{job="tfg-backend"}[5m]) * 100
 → Resultado: 2845%  ❌
 
 # Después (normalizado a 64 cores lógicos):
-(sum(rate(process_cpu_seconds_total{job="rag-backend"}[5m])) / 64) * 100
+(sum(rate(process_cpu_seconds_total{job="tfg-backend"}[5m])) / 64) * 100
 → Resultado: 44%  ✅
 ```
 
@@ -1745,17 +1745,17 @@ Las métricas GPU provienen del servicio **DCGM Exporter** (NVIDIA Data Center G
 | **GPU Gauge muestra 0%** | El modelo no está en uso | Normal si no hay queries activas |
 | **GPU Gauge siempre 0%** | dcgm-exporter no funciona | `docker compose restart dcgm-exporter` |
 | **CPU > 100%** | Query sin normalización | Revisar configuración del dashboard |
-| **No data en paneles** | Prometheus no scraping | Verificar `http://localhost:9090/targets` |
+| **No data en paneles** | Prometheus no scraping | Verificar `http://localhost:9091/targets` |
 
 **Verificar métricas GPU manualmente:**
 
 ```powershell
 # Verificar que dcgm-exporter está exponiendo métricas
-Invoke-WebRequest -Uri "http://localhost:9400/metrics" | 
+Invoke-WebRequest -Uri "http://localhost:9401/metrics" | 
   Select-String "DCGM_FI_DEV_GPU_UTIL"
 
 # Verificar en Prometheus
-Invoke-WebRequest -Uri "http://localhost:9090/api/v1/query?query=DCGM_FI_DEV_GPU_UTIL" | 
+Invoke-WebRequest -Uri "http://localhost:9091/api/v1/query?query=DCGM_FI_DEV_GPU_UTIL" | 
   ConvertFrom-Json | ConvertTo-Json -Depth 5
 ```
 
@@ -1763,7 +1763,7 @@ Invoke-WebRequest -Uri "http://localhost:9090/api/v1/query?query=DCGM_FI_DEV_GPU
 
 | Situación | Acción recomendada |
 |-----------|-------------------|
-| Backend Memory > 16GB | Reiniciar: `docker compose restart rag-backend` |
+| Backend Memory > 16GB | Reiniciar: `docker compose restart tfg-backend` |
 | Memory creciendo sin parar | Verificar logs de errores, posible memory leak |
 | Qdrant Vectors > 500K | Considerar particionamiento de colecciones |
 | CPU > 85% sostenido | Aumentar workers o optimizar queries |
@@ -1804,11 +1804,11 @@ El servicio `dcgm-exporter` expone métricas GPU para Prometheus:
 dcgm-exporter:
   image: nvidia/dcgm-exporter:3.3.0-3.2.0-ubuntu22.04
   ports:
-    - "9400:9400"
+    - "9401:9401"
 ```
 
-**Puerto**: 9400  
-**Métricas**: http://localhost:9400/metrics
+**Puerto**: 9401  
+**Métricas**: http://localhost:9401/metrics
 
 ### 🧠 Por qué el Backend sube a 11-12GB de RAM
 
@@ -1879,8 +1879,8 @@ Si ves mensajes de estado confusos en el chat del agente:
 **2. Sync Interval (Sincronización Interrumpida)**
 - La sincronización ocurre cada 5 minutos (default).
 - Si notas que las barras naranjas del heatmap desaparecen:
-  1. Verificar estado del scheduler: `http://localhost:8001/scheduler` (debe devolver `running: true`).
-  2. Si está detenido, reiniciar: `docker compose restart rag-indexer`.
+  1. Verificar estado del scheduler: `http://localhost:8003/scheduler` (debe devolver `running: true`).
+  2. Si está detenido, reiniciar: `docker compose restart tfg-indexer`.
 
 #### Paneles del Dashboard
 
@@ -1970,11 +1970,11 @@ El dashboard principal incluye métricas de:
 
 | Servicio | Puerto | Propósito | Volumen Docker |
 |----------|--------|-----------|----------------|
-| PostgreSQL | 5432 | Metadatos, usuarios, sesiones | `postgres_data` |
-| Qdrant | 6333 | Vectores de embeddings | `qdrant_data` |
-| Redis | 6379 | Cache y sesiones | `redis_data` |
-| Minio | 9000/9001 | Almacenamiento de objetos (S3) | `minio_data` |
-| Ollama | 11434 | Modelos LLM | `ollama_data` |
+| PostgreSQL | 5433 | Metadatos, usuarios, sesiones | `postgres_data` |
+| Qdrant | 6335 | Vectores de embeddings | `qdrant_data` |
+| Redis | 6380 | Cache y sesiones | `redis_data` |
+| Minio | 9002/9003 | Almacenamiento de objetos (S3) | `minio_data` |
+| Ollama | 11435 | Modelos LLM | `ollama_data` |
 
 ### 6.2 Ubicaciones de Almacenamiento
 
@@ -2002,12 +2002,12 @@ El dashboard principal incluye métricas de:
 
 **Backup PostgreSQL**:
 ```powershell
-docker exec rag-postgres pg_dump -U rag_user rag_system > backup_postgres.sql
+docker exec tfg-postgres pg_dump -U rag_user rag_system > backup_postgres.sql
 ```
 
 **Backup Qdrant**:
 ```powershell
-Invoke-RestMethod -Method Post -Uri "http://localhost:6333/collections/documents/snapshots"
+Invoke-RestMethod -Method Post -Uri "http://localhost:6335/collections/documents/snapshots"
 ```
 
 **Limpieza Total**:
@@ -2043,7 +2043,7 @@ Optimización en `docker-compose.yml`:
 
 ### 8.1 Acceso Dashboard
 
-- **Grafana**: `http://localhost:3001` (admin/admin).
+- **Grafana**: `http://localhost:3003` (admin/admin).
 - **Tableros**: "JARVIS RAG System" (pre-cargado).
 
 ### 8.2 Métricas Clave
@@ -2059,7 +2059,7 @@ Optimización en `docker-compose.yml`:
 
 Ejecutar `check_rag_status.py` o:
 ```powershell
-Invoke-RestMethod -Uri http://localhost:8000/health
+Invoke-RestMethod -Uri http://localhost:8002/health
 ```
 
 ---
@@ -2070,7 +2070,7 @@ Invoke-RestMethod -Uri http://localhost:8000/health
 
 Utilizamos **LoRA (Low-Rank Adaptation)** para especializar el modelo sin reentrenamiento completo.
 - **Modelo Base**: Qwen 2.5 14B.
-- **Adaptador**: `rag-qwen-ft` (Entrenado con scripts en `scripts/`).
+- **Adaptador**: `tfg-qwen-ft` (Entrenado con scripts en `scripts/`).
 
 ### 9.2 Riesgos y Mantenimiento
 
@@ -2106,7 +2106,7 @@ Además del LLM, hemos adaptado los modelos de recuperación para nuestro domini
 
 ### 10.1 Nginx Reverse Proxy (SSL)
 
-Nginx maneja la terminación SSL en puerto 443.
+Nginx maneja la terminación SSL en puerto 8443.
 - Certificados en `config/nginx/ssl`.
 - Headers críticos: `X-Forwarded-Proto $scheme`.
 
@@ -2114,8 +2114,8 @@ Nginx maneja la terminación SSL en puerto 443.
 
 Configuración crítica en Azure Portal:
 - **Redirect URI**: `https://YOUR_SERVER_IP/oauth/oidc/callback`
-  - ❌ JAMÁS usar puerto 3000 aquí.
-  - ✅ El puerto 3000 es interno de OpenWebUI, pero el usuario accede por 443.
+  - ❌ JAMÁS usar puerto 3002 aquí.
+  - ✅ El puerto 3002 es interno de OpenWebUI, pero el usuario accede por 8443.
 
 ---
 
@@ -2348,7 +2348,7 @@ LLM RESPONDE:
 
 ## Apéndice A: Configuración de Referencia Azure
 
-**App Registration**: `rag-indexer`
+**App Registration**: `tfg-indexer`
 - **Tenant ID**: `280471b9-5e0b-4ec4-b55a-3fd36e4f1d46`
 - **Client ID**: `1e015b63-5f03-4345-a93a-2a89e8fa3ac3`
 - **Secret**: `gxj...` (Ver .env o AZURE_CREDENTIALS.md original para valor completo)
@@ -2572,12 +2572,12 @@ graph TD
 Script de despliegue automatizado para Windows:
 
 ```powershell
-# Ejecutar desde: C:\enterprise-rag-system
+# Ejecutar desde: C:\enterprise-tfg-system
 .\deploy.ps1
 ```
 
 **Acciones que realiza:**
-1. Rebuild de contenedores modificados (`rag-backend`, `pipelines`, `litellm`)
+1. Rebuild de contenedores modificados (`tfg-backend`, `pipelines`, `litellm`)
 2. Reinicio de servicios
 3. Espera 10 segundos para arranque
 4. Muestra logs de cada servicio
@@ -2613,7 +2613,7 @@ Script de configuración inicial completo:
 
 **Salida:**
 ```
-/backups/rag-system/
+/backups/tfg-system/
 ├── postgres_20260116_100000.sql.gz
 ├── qdrant_20260116_100000.snapshot
 └── files_20260116_100000.tar.gz
@@ -2628,7 +2628,7 @@ Script de configuración inicial completo:
 gunzip -c backup.sql.gz | docker-compose exec -T postgres psql -U rag_user rag_system
 
 # Qdrant
-curl -X POST "http://localhost:6333/collections/documents/snapshots/upload" \
+curl -X POST "http://localhost:6335/collections/documents/snapshots/upload" \
   -F "snapshot=@qdrant_backup.snapshot"
 
 # Archivos
@@ -2678,7 +2678,7 @@ python scripts/add_sharepoint_site.py
 
 #### pgAdmin
 
-**Acceso**: http://localhost:5050
+**Acceso**: http://localhost:5051
 
 | Campo | Valor |
 |-------|-------|
@@ -2693,7 +2693,7 @@ python scripts/add_sharepoint_site.py
     "1": {
       "Name": "RAG PostgreSQL",
       "Host": "postgres",
-      "Port": 5432,
+      "Port": 5433,
       "Username": "rag_user",
       "MaintenanceDB": "rag_system"
     }
@@ -2731,7 +2731,7 @@ Ver: [FINE_TUNING_GUIDE.md](FINE_TUNING_GUIDE.md) para guía detallada.
 
 ### 13.6 Monitorización con Grafana
 
-**Acceso**: http://localhost:3001
+**Acceso**: http://localhost:3003
 
 **Dashboards disponibles** (`config/grafana/dashboards/`):
 
@@ -2751,13 +2751,13 @@ Ver: [FINE_TUNING_GUIDE.md](FINE_TUNING_GUIDE.md) para guía detallada.
 
 ```bash
 # Ver logs en tiempo real
-docker-compose logs -f rag-backend pipelines
+docker-compose logs -f tfg-backend pipelines
 
 # Reiniciar servicio específico
-docker-compose restart rag-backend
+docker-compose restart tfg-backend
 
 # Entrar al contenedor
-docker-compose exec rag-backend bash
+docker-compose exec tfg-backend bash
 
 # Ver uso de recursos
 docker stats
@@ -2766,10 +2766,10 @@ docker stats
 docker system prune -a
 
 # Ver colecciones Qdrant
-curl http://localhost:6333/collections
+curl http://localhost:6335/collections
 
 # Health check de todos los servicios
-curl http://localhost:8000/health
+curl http://localhost:8002/health
 ```
 
 ---
@@ -2780,7 +2780,7 @@ curl http://localhost:8000/health
 |----------|-------|----------|
 | "no kernel image is available" | Conflicto CUDA GPU/CPU | Forzar CPU para embeddings (`device='cpu'`) |
 | Pipeline no detecta intent | Keywords no reconocidos | Revisar `_detect_intent()` en `jarvis.py` |
-| Documentos no aparecen en RAG | Sin re-indexar tras cambios | Reiniciar `rag-indexer` |
+| Documentos no aparecen en RAG | Sin re-indexar tras cambios | Reiniciar `tfg-indexer` |
 | Azure SSO falla | Redirect URI mal configurado | Verificar en Azure Portal |
 | Qdrant timeout | Índice muy grande | Aumentar `timeout` o añadir sharding |
 | LLM responde en inglés | System prompt no tiene regla de idioma | Verificar prompts en `main.py` |
@@ -3258,7 +3258,7 @@ def _format_boe_response(self, results: List[dict], llm_response: str) -> str:
     
     for i, result in enumerate(results[:3], 1):
         response += (
-            f"[{i}] **{result['titulo'][:80]}...**\n"
+            f"[{i}] **{result['titulo'][:8080]}...**\n"
             f"   📅 {result['fecha_publicacion']} | "
             f"🏛️ {result['departamento']}\n"
             f"   🔗 [{result['id']}]({result['url_html']})\n\n"
@@ -3715,7 +3715,7 @@ async def _execute_recursive_scrape(
     )
     
     embeddings = EmbeddingsService()
-    qdrant = QdrantClient(host="qdrant", port=6333)
+    qdrant = QdrantClient(host="qdrant", port=6335)
     
     try:
         # Fase 1: Scraping
@@ -3983,7 +3983,7 @@ El sistema integra el **Boletín Oficial del Estado (BOE)** mediante dos mecanis
 │     │                                  │                        │
 │     ▼                                  ▼                        │
 │  Jarvis Pipeline ──────────────► MCP Server                    │
-│     │                                  │      (Puerto 8010)     │
+│     │                                  │      (Puerto 8011)     │
 │     ▼                                  │                        │
 │  Backend ─────────────────────────────┘                        │
 │     │                                                           │
@@ -4043,7 +4043,7 @@ class BoeConnector:
 
 **Tecnología**: FastMCP 2.x
 
-**Puerto**: 8010
+**Puerto**: 8011
 
 #### Herramientas MCP Disponibles
 
@@ -4084,11 +4084,11 @@ class BoeConnector:
 mcp-boe:
   build:
     context: ./mcp-boe-server
-  container_name: rag-mcp-boe
+  container_name: tfg-mcp-boe
   ports:
-    - "8010:8010"
+    - "8011:8011"
   networks:
-    - rag-network
+    - tfg-network
   restart: unless-stopped
 ```
 

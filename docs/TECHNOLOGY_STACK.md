@@ -66,9 +66,9 @@ docker compose restart openwebui  # Reiniciar servicio
 
 **Diagrama de flujo**:
 ```
-Internet → NGINX (443) → OpenWebUI (8080)
-                       → Backend (8000)
-                       → Grafana (3000)
+Internet → NGINX (8443) → OpenWebUI (8080)
+                       → Backend (8002)
+                       → Grafana (3002)
 ```
 
 **Archivos clave**:
@@ -97,7 +97,7 @@ config/nginx/ssl/          # Certificados SSL
 - CSS corporativo para branding.
 - Modelo por defecto configurado como "europav-IA".
 
-**Puerto**: `3000` (externo) → `8080` (interno)
+**Puerto**: `3002` (externo) → `8080` (interno)
 
 ---
 
@@ -118,10 +118,10 @@ config/nginx/ssl/          # Certificados SSL
 | Modelo | Uso | VRAM |
 |--------|-----|------|
 | `llama3.1:8b-instruct-q8_0` | Chat general, RAG | ~8GB |
-| `rag-qwen-ft:latest` | Fine-tuned para este proyecto | ~6GB |
+| `tfg-qwen-ft:latest` | Fine-tuned para este proyecto | ~6GB |
 | `qwen2.5vl:7b` | Análisis de imágenes | ~8GB |
 
-**Puerto**: `11434`
+**Puerto**: `11435`
 
 ---
 
@@ -137,7 +137,7 @@ config/nginx/ssl/          # Certificados SSL
 
 **Configuración**: `services/litellm/config.yaml`
 
-**Puerto**: `4000`
+**Puerto**: `4001`
 
 ---
 
@@ -160,7 +160,7 @@ config/nginx/ssl/          # Certificados SSL
 - **PaddleOCR**: OCR con GPU para PDFs escaneados.
 - **LangChain**: Chunking semántico.
 
-**Puerto**: `8000`
+**Puerto**: `8002`
 
 ---
 
@@ -182,7 +182,7 @@ webs            # Páginas web scrapeadas
 documents_DEPT  # Colecciones por departamento (multi-tenant)
 ```
 
-**Puerto**: `6333` (REST), `6334` (gRPC)
+**Puerto**: `6335` (REST), `6336` (gRPC)
 
 ---
 
@@ -195,7 +195,7 @@ documents_DEPT  # Colecciones por departamento (multi-tenant)
 - Historial de conversaciones.
 - Configuración de pipelines.
 
-**Puerto**: `5432`
+**Puerto**: `5433`
 
 ---
 
@@ -210,7 +210,7 @@ documents_DEPT  # Colecciones por departamento (multi-tenant)
 
 **TTL por defecto**: 1 hora
 
-**Puerto**: `6379`
+**Puerto**: `6380`
 
 ---
 
@@ -223,7 +223,7 @@ documents_DEPT  # Colecciones por departamento (multi-tenant)
 - Backup de documentos procesados.
 - Artefactos de fine-tuning.
 
-**Puerto**: `9000` (API), `9001` (Console)
+**Puerto**: `9002` (API), `9003` (Console)
 
 ---
 
@@ -239,7 +239,7 @@ documents_DEPT  # Colecciones por departamento (multi-tenant)
 - Métricas de GPU (NVIDIA).
 - Contadores de queries RAG.
 
-**Puerto**: `9090`
+**Puerto**: `9091`
 
 ---
 
@@ -252,9 +252,9 @@ documents_DEPT  # Colecciones por departamento (multi-tenant)
 - **GPU Monitoring**: Uso, temperatura, memoria.
 - **RAG Performance**: Latencias, hits de cache.
 
-**Acceso**: `http://localhost:3001` (user: `admin`)
+**Acceso**: `http://localhost:3003` (user: `admin`)
 
-**Puerto**: `3001`
+**Puerto**: `3003`
 
 ---
 
@@ -267,7 +267,7 @@ documents_DEPT  # Colecciones por departamento (multi-tenant)
 - `DCGM_FI_DEV_FB_USED` - Memoria usada (MB)
 - `DCGM_FI_DEV_GPU_TEMP` - Temperatura (°C)
 
-**Puerto**: `9400`
+**Puerto**: `9401`
 
 ---
 
@@ -471,7 +471,7 @@ Para proyectos de producción con miles de URLs, existe [Crawlee](https://crawle
 **Qué es**: Protocolo estándar de Anthropic para conectar LLMs con herramientas externas.
 
 **Implementación en JARVIS**:
-- Servidor MCP en puerto `8010`.
+- Servidor MCP en puerto `8011`.
 - 7 herramientas BOE expuestas.
 - Compatible con Claude Desktop, Cursor, scripts Python.
 
@@ -496,15 +496,15 @@ Para proyectos de producción con miles de URLs, existe [Crawlee](https://crawle
 
 | Puerto | Servicio | Acceso |
 |--------|----------|--------|
-| 443/80 | NGINX | Público |
-| 3000 | OpenWebUI | Interno (vía NGINX) |
-| 3001 | Grafana | Interno |
-| 4000 | LiteLLM | Interno |
-| 6333 | Qdrant | Interno |
-| 8000 | Backend | Interno |
-| 8010 | MCP BOE | Interno |
-| 9090 | Prometheus | Interno |
-| 11434 | Ollama | Interno |
+| 8443/80 | NGINX | Público |
+| 3002 | OpenWebUI | Interno (vía NGINX) |
+| 3003 | Grafana | Interno |
+| 4001 | LiteLLM | Interno |
+| 6335 | Qdrant | Interno |
+| 8002 | Backend | Interno |
+| 8011 | MCP BOE | Interno |
+| 9091 | Prometheus | Interno |
+| 11435 | Ollama | Interno |
 
 ---
 

@@ -45,7 +45,7 @@ JARVIS es tu **asistente inteligente** para:
 
 En tu navegador, ve a:
 ```
-http://localhost:3000
+http://localhost:3002
 ```
 
 > ⚠️ **Nota**: Si trabajas remotamente, pregunta al administrador por la URL correcta.
@@ -683,7 +683,7 @@ Puedes combinar diferentes tipos de consultas:
 1. /listar
    [Ver documentos disponibles]
 
-2. Buscar en internet las mejores prácticas de ISO 9001
+2. Buscar en internet las mejores prácticas de ISO 9003
    [Información externa]
 
 3. Compara eso con nuestro Manual ISO

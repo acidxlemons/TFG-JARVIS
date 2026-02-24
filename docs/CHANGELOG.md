@@ -191,19 +191,19 @@ Sistema: ✅ Mantiene contexto del documento anterior
 ### 🧠 Nuevo Motor de IA
 Reemplazo del modelo generalista Llama 3.1 por una versión especializada:
 - **Modelo Base**: Qwen 2.5 14B (Superior en razonamiento e instrucciones).
-- **Fine-Tuning**: Adaptador LoRA `rag-qwen-ft` entrenado con documentación interna.
+- **Fine-Tuning**: Adaptador LoRA `tfg-qwen-ft` entrenado con documentación interna.
 - **Formato**: ChatML template corregido para evitar bucles de generación.
 - **Mejora**: Respuestas más precisas, menos alucinaciones y mejor adherencia al formato español.
 
 ### 🔐 Seguridad y SSO
 Implementación completa de seguridad perimetral y autenticación:
-- **HTTPS**: Nginx configurado con certificados SSL (autofirmados) en puerto 443.
+- **HTTPS**: Nginx configurado con certificados SSL (autofirmados) en puerto 8443.
 - **Azure AD SSO**: Integración corregida con `redirect_uri` segura (`https://YOUR_SERVER_IP/oauth/oidc/callback`).
 - **Nginx Routing Fix**: Corrección de conflicto en ruta `/api/` que bloqueaba OpenWebUI.
 
 ### 🐛 Correcciones Críticas
 1. **Model Loop Fix**: Se reconstruyó el `Modelfile` de Ollama para incluir los Stop Tokens correctos (`<|im_end|>`), solucionando el problema de respuestas infinitas/repetitivas.
-2. **SSO Redirect Error**: Se eliminó el puerto 3000 de la configuración de Azure para cumplir con estándares HTTPS.
+2. **SSO Redirect Error**: Se eliminó el puerto 3002 de la configuración de Azure para cumplir con estándares HTTPS.
 3. **Backend API Access**: Se renombraron las rutas internas de Nginx para permitir que OpenWebUI gestione sus propias APIs sin interferencia.
 
 ### 📚 Nueva Documentación
@@ -239,7 +239,7 @@ PDF adjunto → _has_file_attachment() → action=file_chat → _call_ollama_dir
 #### 3. **pgAdmin para PostgreSQL**
 
 - Nuevo servicio `pgadmin` en docker-compose.yml
-- URL: http://localhost:5050
+- URL: http://localhost:5051
 - Email: `admin@example.com` / Password: `admin`
 - Servidor pre-configurado para conectar a RAG PostgreSQL
 
@@ -385,9 +385,9 @@ Procesa queries del usuario antes de la búsqueda para optimizar resultados.
 
 a) **Intent Detection (Detección de Intención)**
    ```
-   FACTUAL: "¿Qué es ISO 9001?" → Busca definiciones
+   FACTUAL: "¿Qué es ISO 9003?" → Busca definiciones
    PROCEDURAL: "¿Cómo hacer auditoría?" → Busca procedimientos
-   ANALYTICAL: "Diferencias ISO 9001 vs 14001" → Busca múltiples docs
+   ANALYTICAL: "Diferencias ISO 9003 vs 14001" → Busca múltiples docs
    CONVERSATIONAL: "Hola" → Sin RAG, respuesta directa
    ```
 
@@ -609,7 +609,7 @@ scikit-learn==1.4.0
 
 ```bash
 # Hybrid search con reranking
-curl -X POST http://localhost:8000/api/v1/search \
+curl -X POST http://localhost:8002/api/v1/search \
   -H "Content-Type: application/json" \
   -H "X-Tenant-ID: tenant-demo" \
   -d '{
@@ -635,7 +635,7 @@ retriever = HybridRetriever(
 
 # Procesar query
 processor = QueryProcessor(llm_client=llm)
-processed = processor.process("¿Qué es ISO 9001?")
+processed = processor.process("¿Qué es ISO 9003?")
 
 # Buscar
 results = retriever.search(
@@ -666,31 +666,31 @@ results = retriever.search(
 #### Ver logs del sistema:
 ```bash
 # Backend logs
-docker logs rag-backend -f
+docker logs tfg-backend -f
 
 # OpenWebUI logs
-docker logs rag-openwebui -f
+docker logs tfg-openwebui -f
 
 # Qdrant logs
-docker logs rag-qdrant -f
+docker logs tfg-qdrant -f
 ```
 
 #### Verificar health:
 ```bash
 # Backend
-curl http://localhost:8000/health
+curl http://localhost:8002/health
 
 # Search API
-curl http://localhost:8000/api/v1/search/health
+curl http://localhost:8002/api/v1/search/health
 
 # Qdrant
-curl http://localhost:6333/health
+curl http://localhost:6335/health
 ```
 
 #### Métricas Prometheus:
 ```bash
 # Ver todas las métricas RAG
-curl http://localhost:8000/metrics | grep rag_
+curl http://localhost:8002/metrics | grep rag_
 ```
 
 #### Pipeline OpenWebUI:
@@ -699,7 +699,7 @@ curl http://localhost:8000/metrics | grep rag_
 DEBUG_MODE = True
 SHOW_SEARCH_TIME = True
 
-# Ver logs detallados en docker logs rag-openwebui
+# Ver logs detallados en docker logs tfg-openwebui
 ```
 
 ### 🧪 Testing
@@ -737,7 +737,7 @@ pytest tests/test_search_api.py -v
 **Sparse (BM25):**
 - Vector muy grande, mayoría ceros
 - Cuenta frecuencia de palabras
-- Ej: "ISO 9001" match exacto
+- Ej: "ISO 9003" match exacto
 - Mejor para: Términos específicos, códigos
 
 **Hybrid:**

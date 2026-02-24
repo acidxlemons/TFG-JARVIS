@@ -35,15 +35,15 @@
                         │
                         ▼
               ┌─────────────────┐
-              │     NGINX       │  ◄── Puerto 443 (HTTPS)
-              │  Reverse Proxy  │      Puerto 80 (redirect)
+              │     NGINX       │  ◄── Puerto 8443 (HTTPS)
+              │  Reverse Proxy  │      puerto 8080 (redirect)
               └────────┬────────┘
                        │
          ┌─────────────┼─────────────┐
          ▼             ▼             ▼
    ┌──────────┐  ┌──────────┐  ┌──────────┐
    │ OpenWebUI│  │ Backend  │  │ Grafana  │
-   │ :8080    │  │ :8000    │  │ :3000    │
+   │ :8080    │  │ :8002    │  │ :3002    │
    └──────────┘  └──────────┘  └──────────┘
 ```
 
@@ -408,7 +408,7 @@ from mcp.types import Tool, TextContent
 # Crear servidor MCP
 server = Server("jarvis-rag")
 
-BACKEND_URL = "http://rag-backend:8000"
+BACKEND_URL = "http://tfg-backend:8002"
 
 
 @server.tool()
@@ -600,17 +600,17 @@ if __name__ == "__main__":
 mcp-rag:
   build: ./services/mcp-servers
   environment:
-    - BACKEND_URL=http://rag-backend:8000
+    - BACKEND_URL=http://tfg-backend:8002
   depends_on:
-    - rag-backend
+    - tfg-backend
   networks:
-    - rag-network
+    - tfg-network
 
 mcp-boe:
   build: ./services/mcp-servers
   command: python boe_server.py
   networks:
-    - rag-network
+    - tfg-network
 ```
 
 ### 4.5 Integración con Claude Desktop
@@ -662,7 +662,7 @@ Edita `docker-compose.yml`:
     volumes:
       - ./data/docs:/data  # Carpeta que el LLM podrá leer
     networks:
-      - rag-network
+      - tfg-network
 ```
 
 #### Paso 3: Configurar Clientes
@@ -671,7 +671,7 @@ Edita `docker-compose.yml`:
 ```json
 "filesystem": {
   "command": "docker",
-  "args": ["exec", "-i", "rag-mcp-filesystem", "npx", "@modelcontextprotocol/server-filesystem", "/data"]
+  "args": ["exec", "-i", "tfg-mcp-filesystem", "npx", "@modelcontextprotocol/server-filesystem", "/data"]
 }
 ```
 

@@ -32,7 +32,7 @@ cp .env.example .env
 ### Paso 2: Configurar `.env` (mínimo)
 Edita `.env` con estos valores mínimos:
 ```env
-APP_URL=http://localhost:3000
+APP_URL=http://localhost:3002
 POSTGRES_PASSWORD=tu_password_seguro
 MINIO_ROOT_PASSWORD=tu_minio_password
 LITELLM_MASTER_KEY=sk-tu-key-aleatoria
@@ -68,22 +68,22 @@ docker compose exec ollama ollama list
 ### Paso 5: Verificar Instalación
 ```bash
 # Health check del backend
-curl http://localhost:8000/health
+curl http://localhost:8002/health
 
 # Health check de Qdrant
-curl http://localhost:6333/health
+curl http://localhost:6335/health
 
 # Abrir interfaz
-start http://localhost:3000   # Windows
-open http://localhost:3000    # macOS
-xdg-open http://localhost:3000  # Linux
+start http://localhost:3002   # Windows
+open http://localhost:3002    # macOS
+xdg-open http://localhost:3002  # Linux
 ```
 
 ### ✅ Checklist Rápido
 - [ ] `docker compose ps` muestra todos los servicios "Up"
-- [ ] `http://localhost:3000` carga la interfaz de chat
-- [ ] `http://localhost:8000/health` devuelve `{"status": "healthy"}`
-- [ ] `http://localhost:3001` carga Grafana (user: admin)
+- [ ] `http://localhost:3002` carga la interfaz de chat
+- [ ] `http://localhost:8002/health` devuelve `{"status": "healthy"}`
+- [ ] `http://localhost:3003` carga Grafana (user: admin)
 - [ ] El modelo responde al escribir en el chat
 
 ---
@@ -99,7 +99,7 @@ xdg-open http://localhost:3000  # Linux
 ### Habilitar MCP Server BOE
 ```bash
 # Ya está incluido, solo verificar
-curl http://localhost:8010/health
+curl http://localhost:8011/health
 
 # Probar herramientas MCP
 cd mcp-boe-server
@@ -146,9 +146,9 @@ Un **error crítico** es cualquier fallo que:
 ### Infraestructura
 - [ ] Docker y contenedores funcionando correctamente
 - [ ] GPU detectada y funcionando (`nvidia-smi` muestra RTX 5090)
-- [ ] Grafana accesible en http://localhost:3001
-- [ ] Prometheus recolectando métricas en http://localhost:9090
-- [ ] OpenWebUI accesible en http://localhost:3000
+- [ ] Grafana accesible en http://localhost:3003
+- [ ] Prometheus recolectando métricas en http://localhost:9091
+- [ ] OpenWebUI accesible en http://localhost:3002
 - [ ] SSO/Azure AD configurado y probado
 - [ ] Certificados SSL válidos (si aplica)
 

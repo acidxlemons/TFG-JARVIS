@@ -153,7 +153,7 @@ docker compose down && docker compose up -d
 
 ```env
 # .env para desarrollo
-APP_URL=http://localhost:3000
+APP_URL=http://localhost:3002
 ENVIRONMENT=local
 
 # Bases de datos (usar valores simples)
@@ -220,7 +220,7 @@ docker compose logs postgres
 ### OpenWebUI no conecta con LiteLLM
 ```bash
 # Verificar que LiteLLM está healthy
-curl http://localhost:4000/health
+curl http://localhost:4001/health
 ```
 **Causa común**: `LITELLM_MASTER_KEY` no coincide entre `.env` y la config de LiteLLM.
 

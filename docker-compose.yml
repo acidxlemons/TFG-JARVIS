@@ -26,7 +26,7 @@ services:
   # =========================
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: rag-postgres
+    container_name: tfg-postgres
     <<: *default-env
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-rag_system}
@@ -36,7 +36,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rag_user} -d ${POSTGRES_DB:-rag_system}" ]
       interval: 10s
@@ -48,12 +48,12 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: rag-redis
+    container_name: tfg-redis
     command: [ "redis-server", "--appendonly", "yes" ]
     volumes:
       - redis_data:/data
     ports:
-      - "6379:6379"
+      - "6380:6379"
     healthcheck:
       test: [ "CMD-SHELL", "redis-cli -h 127.0.0.1 ping | grep PONG" ]
       interval: 5s
@@ -69,12 +69,12 @@ services:
   # =========================
   qdrant:
     image: qdrant/qdrant:latest
-    container_name: rag-qdrant
+    container_name: tfg-qdrant
     volumes:
       - qdrant_data:/qdrant/storage
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "6335:6333"
+      - "6336:6334"
     healthcheck:
       test: [ "CMD-SHELL", "bash -c 'echo >/dev/tcp/localhost/6333' || exit 1" ]
       interval: 10s
@@ -90,7 +90,7 @@ services:
   # =========================
   minio:
     image: minio/minio:latest
-    container_name: rag-minio
+    container_name: tfg-minio
     <<: *default-env
     command: [ "server", "/data", "--console-address", ":9001" ]
     environment:
@@ -99,8 +99,8 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9002:9000"
+      - "9003:9001"
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:9000/minio/health/ready || exit 1" ]
       interval: 10s
@@ -113,7 +113,7 @@ services:
 
   minio-setup:
     image: minio/mc:latest
-    container_name: rag-minio-setup
+    container_name: tfg-minio-setup
     depends_on:
       minio:
         condition: service_started
@@ -134,11 +134,11 @@ services:
   # =========================
   ollama:
     image: ollama/ollama:latest
-    container_name: rag-ollama
+    container_name: tfg-ollama
     volumes:
       - ollama_data:/root/.ollama
     ports:
-      - "11434:11434"
+      - "11435:11434"
     deploy:
       resources:
         reservations:
@@ -162,7 +162,7 @@ services:
 
   ollama-setup:
     image: curlimages/curl:8.9.1
-    container_name: rag-ollama-setup
+    container_name: tfg-ollama-setup
     depends_on:
       ollama:
         condition: service_healthy
@@ -176,7 +176,7 @@ services:
   # Proxy LLM
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: rag-litellm
+    container_name: tfg-litellm
     depends_on:
       ollama:
         condition: service_started
@@ -193,7 +193,7 @@ services:
       LITELLM_LOG: INFO
 
     ports:
-      - "4000:4000"
+      - "4001:4000"
     command: [ "--config", "/app/config.yaml", "--port", "4000", "--host", "0.0.0.0", "--num_workers", "4" ]
     networks:
       - rag-network
@@ -209,7 +209,7 @@ services:
       args:
         PYTHON_VERSION: "3.11"
         INSTALL_PLAYWRIGHT: "true"
-    container_name: rag-ocr-bootstrap
+    container_name: tfg-ocr-bootstrap
     <<: *default-env
     working_dir: /workspace/app
     volumes:
@@ -251,7 +251,7 @@ services:
       args:
         PYTHON_VERSION: "3.11"
         INSTALL_PLAYWRIGHT: "true"
-    container_name: rag-backend
+    container_name: tfg-backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -292,7 +292,7 @@ services:
       PADDLE_HOME: /root/.paddleocr
       PYTHONPATH: /workspace
     ports:
-      - "8000:8000"
+      - "8002:8000"
     deploy:
       resources:
         reservations:
@@ -317,7 +317,7 @@ services:
   indexer:
     build:
       context: ./services/indexer
-    container_name: rag-indexer
+    container_name: tfg-indexer
     depends_on:
       rag-backend:
         condition: service_healthy
@@ -349,7 +349,7 @@ services:
       LOG_LEVEL: INFO
       PYTHONPATH: /app
     ports:
-      - "8001:8001"
+      - "8003:8001"
     command: [ "uvicorn", "app.main:app", "--app-dir", "/app", "--host", "0.0.0.0", "--port", "8001" ]
     networks:
       - rag-network
@@ -360,9 +360,9 @@ services:
   # =========================
   pipelines:
     image: ghcr.io/open-webui/pipelines:main
-    container_name: rag-pipelines
+    container_name: tfg-pipelines
     ports:
-      - "9099:9099"
+      - "9100:9099"
     volumes:
       - ./services/openwebui/pipelines:/app/pipelines
     env_file:
@@ -383,9 +383,9 @@ services:
     build:
       context: ./mcp-boe-server
       dockerfile: Dockerfile
-    container_name: rag-mcp-boe
+    container_name: tfg-mcp-boe
     ports:
-      - "8010:8010"
+      - "8011:8010"
     networks:
       - rag-network
     restart: unless-stopped
@@ -401,7 +401,7 @@ services:
   # =========================
   openwebui:
     image: ghcr.io/open-webui/open-webui:main
-    container_name: rag-openwebui
+    container_name: tfg-openwebui
     depends_on:
       litellm:
         condition: service_started
@@ -448,7 +448,7 @@ services:
       CHUNK_SIZE: "500"
       CHUNK_OVERLAP: "50"
     ports:
-      - "3000:8080"
+      - "3002:8080"
     networks:
       - rag-network
     restart: unless-stopped
@@ -458,7 +458,7 @@ services:
   # =========================
   prometheus:
     image: prom/prometheus:latest
-    container_name: rag-prometheus
+    container_name: tfg-prometheus
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -466,7 +466,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
     ports:
-      - "9090:9090"
+      - "9091:9090"
     networks:
       - rag-network
     restart: unless-stopped
@@ -474,13 +474,13 @@ services:
   # NVIDIA GPU Metrics Exporter (DCGM)
   dcgm-exporter:
     image: nvidia/dcgm-exporter:3.3.0-3.2.0-ubuntu22.04
-    container_name: rag-dcgm-exporter
+    container_name: tfg-dcgm-exporter
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
     cap_add:
       - SYS_ADMIN
     ports:
-      - "9400:9400"
+      - "9401:9400"
     networks:
       - rag-network
     restart: unless-stopped
@@ -494,7 +494,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: rag-grafana
+    container_name: tfg-grafana
     depends_on:
       prometheus:
         condition: service_started
@@ -508,7 +508,7 @@ services:
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/enterprise_rag.json
     ports:
-      - "3001:3000"
+      - "3003:3000"
     networks:
       - rag-network
     restart: unless-stopped
@@ -518,7 +518,7 @@ services:
   # =========================
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: rag-pgadmin
+    container_name: tfg-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
@@ -527,7 +527,7 @@ services:
     volumes:
       - ./config/pgadmin/servers.json:/pgadmin4/servers.json:ro
     ports:
-      - "5050:80"
+      - "5051:80"
     depends_on:
       postgres:
         condition: service_healthy
@@ -540,7 +540,7 @@ services:
   # =========================
   nginx:
     image: nginx:alpine
-    container_name: rag-nginx
+    container_name: tfg-nginx
     depends_on:
       openwebui:
         condition: service_started
@@ -550,8 +550,8 @@ services:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./config/nginx/ssl:/etc/nginx/ssl:ro
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
     networks:
       - rag-network
     restart: unless-stopped

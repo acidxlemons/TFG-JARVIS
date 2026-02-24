@@ -37,7 +37,7 @@
 ### 1.1 Verificar Build Completado
 
 ```powershell
-cd c:\enterprise-rag-system
+cd c:\enterprise-tfg-system
 
 # Ver estado de todos los servicios
 docker compose ps
@@ -49,7 +49,7 @@ docker compose ps
 
 ```powershell
 # Backend
-docker compose logs rag-backend --tail 5
+docker compose logs tfg-backend --tail 5
 
 # Pipelines  
 docker compose logs pipelines --tail 5
@@ -61,7 +61,7 @@ docker compose logs litellm --tail 5
 **Esperado**: Líneas finales indicando que está listo:
 ```
 ✓ Aplicación lista
-Uvicorn running on http://0.0.0.0:8000
+Uvicorn running on http://0.0.0.0:8002
 ```
 
 ### 1.3 Si el Build Falló
@@ -71,10 +71,10 @@ Uvicorn running on http://0.0.0.0:8000
 Ctrl+C
 
 # Rebuild limpio
-docker compose build rag-backend pipelines litellm --no-cache
+docker compose build tfg-backend pipelines litellm --no-cache
 
 # Levantar
-docker compose up -d rag-backend pipelines litellm
+docker compose up -d tfg-backend pipelines litellm
 ```
 
 ---
@@ -90,18 +90,18 @@ docker compose ps
 
 | Servicio | Puerto | Estado Esperado |
 |----------|--------|-----------------|
-| `rag-backend` | 8000 | ✅ Up (healthy) |
-| `pipelines` | 9099 | ✅ Up |
-| `litellm` | 4000 | ✅ Up |
-| `ollama` | 11434 | ✅ Up (healthy) |
-| `qdrant` | 6333 | ✅ Up |
-| `postgres` | 5432 | ✅ Up (healthy) |
-| `redis` | 6379 | ✅ Up (healthy) |
-| `openwebui` | 3000 | ✅ Up |
-| `prometheus` | 9090 | ✅ Up |
-| `grafana` | 3001 | ✅ Up |
-| `pgadmin` | 5050 | ✅ Up |
-| `nginx` | 80/443 | ✅ Up |
+| `tfg-backend` | 8002 | ✅ Up (healthy) |
+| `pipelines` | 9100 | ✅ Up |
+| `litellm` | 4001 | ✅ Up |
+| `ollama` | 11435 | ✅ Up (healthy) |
+| `qdrant` | 6335 | ✅ Up |
+| `postgres` | 5433 | ✅ Up (healthy) |
+| `redis` | 6380 | ✅ Up (healthy) |
+| `openwebui` | 3002 | ✅ Up |
+| `prometheus` | 9091 | ✅ Up |
+| `grafana` | 3003 | ✅ Up |
+| `pgadmin` | 5051 | ✅ Up |
+| `nginx` | 80/8443 | ✅ Up |
 
 ### Si Algún Servicio No Está "Up"
 
@@ -121,12 +121,12 @@ docker compose restart [nombre-servicio]
 ### 3.1 Backend
 
 ```powershell
-docker compose logs rag-backend --tail 30
+docker compose logs tfg-backend --tail 30
 ```
 
 **Buscar líneas (✅ BUENO)**:
 ```
-✓ Qdrant conectado: http://qdrant:6333
+✓ Qdrant conectado: http://qdrant:6335
 ✓ RAG Retriever inicializado
 ✓ Memory Manager inicializado
 ✓ OCR Pipeline inicializado
@@ -136,7 +136,7 @@ docker compose logs rag-backend --tail 30
 **Errores comunes (❌ MALO)**:
 ```
 ModuleNotFoundError: No module named 'httpx'
-  → SOLUCIÓN: docker compose build rag-backend --no-cache
+  → SOLUCIÓN: docker compose build tfg-backend --no-cache
 
 Connection refused to qdrant
   → SOLUCIÓN: docker compose restart qdrant
@@ -151,8 +151,8 @@ docker compose logs pipelines --tail 30
 **Buscar líneas (✅ BUENO)**:
 ```
 ✓ JARVIS inicializado
-  Backend: http://rag-backend:8000
-  LiteLLM: http://litellm:4000
+  Backend: http://tfg-backend:8002
+  LiteLLM: http://litellm:4001
 🚀 Starting JARVIS
 ```
 
@@ -201,7 +201,7 @@ docker compose exec ollama ollama pull qwen2.5vl:7b
 ### 5.1 Health Check
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:8000/health
+Invoke-RestMethod -Uri http://localhost:8002/health
 ```
 
 **Esperado**:
@@ -219,7 +219,7 @@ Invoke-RestMethod -Uri http://localhost:8000/health
 ### 5.2 Listar Documentos
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:8000/documents/list
+Invoke-RestMethod -Uri http://localhost:8002/documents/list
 ```
 
 **Esperado** (sin documentos):
@@ -241,14 +241,14 @@ Invoke-RestMethod -Uri http://localhost:8000/documents/list
 ### 5.3 Web Search
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:8000/web-search?q=test"
+Invoke-RestMethod -Uri "http://localhost:8002/web-search?q=test"
 ```
 
 ### 5.4 Chat (Modo Chat)
 
 ```powershell
 $body = '{"message":"hola","mode":"chat"}'
-Invoke-RestMethod -Uri "http://localhost:8000/chat" `
+Invoke-RestMethod -Uri "http://localhost:8002/chat" `
   -Method POST `
   -ContentType "application/json" `
   -Body $body
@@ -260,7 +260,7 @@ Invoke-RestMethod -Uri "http://localhost:8000/chat" `
 
 ```powershell
 $body = '{"message":"política de calidad","mode":"rag"}'
-Invoke-RestMethod -Uri "http://localhost:8000/chat" `
+Invoke-RestMethod -Uri "http://localhost:8002/chat" `
   -Method POST `
   -ContentType "application/json" `
   -Body $body
@@ -278,7 +278,7 @@ $searchBody = @{
     alpha = 0.5
 } | ConvertTo-Json
 
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/search `
+Invoke-RestMethod -Method Post -Uri http://localhost:8002/api/v1/search `
   -Body $searchBody -ContentType "application/json"
 ```
 
@@ -289,7 +289,7 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/search `
 
 ### 6.1 Primer Acceso
 
-1. Abrir http://localhost:3000
+1. Abrir http://localhost:3002
 2. Click en "Sign up"
 3. Completar formulario:
    - Name: Tu nombre
@@ -313,7 +313,7 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/search `
 1. Ir a **Settings** (⚙️)
 2. **Admin Panel** → **Settings** → **Connections**
 3. Verificar/añadir:
-   - **Pipelines URL**: `http://pipelines:9099`
+   - **Pipelines URL**: `http://pipelines:9100`
    - ✅ Enabled
 4. Click "Save"
 5. Refrescar página
@@ -431,7 +431,7 @@ cómo va?
 
 ### 8.1 Probar Archivo Adjunto
 
-1. Ir a http://localhost:3000 (OpenWebUI)
+1. Ir a http://localhost:3002 (OpenWebUI)
 2. Subir un PDF/TXT directamente en el chat (botón de adjuntar)
 3. Escribir: "resume este documento"
 
@@ -461,10 +461,10 @@ Los PDFs escaneados (sin texto seleccionable) **NO funcionan** en chat directo.
 **Solución**: Usar la carpeta `data/watch/`:
 ```powershell
 # 1. Copiar PDF escaneado a watch
-Copy-Item "C:\ruta\pdf_escaneado.pdf" "C:\enterprise-rag-system\data\watch\"
+Copy-Item "C:\ruta\pdf_escaneado.pdf" "C:\enterprise-tfg-system\data\watch\"
 
 # 2. Forzar procesamiento con OCR
-Invoke-RestMethod -Method Post -Uri http://localhost:8001/scan
+Invoke-RestMethod -Method Post -Uri http://localhost:8003/scan
 
 # 3. Esperar indexación (30 segundos)
 Start-Sleep 30
@@ -482,14 +482,14 @@ Start-Sleep 30
 ```powershell
 # Crear archivo de prueba
 $testContent = "Este es un documento de prueba para el sistema RAG."
-Set-Content -Path "C:\enterprise-rag-system\data\watch\test_ingestion.txt" -Value $testContent
+Set-Content -Path "C:\enterprise-tfg-system\data\watch\test_ingestion.txt" -Value $testContent
 
 # Forzar escaneo
-Invoke-RestMethod -Method Post -Uri http://localhost:8001/scan
+Invoke-RestMethod -Method Post -Uri http://localhost:8003/scan
 
 # Verificar estado (esperar 10 segundos)
 Start-Sleep -Seconds 10
-Invoke-RestMethod -Uri http://localhost:8000/documents/ingestion-status
+Invoke-RestMethod -Uri http://localhost:8002/documents/ingestion-status
 ```
 
 **Resultado esperado**: `test_ingestion.txt` con status `completed`
@@ -502,17 +502,17 @@ $filePath = "C:\ruta\a\documento.pdf"
 $form = @{
     file = Get-Item $filePath
 }
-Invoke-RestMethod -Uri "http://localhost:8000/upload" -Method Post -Form $form
+Invoke-RestMethod -Uri "http://localhost:8002/upload" -Method Post -Form $form
 ```
 
 ### 9.3 Verificar Indexación
 
 ```powershell
 # Ver logs del indexer
-docker compose logs rag-indexer --tail 50
+docker compose logs tfg-indexer --tail 50
 
 # Ver estadísticas de Qdrant
-Invoke-RestMethod http://localhost:8000/documents/stats
+Invoke-RestMethod http://localhost:8002/documents/stats
 ```
 
 **Buscar en logs**:
@@ -526,10 +526,10 @@ Cuando eliminas un archivo de `data/watch/`, se elimina automáticamente de Qdra
 
 ```powershell
 # Eliminar archivo
-Remove-Item "C:\enterprise-rag-system\data\watch\test_ingestion.txt"
+Remove-Item "C:\enterprise-tfg-system\data\watch\test_ingestion.txt"
 
 # Verificar que se borró de Qdrant
-Invoke-RestMethod -Uri http://localhost:8000/documents/list
+Invoke-RestMethod -Uri http://localhost:8002/documents/list
 ```
 
 ---
@@ -546,7 +546,7 @@ $searchBody = @{
     k = 5
 } | ConvertTo-Json
 
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/search `
+Invoke-RestMethod -Method Post -Uri http://localhost:8002/api/v1/search `
   -Body $searchBody -ContentType "application/json"
 ```
 
@@ -560,7 +560,7 @@ $searchBody = @{
     alpha = 0.5
 } | ConvertTo-Json
 
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/search `
+Invoke-RestMethod -Method Post -Uri http://localhost:8002/api/v1/search `
   -Body $searchBody -ContentType "application/json"
 ```
 
@@ -576,7 +576,7 @@ $searchBody = @{
     }
 } | ConvertTo-Json
 
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/search `
+Invoke-RestMethod -Method Post -Uri http://localhost:8002/api/v1/search `
   -Body $searchBody -ContentType "application/json"
 ```
 
@@ -588,7 +588,7 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/search `
 ### 11.1 Búsqueda Web
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:8000/web-search?q=últimas%20noticias%20tecnología"
+Invoke-RestMethod -Uri "http://localhost:8002/web-search?q=últimas%20noticias%20tecnología"
 ```
 
 ### 11.2 Web Scraping
@@ -599,7 +599,7 @@ $scrapeBody = @{
     tenant_id = "default"
 } | ConvertTo-Json
 
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/scrape `
+Invoke-RestMethod -Method Post -Uri http://localhost:8002/scrape `
   -Body $scrapeBody -ContentType "application/json"
 ```
 
@@ -611,7 +611,7 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8000/scrape `
 ### 12.1 Via API
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:8000/documents/ingestion-status?limit=20
+Invoke-RestMethod -Uri http://localhost:8002/documents/ingestion-status?limit=20
 ```
 
 ### 12.2 Via Chat
@@ -624,7 +624,7 @@ En OpenWebUI preguntar:
 ### 12.3 Via PostgreSQL Directo
 
 ```powershell
-docker exec -it rag-postgres psql -U rag_user -d rag_system -c "SELECT * FROM ingestion_status ORDER BY updated_at DESC LIMIT 10;"
+docker exec -it tfg-postgres psql -U rag_user -d rag_system -c "SELECT * FROM ingestion_status ORDER BY updated_at DESC LIMIT 10;"
 ```
 
 ---
@@ -635,32 +635,32 @@ docker exec -it rag-postgres psql -U rag_user -d rag_system -c "SELECT * FROM in
 ### 13.1 PostgreSQL - Conversaciones
 
 ```powershell
-docker exec -it rag-postgres psql -U rag_user -d rag_system -c "SELECT id, user_id, query, created_at FROM conversation_history ORDER BY created_at DESC LIMIT 10;"
+docker exec -it tfg-postgres psql -U rag_user -d rag_system -c "SELECT id, user_id, query, created_at FROM conversation_history ORDER BY created_at DESC LIMIT 10;"
 ```
 
 ### 13.2 PostgreSQL - Documentos
 
 ```powershell
-docker exec -it rag-postgres psql -U rag_user -d rag_system -c "SELECT filename, status, chunk_count, created_at FROM documents ORDER BY created_at DESC;"
+docker exec -it tfg-postgres psql -U rag_user -d rag_system -c "SELECT filename, status, chunk_count, created_at FROM documents ORDER BY created_at DESC;"
 ```
 
 ### 13.3 Qdrant - Ver Colecciones
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:6333/collections
+Invoke-RestMethod -Uri http://localhost:6335/collections
 ```
 
 ### 13.4 Qdrant - Estadísticas de Documentos
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:6333/collections/documents | ConvertTo-Json -Depth 5
+Invoke-RestMethod -Uri http://localhost:6335/collections/documents | ConvertTo-Json -Depth 5
 ```
 
 ### 13.5 Redis - Ver Caché
 
 ```powershell
-docker exec -it rag-redis redis-cli KEYS "*"
-docker exec -it rag-redis redis-cli INFO stats
+docker exec -it tfg-redis redis-cli KEYS "*"
+docker exec -it tfg-redis redis-cli INFO stats
 ```
 
 ---
@@ -670,34 +670,34 @@ docker exec -it rag-redis redis-cli INFO stats
 
 ```powershell
 # Backend
-Invoke-RestMethod -Uri http://localhost:8000/health
+Invoke-RestMethod -Uri http://localhost:8002/health
 
 # Indexer
-Invoke-RestMethod -Uri http://localhost:8001/health
+Invoke-RestMethod -Uri http://localhost:8003/health
 
 # Qdrant
-Invoke-RestMethod -Uri http://localhost:6333/collections
+Invoke-RestMethod -Uri http://localhost:6335/collections
 
 # Ollama (modelos)
-Invoke-RestMethod -Uri http://localhost:11434/api/tags
+Invoke-RestMethod -Uri http://localhost:11435/api/tags
 
 # Prometheus
-Invoke-RestMethod -Uri http://localhost:9090/-/ready
+Invoke-RestMethod -Uri http://localhost:9091/-/ready
 
 # Grafana
-Invoke-RestMethod -Uri http://localhost:3001/api/health
+Invoke-RestMethod -Uri http://localhost:3003/api/health
 ```
 
 ### Script de Verificación Completa
 
 ```powershell
 $services = @(
-    @{Name="Backend"; Url="http://localhost:8000/health"},
-    @{Name="Indexer"; Url="http://localhost:8001/health"},
-    @{Name="Qdrant"; Url="http://localhost:6333/readyz"},
-    @{Name="Ollama"; Url="http://localhost:11434/api/tags"},
-    @{Name="Prometheus"; Url="http://localhost:9090/-/ready"},
-    @{Name="Grafana"; Url="http://localhost:3001/api/health"}
+    @{Name="Backend"; Url="http://localhost:8002/health"},
+    @{Name="Indexer"; Url="http://localhost:8003/health"},
+    @{Name="Qdrant"; Url="http://localhost:6335/readyz"},
+    @{Name="Ollama"; Url="http://localhost:11435/api/tags"},
+    @{Name="Prometheus"; Url="http://localhost:9091/-/ready"},
+    @{Name="Grafana"; Url="http://localhost:3003/api/health"}
 )
 
 foreach ($svc in $services) {
@@ -718,7 +718,7 @@ foreach ($svc in $services) {
 ### 15.1 Acceso a Prometheus
 
 ```powershell
-Start-Process "http://localhost:9090"
+Start-Process "http://localhost:9091"
 ```
 
 **Verificar targets**:
@@ -729,14 +729,14 @@ Start-Process "http://localhost:9090"
 
 | Job | Endpoint | Función |
 |-----|----------|---------|
-| `prometheus` | localhost:9090 | Prometheus mismo |
-| `rag-backend` | rag-backend:8000 | API principal con métricas |
-| `qdrant` | qdrant:6333 | Base de datos vectorial |
+| `prometheus` | localhost:9091 | Prometheus mismo |
+| `tfg-backend` | tfg-backend:8002 | API principal con métricas |
+| `qdrant` | qdrant:6335 | Base de datos vectorial |
 
 ### 15.2 Acceso a Grafana
 
 ```powershell
-Start-Process "http://localhost:3001"
+Start-Process "http://localhost:3003"
 ```
 
 **Credenciales por defecto**:
@@ -748,7 +748,7 @@ Start-Process "http://localhost:3001"
 
 ### 15.3 Dashboard JARVIS RAG
 
-**URL directa**: http://localhost:3001/d/jarvis-rag-dashboard
+**URL directa**: http://localhost:3003/d/jarvis-tfg-dashboard
 
 El dashboard incluye:
 - Estado de servicios: Backend, Qdrant, Prometheus
@@ -760,16 +760,16 @@ El dashboard incluye:
 
 ```promql
 # Requests por segundo por endpoint
-sum(rate(http_requests_total{job="rag-backend"}[1m])) by (endpoint)
+sum(rate(http_requests_total{job="tfg-backend"}[1m])) by (endpoint)
 
 # Latencia p95
-histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="rag-backend"}[5m])) by (le))
+histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="tfg-backend"}[5m])) by (le))
 
 # Errores 5xx
-sum(rate(http_requests_total{job="rag-backend",status=~"5.."}[5m]))
+sum(rate(http_requests_total{job="tfg-backend",status=~"5.."}[5m]))
 
 # Memoria del backend en GB
-process_resident_memory_bytes{job="rag-backend"} / 1024 / 1024 / 1024
+process_resident_memory_bytes{job="tfg-backend"} / 1024 / 1024 / 1024
 ```
 
 ### 15.5 Métricas Disponibles del Backend
@@ -789,7 +789,7 @@ process_resident_memory_bytes{job="rag-backend"} / 1024 / 1024 / 1024
 ### 16.1 Swagger UI (Interactivo)
 
 ```powershell
-Start-Process "http://localhost:8000/docs"
+Start-Process "http://localhost:8002/docs"
 ```
 
 Permite probar todos los endpoints directamente.
@@ -797,7 +797,7 @@ Permite probar todos los endpoints directamente.
 ### 16.2 ReDoc (Estático)
 
 ```powershell
-Start-Process "http://localhost:8000/redoc"
+Start-Process "http://localhost:8002/redoc"
 ```
 
 Documentación en formato más legible.
@@ -805,7 +805,7 @@ Documentación en formato más legible.
 ### 16.3 OpenAPI JSON
 
 ```powershell
-Invoke-RestMethod http://localhost:8000/openapi.json | ConvertTo-Json -Depth 3
+Invoke-RestMethod http://localhost:8002/openapi.json | ConvertTo-Json -Depth 3
 ```
 
 ### 16.4 Endpoints Disponibles
@@ -880,8 +880,8 @@ docker compose logs -f
 ### 18.2 Logs Específicos
 
 ```powershell
-docker compose logs rag-backend --tail 50
-docker compose logs rag-indexer --tail 50
+docker compose logs tfg-backend --tail 50
+docker compose logs tfg-indexer --tail 50
 docker compose logs pipelines --tail 50
 docker compose logs litellm --tail 20
 docker compose logs qdrant --tail 20
@@ -927,37 +927,37 @@ docker compose restart pipelines openwebui
 
 ```powershell
 # Ver error exacto
-docker compose logs rag-backend --tail 50
+docker compose logs tfg-backend --tail 50
 
 # Si dice "No module named 'bs4'"
-docker compose build rag-backend --no-cache
-docker compose restart rag-backend
+docker compose build tfg-backend --no-cache
+docker compose restart tfg-backend
 ```
 
 ### Problema 3: NO encuentra documentos (mode=rag)
 
 ```powershell
 # 1. Ver estadísticas
-Invoke-RestMethod http://localhost:8000/documents/stats
+Invoke-RestMethod http://localhost:8002/documents/stats
 
 # Si points_count = 0, no hay docs
 
 # 2. Copiar PDF de prueba
-Copy-Item "C:\documento.pdf" "c:\enterprise-rag-system\data\watch\"
+Copy-Item "C:\documento.pdf" "c:\enterprise-tfg-system\data\watch\"
 
 # 3. Ver logs indexer
-docker compose logs rag-indexer -f
+docker compose logs tfg-indexer -f
 
 # Esperar: "✓ Documento procesado e indexado"
 ```
 
 ### Problema 4: Grafana NO muestra datos
 
-1. Verificar Prometheus targets en http://localhost:9090/targets
+1. Verificar Prometheus targets en http://localhost:9091/targets
 2. Verificar datasource en Grafana → Configuration → Data Sources
 3. Verificar que backend expone `/metrics`:
    ```powershell
-   Invoke-RestMethod http://localhost:8000/metrics
+   Invoke-RestMethod http://localhost:8002/metrics
    ```
 
 ### Problema 5: LLM muy lento
@@ -970,7 +970,7 @@ docker compose logs rag-indexer -f
 
 Esto es cosmético si Qdrant responde:
 ```powershell
-Invoke-RestMethod http://localhost:6333/collections
+Invoke-RestMethod http://localhost:6335/collections
 ```
 
 ### Problema 7: pgAdmin no conecta
@@ -990,7 +990,7 @@ Invoke-RestMethod http://localhost:6333/collections
 |-------------|---------|---|
 | Docker corriendo | `docker ps` | ☐ |
 | Todos servicios up | `docker compose ps` | ☐ |
-| Backend sin errores | `docker compose logs rag-backend --tail 20` | ☐ |
+| Backend sin errores | `docker compose logs tfg-backend --tail 20` | ☐ |
 | Pipelines cargado | Log: "JARVIS inicializado" | ☐ |
 | Modelos Ollama | `docker compose exec ollama ollama list` | ☐ |
 
@@ -1008,7 +1008,7 @@ Invoke-RestMethod http://localhost:6333/collections
 
 | Verificación | Acción | ☐ |
 |-------------|--------|---|
-| Acceso web | http://localhost:3000 carga | ☐ |
+| Acceso web | http://localhost:3002 carga | ☐ |
 | Login/registro | Crear cuenta o login | ☐ |
 | JARVIS visible | En selector de modelos | ☐ |
 | `/listar` funciona | Muestra documentos | ☐ |
@@ -1020,11 +1020,11 @@ Invoke-RestMethod http://localhost:6333/collections
 
 | Verificación | URL | ☐ |
 |-------------|-----|---|
-| Promethe targets UP | http://localhost:9090/targets | ☐ |
-| Grafana accesible | http://localhost:3001 | ☐ |
+| Promethe targets UP | http://localhost:9091/targets | ☐ |
+| Grafana accesible | http://localhost:3003 | ☐ |
 | Dashboard con datos | JARVIS dashboard | ☐ |
-| pgAdmin accesible | http://localhost:5050 | ☐ |
-| Qdrant dashboard | http://localhost:6333/dashboard | ☐ |
+| pgAdmin accesible | http://localhost:5051 | ☐ |
+| Qdrant dashboard | http://localhost:6335/dashboard | ☐ |
 
 ### Ingestión
 

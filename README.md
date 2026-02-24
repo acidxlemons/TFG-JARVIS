@@ -106,7 +106,7 @@
 │                              USUARIO                                   │
 │                         (Browser / API)                                │
 └─────────────────────────────┬────────────────────────────────────────┘
-                              │ HTTPS (443)
+                              │ HTTPS (8443)
                               ▼
 ┌──────────────────────────────────────────────────────────────────────┐
 │                         🔒 NGINX (SSL)                                 │
@@ -145,20 +145,20 @@
 
 | Servicio | Puerto | Función |
 |----------|--------|---------|
-| `nginx` | 443, 80 | Reverse proxy + SSL |
-| `openwebui` | 3000 | Interfaz de chat |
-| `rag-backend` | 8000 | API de búsqueda y procesamiento |
-| `mcp-boe` | 8010 | **MCP Server** - Consultas BOE |
-| `qdrant` | 6333 | Base de datos vectorial |
-| `postgres` | 5432 | Metadatos y usuarios |
-| `redis` | 6379 | Cache de respuestas |
-| `litellm` | 4000 | Proxy de LLMs |
-| `ollama` | 11434 | Servidor de modelos locales |
-| `indexer` | 8001 | Sincronización SharePoint |
-| `prometheus` | 9090 | Recolección de métricas |
-| `grafana` | 3001 | Dashboards |
-| `minio` | 9000 | Almacenamiento S3 |
-| `dcgm-exporter` | 9400 | Métricas GPU |
+| `nginx` | 8443, 80 | Reverse proxy + SSL |
+| `openwebui` | 3002 | Interfaz de chat |
+| `tfg-backend` | 8002 | API de búsqueda y procesamiento |
+| `mcp-boe` | 8011 | **MCP Server** - Consultas BOE |
+| `qdrant` | 6335 | Base de datos vectorial |
+| `postgres` | 5433 | Metadatos y usuarios |
+| `redis` | 6380 | Cache de respuestas |
+| `litellm` | 4001 | Proxy de LLMs |
+| `ollama` | 11435 | Servidor de modelos locales |
+| `indexer` | 8003 | Sincronización SharePoint |
+| `prometheus` | 9091 | Recolección de métricas |
+| `grafana` | 3003 | Dashboards |
+| `minio` | 9002 | Almacenamiento S3 |
+| `dcgm-exporter` | 9401 | Métricas GPU |
 
 ### 🏛️ MCP Server BOE
 
@@ -229,20 +229,20 @@ docker compose exec ollama ollama pull llama3.1:8b-instruct-q8_0
 
 ```bash
 # Health check general
-curl http://localhost:8000/health
+curl http://localhost:8002/health
 
 # Verificar Qdrant
-curl http://localhost:6333/health
+curl http://localhost:6335/health
 
 # Acceder a la interfaz
-open http://localhost:3000   # macOS
-start http://localhost:3000  # Windows
-xdg-open http://localhost:3000  # Linux
+open http://localhost:3002   # macOS
+start http://localhost:3002  # Windows
+xdg-open http://localhost:3002  # Linux
 ```
 
 ### Tu Primera Consulta
 
-1. Abre `http://localhost:3000`
+1. Abre `http://localhost:3002`
 2. Selecciona el pipeline "JARVIS"
 3. Prueba estas consultas:
    - *"¿Qué dice el BOE de hoy?"*
@@ -308,9 +308,9 @@ Si deseas sincronizar documentos desde SharePoint:
 
 | Dashboard | URL | Credenciales |
 |-----------|-----|--------------|
-| **Grafana** | http://localhost:3001 | admin / (ver `.env`) |
-| **Prometheus** | http://localhost:9090 | - |
-| **Métricas Backend** | http://localhost:8000/metrics | - |
+| **Grafana** | http://localhost:3003 | admin / (ver `.env`) |
+| **Prometheus** | http://localhost:9091 | - |
+| **Métricas Backend** | http://localhost:8002/metrics | - |
 
 ### Métricas Clave
 
@@ -423,7 +423,7 @@ Toda la documentación está en la carpeta [`docs/`](docs/README.md).
 
 ```bash
 # 1. Verificar que hay documentos indexados
-curl http://localhost:6333/collections/documents
+curl http://localhost:6335/collections/documents
 
 # 2. Verificar tenant_id correcto
 # El tenant del usuario debe coincidir con el de los documentos
@@ -453,13 +453,13 @@ docker stats
 
 ```bash
 # 1. Verificar que backend está corriendo
-docker compose ps rag-backend
+docker compose ps tfg-backend
 
 # 2. Ver logs
-docker compose logs rag-backend --tail=50
+docker compose logs tfg-backend --tail=50
 
 # 3. Reiniciar servicios
-docker compose restart rag-backend
+docker compose restart tfg-backend
 ```
 </details>
 

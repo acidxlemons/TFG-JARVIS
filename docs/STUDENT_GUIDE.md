@@ -63,7 +63,7 @@ $$ W = W_0 + \Delta W = W_0 + B A $$
 Donde $r \ll d$. Nosotros usamos $r=16$.
 
 **🚀 Impacto Real en el Proyecto**:
-1.  **Obediencia al Contexto**: Un modelo genérico a veces ignora los documentos adjuntos y responde con lo que sabe de internet ("Alucinación externa"). Nuestro modelo `rag-qwen-ft` ha sido condicionado para priorizar el bloque `[CONTEXT]` sobre su conocimiento previo.
+1.  **Obediencia al Contexto**: Un modelo genérico a veces ignora los documentos adjuntos y responde con lo que sabe de internet ("Alucinación externa"). Nuestro modelo `tfg-qwen-ft` ha sido condicionado para priorizar el bloque `[CONTEXT]` sobre su conocimiento previo.
 2.  **Formato de Citas**: El modelo base no sabe citar fuentes con el formato exacto `[1] Archivo.pdf (pág X)`. LoRA ha "grabado" este requisito de formato en sus pesos.
 
 ---
@@ -111,13 +111,13 @@ Ante la pregunta *"¿Por qué no usar simplemente la API de OpenAI/GPT-4?"*, la 
 
 El sistema no es un monolito, sino una arquitectura distribuida de **13 servicios**:
 
--   **Desacoplamiento**: Si `rag-indexer` falla al procesar un PDF corrupto, `rag-backend` sigue sirviendo chats.
--   **Escalado Independiente**: Podemos lanzar 10 réplicas de `rag-qdrant` sin tocar el servicio de OCR.
--   **Seguridad**: `rag-postgres` no expone puertos al host, solo es accesible por `rag-backend` dentro de la red Docker (`internal-network`).
+-   **Desacoplamiento**: Si `tfg-indexer` falla al procesar un PDF corrupto, `tfg-backend` sigue sirviendo chats.
+-   **Escalado Independiente**: Podemos lanzar 10 réplicas de `tfg-qdrant` sin tocar el servicio de OCR.
+-   **Seguridad**: `tfg-postgres` no expone puertos al host, solo es accesible por `tfg-backend` dentro de la red Docker (`internal-network`).
 
 ### 2.3 Patrón "Backend for Frontend" (BFF)
 
-Usamos `rag-pipelines` (OpenWebUI) como un orquestador inteligente que decide qué herramientas invocar, separando la lógica de presentación de la lógica de negocio (RAG puro en `rag-backend`).
+Usamos `tfg-pipelines` (OpenWebUI) como un orquestador inteligente que decide qué herramientas invocar, separando la lógica de presentación de la lógica de negocio (RAG puro en `tfg-backend`).
 
 ---
 
@@ -330,7 +330,7 @@ Tras fine-tuning, medimos:
 - **JARVIS RAG Overview**: Latencia, throughput, GPU usage.
 - **SharePoint Sync**: Estado de sincronización, documentos indexados.
 
-**Acceso**: `http://localhost:3001` (Grafana).
+**Acceso**: `http://localhost:3003` (Grafana).
 
 ---
 
@@ -518,7 +518,7 @@ Aunque los datos están separados físicamente para mantener la 'higiene', el Ag
 2. Lanza query a `webs` (sin filtros de tenant).
 3. Fusiona y reordena (Reranking) los resultados basados en relevancia pura.
 
-Esto permite al usuario preguntar *'Compara nuestra Política de Calidad con lo que dice Wikipedia sobre ISO 9001'* y obtener una respuesta sintetizada de ambas fuentes."
+Esto permite al usuario preguntar *'Compara nuestra Política de Calidad con lo que dice Wikipedia sobre ISO 9003'* y obtener una respuesta sintetizada de ambas fuentes."
 
 ### 12.3 Pregunta de Tribunal sobre Web Scraping
 

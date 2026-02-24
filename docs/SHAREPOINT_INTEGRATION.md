@@ -126,7 +126,7 @@ DEPARTMENT_MAPPING: Dict[str, str] = {
 
 **Paso 3: Reiniciar OpenWebUI**
 ```powershell
-docker restart rag-openwebui
+docker restart tfg-openwebui
 ```
 
 ---
@@ -154,10 +154,10 @@ Editar `docker-compose.yml`:
 
 ```yaml
   # NUEVO INDEXER PARA RRHH
-  rag-indexer-rrhh:
+  tfg-indexer-rrhh:
     build:
       context: ./services/indexer
-    container_name: rag-indexer-rrhh
+    container_name: tfg-indexer-rrhh
     environment:
       COLLECTION_NAME: documents_RRHH      # <-- Nombre de la nueva colección
       SHAREPOINT_SITE_ID: ${RRHH_SITE_ID}  # ID del sitio RRHH
@@ -165,18 +165,18 @@ Editar `docker-compose.yml`:
       AZURE_TENANT_ID: ${AZURE_TENANT_ID}
       AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
       AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
-      BACKEND_URL: http://rag-backend:8000
+      BACKEND_URL: http://tfg-backend:8002
     depends_on:
       - qdrant
-      - rag-backend
+      - tfg-backend
     networks:
-      - rag-network
+      - tfg-network
 ```
 
 ### Paso 3: Desplegar
 
 ```powershell
-docker compose up -d rag-indexer-rrhh
+docker compose up -d tfg-indexer-rrhh
 ```
 
 El indexer comenzará a:
@@ -232,7 +232,7 @@ Para que el sistema pueda leer los grupos del usuario, la App Registration neces
 1. **Check Azure**: ¿Está el usuario en el grupo de Azure AD correcto?
 2. **Check Pipeline Logs**:
    ```powershell
-   docker logs rag-pipelines | grep -i "groups"
+   docker logs tfg-pipelines | grep -i "groups"
    ```
    - Buscar: `DEBUG groups encontrados: [...]`
    - Buscar: `Usuario {email} tiene acceso a: [...]`
@@ -258,7 +258,7 @@ Para que el sistema pueda leer los grupos del usuario, la App Registration neces
 
 1. Verificar que la Redirect URI en Azure coincide **exactamente** con la configurada.
 2. Verificar que el Client Secret no ha expirado.
-3. Revisar logs de OpenWebUI: `docker logs rag-openwebui | grep -i oauth`
+3. Revisar logs de OpenWebUI: `docker logs tfg-openwebui | grep -i oauth`
 
 ---
 
