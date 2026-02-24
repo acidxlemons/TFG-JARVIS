@@ -76,6 +76,26 @@
                 <h2>Arquitectura del Sistema</h2>
                 <p class="text-muted">Despliegue 100% On-Premise. Privacidad asegurada.</p>
             </div>
+            <div class="architecture-diagram glass-panel"
+                style="margin-bottom: 3rem; padding: 2rem; border-radius: 16px; overflow-x: auto;">
+                <h3 class="text-center" style="margin-bottom: 1.5rem;">Diagrama de Flujo Lógico</h3>
+                <div class="mermaid text-center">
+                    graph TD
+                    classDef darkBg fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+                    classDef lightBg fill:#0f172a,stroke:#06b6d4,stroke-width:2px,color:#f8fafc;
+
+                    A[OpenWebUI Frontend]:::darkBg -->|HTTPS| B(Nginx Proxy):::lightBg
+                    B --> C{JARVIS Pipeline}:::darkBg
+                    C -->|Modo RAG| D[FastAPI Backend]:::lightBg
+                    C -->|Modo Scraping| E[Web Extractor]:::lightBg
+                    C -->|Modo Legal| F[MCP BOE Server]:::lightBg
+
+                    D --> G[(Qdrant Vectores)]:::darkBg
+                    D --> H[(PostgreSQL Memoria)]:::darkBg
+                    D --> I[LiteLLM Router]:::lightBg
+                    I --> J[Ollama LLaMA 3.1]:::darkBg
+                </div>
+            </div>
 
             <div class="grid cards-grid">
                 <div class="card glass-panel tilt-card">
@@ -129,8 +149,9 @@
             <div class="feature-row reverse">
                 <div class="feature-text">
                     <h2 class="gradient-text">Consulta Jurídica Inteligente</h2>
-                    <p>Conexión directa vía <strong>Model Context Protocol (MCP)</strong> con la API nativa del BOE
-                        Español. Busca normativas consolidadas, resume legislación y analiza documentos.</p>
+                    <p>Integración en fase de <strong>prototipado técnico (desarrollo futuro)</strong> vía <strong>Model
+                            Context Protocol (MCP)</strong> con la API nativa del BOE Español. La arquitectura está
+                        sentada para buscar normativas consolidadas y resumir legislación de forma experimental.</p>
                     <ul class="feature-list">
                         <li><i class="fas fa-check-circle"></i> Agente MCP FastMCP Nativo</li>
                         <li><i class="fas fa-check-circle"></i> Resolución Semántica (e.g. "Ley de Datos" ->
@@ -142,6 +163,26 @@
                     <div class="boe-mockup">
                         <i class="fas fa-balance-scale fa-4x text-accent"></i>
                         <h4>BOE Explorer</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-text">
+                    <h2 class="gradient-text">Monitorización Avanzada</h2>
+                    <p>Control absoluto sobre los recursos del sistema gracias a la integración nativa con exportadores
+                        de NVIDIA y servidores de métricas. El sistema es transparente y auditable mediante gráficas
+                        enriquecidas.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Dashboards Visuales en Grafana</li>
+                        <li><i class="fas fa-check-circle"></i> Telemetría y Latencias en Prometheus</li>
+                        <li><i class="fas fa-check-circle"></i> Control de carga GPU y VRAM (DCGM Exporter)</li>
+                    </ul>
+                </div>
+                <div class="feature-visual glass-panel flex-center">
+                    <div class="boe-mockup">
+                        <i class="fas fa-chart-line fa-4x" style="color: #10b981; margin-bottom: 1rem;"></i>
+                        <h4>Grafana Telemetry</h4>
                     </div>
                 </div>
             </div>
@@ -183,6 +224,8 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script>
     <script src="app.js"></script>
 </body>
 
