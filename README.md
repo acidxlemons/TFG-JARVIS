@@ -304,13 +304,30 @@ Si deseas sincronizar documentos desde SharePoint:
 
 ## 📊 Monitoreo
 
-### Acceso a Dashboards
+### Acceso a Dashboards y Bases de Datos
 
-| Dashboard | URL | Credenciales |
-|-----------|-----|--------------|
-| **Grafana** | http://localhost:3003 | admin / (ver `.env`) |
-| **Prometheus** | http://localhost:9091 | - |
-| **Métricas Backend** | http://localhost:8002/metrics | - |
+El entorno de JARVIS es 100% transparente y accesible localmente para desarrolladores y administradores:
+
+| Dashboard / DB | URL Local | Credenciales | Propósito |
+|----------------|-----------|--------------|-----------|
+| **pgAdmin (PostgreSQL)** | http://localhost:5051 | admin@example.com / admin | Ver histórico de chat y usuarios (`rag_system` DB) |
+| **Qdrant UI** | http://localhost:6335/dashboard | - | Ver vectores y embeddings de documentos |
+| **Grafana** | http://localhost:3003 | admin / (ver `.env`) | Métricas generales y consumo GPU |
+| **Prometheus** | http://localhost:9091 | - | Métricas en bruto |
+
+#### Consultas CLI Comunes
+
+Si prefieres usar la terminal en lugar de las interfaces web (`pgAdmin` o `Qdrant UI`):
+
+```bash
+# Consultar el histórico de mensajes en PostgreSQL
+docker exec -it tfg-postgres psql -U rag_user -d rag_system -c "SELECT role, content FROM messages LIMIT 10;"
+
+# Ver estadísticas e ingestas en Qdrant
+curl http://localhost:6335/collections/documents
+```
+
+> 💡 **Nota:** Tienes más detalles sobre consultas complejas en la [Guía de Testing](docs/TESTING_GUIDE.md).
 
 ### Métricas Clave
 

@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise RAG System - TFG</title>
     <meta name="description" content="Sistema RAG Corporativo Inteligente - TFG Universidad Rey Juan Carlos">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <div class="glow-orb orb-1"></div>
     <div class="glow-orb orb-2"></div>
@@ -41,7 +45,8 @@
                     <span class="gradient-text">Aumentada por Recuperación</span> (RAG)
                 </h1>
                 <p class="hero-subtitle">
-                    Transformando conocimiento base (SharePoint, Web, BOE e Imágenes) en respuestas accionables mediante Inteligencia Artificial local y Open Source.
+                    Transformando conocimiento base (SharePoint, Web, BOE e Imágenes) en respuestas accionables mediante
+                    Inteligencia Artificial local y Open Source.
                 </p>
                 <div class="hero-actions">
                     <a href="#demo" class="btn btn-primary">Ver Demo <i class="fas fa-play ml-2"></i></a>
@@ -71,24 +76,28 @@
                 <h2>Arquitectura del Sistema</h2>
                 <p class="text-muted">Despliegue 100% On-Premise. Privacidad asegurada.</p>
             </div>
-            
+
             <div class="grid cards-grid">
                 <div class="card glass-panel tilt-card">
                     <div class="card-icon"><i class="fas fa-brain"></i></div>
                     <h3>Modelos Locales</h3>
-                    <p>Uso eficiente de VRAM mediante Q8 y Q4 Quantization con herramientas como <strong>Ollama</strong> y <strong>LiteLLM</strong>. (Llama 3.1 & Qwen).</p>
-                </div>
-                
-                <div class="card glass-panel tilt-card">
-                    <div class="card-icon"><i class="fas fa-database"></i></div>
-                    <h3>Vector Store</h3>
-                    <p>Indexado e inferencia semántica optimizada usando <strong>Qdrant</strong> con modelos SentenceTransformer (MiniLM).</p>
+                    <p>Uso eficiente de VRAM mediante Q8 y Q4 Quantization con herramientas como <strong>Ollama</strong>
+                        y <strong>LiteLLM</strong>. (Llama 3.1 & Qwen).</p>
                 </div>
 
                 <div class="card glass-panel tilt-card">
-                    <div class="card-icon"><i class="fas fa-robot"></i></div>
-                    <h3>Pipelines Dinámicos</h3>
-                    <p>Decisiones de enrutamiento automáticas detectando cuándo scrapear, cuándo buscar y cuándo invocar al RAG de la BD documental.</p>
+                    <div class="card-icon"><i class="fas fa-database"></i></div>
+                    <h3>Vector Store</h3>
+                    <p>Indexado e inferencia semántica optimizada usando <strong>Qdrant</strong> con modelos
+                        SentenceTransformer (MiniLM).</p>
+                </div>
+
+                <div class="card glass-panel tilt-card">
+                    <div class="card-icon"><i class="fas fa-search-plus"></i></div>
+                    <h3>Observabilidad Transparente</h3>
+                    <p>Interfaces gráficas nativas con <strong>pgAdmin</strong> para trazar el historial relacional
+                        conversacional y <strong>Qdrant Dashboard</strong> para auditar visualmente el subespacio
+                        latente vectorial.</p>
                 </div>
             </div>
         </section>
@@ -98,7 +107,9 @@
             <div class="feature-row">
                 <div class="feature-text">
                     <h2 class="gradient-text">Conexiones Multicanal</h2>
-                    <p>Integración automática (Webhooks y Cronjobs) con Microsoft SharePoint extraída vía MSAL. Se complementa con Web Scraping recursivo renderizando JS a través de Playwright, y búsquedas en tiempo real en DuckDuckGo.</p>
+                    <p>Integración automática (Webhooks y Cronjobs) con Microsoft SharePoint extraída vía MSAL. Se
+                        complementa con Web Scraping recursivo renderizando JS a través de Playwright, y búsquedas en
+                        tiempo real en DuckDuckGo.</p>
                     <ul class="feature-list">
                         <li><i class="fas fa-check-circle"></i> Sincronización Delta Incremental</li>
                         <li><i class="fas fa-check-circle"></i> HTML a Texto Limpio (Deep Scraping)</li>
@@ -118,10 +129,12 @@
             <div class="feature-row reverse">
                 <div class="feature-text">
                     <h2 class="gradient-text">Consulta Jurídica Inteligente</h2>
-                    <p>Conexión directa vía <strong>Model Context Protocol (MCP)</strong> con la API nativa del BOE Español. Busca normativas consolidadas, resume legislación y analiza documentos.</p>
+                    <p>Conexión directa vía <strong>Model Context Protocol (MCP)</strong> con la API nativa del BOE
+                        Español. Busca normativas consolidadas, resume legislación y analiza documentos.</p>
                     <ul class="feature-list">
                         <li><i class="fas fa-check-circle"></i> Agente MCP FastMCP Nativo</li>
-                        <li><i class="fas fa-check-circle"></i> Resolución Semántica (e.g. "Ley de Datos" -> BOE-A-2018-16673)</li>
+                        <li><i class="fas fa-check-circle"></i> Resolución Semántica (e.g. "Ley de Datos" ->
+                            BOE-A-2018-16673)</li>
                         <li><i class="fas fa-check-circle"></i> Summaries ejecutivos con Llama 3</li>
                     </ul>
                 </div>
@@ -138,7 +151,8 @@
         <section id="demo" class="section">
             <div class="section-header text-center">
                 <h2>Demo Interactiva</h2>
-                <p class="text-muted">Revisa el vídeo descriptivo donde probamos todo el flujo funcional en OpenWebUI.</p>
+                <p class="text-muted">Revisa el vídeo descriptivo donde probamos todo el flujo funcional en OpenWebUI.
+                </p>
             </div>
             <div class="video-container glass-panel">
                 <!-- Se recomienda usar de momento marco nativo o de Youtube (embed) -->
@@ -171,5 +185,6 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
 <!-- GitHub Pages Trigger -->
