@@ -1,0 +1,23 @@
+\babel@toc {spanish}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Comparativa de familias de LLMs relevantes para el proyecto.}}{8}{table.2.1}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Comparativa de bases de datos vectoriales evaluadas para el proyecto.}}{10}{table.2.2}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Iteraciones principales del desarrollo, entregables y horas dedicadas.}}{14}{table.3.1}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Especificaciones del entorno hardware de despliegue.}}{15}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Stack tecnológico completo del proyecto.}}{16}{table.3.3}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Estimación de presupuesto para el despliegue del sistema.}}{17}{table.3.4}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Riesgos técnicos identificados y estrategias de mitigación.}}{18}{table.3.5}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Servicios definidos en el manifiesto Docker Compose.}}{24}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Inventario completo de modelos IA desplegados y su configuración en LiteLLM.}}{25}{table.4.2}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Modos de operación del agente JARVIS y sus criterios de activación.}}{30}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Comparativa de modelos de embeddings evaluados.}}{31}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Modelos de IA desplegados en el sistema y su configuración.}}{36}{table.5.3}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Métricas de rendimiento del sistema en producción.}}{37}{table.5.4}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Checklist de funcionalidades logradas.}}{41}{table.6.1}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Comparación del sistema con soluciones RAG alternativas.}}{41}{table.6.2}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Distribución de horas dedicadas al proyecto.}}{43}{table.6.3}%
