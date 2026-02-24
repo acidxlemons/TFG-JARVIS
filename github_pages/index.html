@@ -91,15 +91,15 @@
                     NGINX --> OWUI[OpenWebUI Frontend]
                     OWUI -->|HTTP REST| JARVIS{JARVIS Pipeline - Agente Enrutador Python}
 
-                    JARVIS -->|Modo Web Search| DDG[DuckDuckGo HTML Scraper]:::external
-                    JARVIS -->|Modo Scraping URL| PW[Playwright Headless - Renderizado JS]
+                    JARVIS -->|Modo RAG / Search / Scrape| BACKEND[FastAPI Backend - Motor RAG Central]
+
+                    BACKEND -->|Modo Web Search| DDG[DuckDuckGo HTML Scraper]:::external
+                    BACKEND -->|Modo Scraping URL| PW[Playwright Headless - Renderizado JS]
                     PW -.->|Limpieza DOM| TRAF((Trafilatura + Readability Fallback)):::model
-
-                    JARVIS -->|Modo RAG| BACKEND[FastAPI Backend - Motor RAG Central]
-                    BACKEND -->|Chunking Semantico| EMBED
                     BACKEND -.->|PDF Escaneado| OCR((PaddleOCR - OCR GPU CUDA)):::model
+                    BACKEND -->|Chunking Semantico| EMBED
 
-                    INDEXER[Indexer API Worker - Cron 5min]:::external -->|Microsoft Graph API MSAL| SP[Microsoft
+                    INDEXER[Indexer API Worker - Cron Autonomo 5min] -->|Microsoft Graph API MSAL| SP[Microsoft
                     SharePoint]:::external
                     INDEXER -->|Nuevos Ficheros| BACKEND
 
