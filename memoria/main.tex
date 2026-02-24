@@ -1,0 +1,90 @@
+\documentclass[12pt,a4paper,twoside]{book}
+
+% ==========================================
+% PAQUETES BÁSICOS
+% ==========================================
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel} % Idioma español
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% ==========================================
+% MÁRGENES Y FORMATO
+% ==========================================
+\usepackage[top=3cm, bottom=3cm, left=3.5cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ==========================================
+% GRÁFICOS, TABLAS Y CÓDIGO
+% ==========================================
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% ==========================================
+% BIBLIOGRAFÍA Y ENLACES
+% ==========================================
+\usepackage[
+    backend=biber,
+    style=ieee,
+    sorting=none
+]{biblatex}
+\addbibresource{bibliografia.bib}
+
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+
+% ==========================================
+% DOCUMENTO PRINCIPAL
+% ==========================================
+\begin{document}
+
+\frontmatter
+
+\include{portada}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+\include{capitulos/01_Introduccion}
+\include{capitulos/02_EstadoDelArte}
+\include{capitulos/03_Metodologia}
+\include{capitulos/04_Arquitectura}
+\include{capitulos/05_Implementacion_y_Resultados}
+\include{capitulos/06_Conclusiones}
+
+\backmatter
+
+\printbibliography[heading=bibintoc, title={Bibliografía}]
+
+\end{document}
