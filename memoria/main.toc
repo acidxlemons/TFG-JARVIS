@@ -88,3 +88,4 @@
 \contentsline {section}{\numberline {6.5}Estimación de Dedicación Total}{43}{section.6.5}%
 \contentsline {section}{\numberline {6.6}Trabajo Futuro y Líneas de Expansión}{43}{section.6.6}%
 \contentsline {section}{\numberline {6.7}Impacto y Transferencia}{44}{section.6.7}%
+\contentsline {chapter}{Bibliografía}{45}{chapter*.8}%

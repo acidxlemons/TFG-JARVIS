@@ -57,7 +57,7 @@ class Pipeline:
         PERMISSION_CACHE_TTL: int = 300
         
         # URL del servicio Indexer para status checks
-        INDEXER_URL: str = "http://rag-indexer:8001"
+        INDEXER_URL: str = "http://indexer:8001"
 
     def __init__(self):
         self.name = "JARVIS"
