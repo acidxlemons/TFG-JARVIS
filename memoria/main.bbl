@@ -248,6 +248,7 @@
       \strng{authornamehash}{f431db65cea024a5f19eab835afefee2}
       \strng{authorfullhash}{f431db65cea024a5f19eab835afefee2}
       \strng{authorfullhashraw}{f431db65cea024a5f19eab835afefee2}
+      \field{extraname}{1}
       \field{sortinit}{9}
       \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
       \field{labelnamesource}{author}
@@ -356,124 +357,201 @@
       \field{volume}{30}
       \field{year}{2017}
     \endentry
-    \entry{touvron2023llama}{article}{}{}
-      \true{moreauthor}
-      \true{morelabelname}
-      \name{author}{10}{}{%
-        {{hash=a2a13fcd633ec70c55a7f3f4812afdcf}{%
-           family={Touvron},
-           familyi={T\bibinitperiod},
+    \entry{meta2024llama31}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=ca43b8b2bdf82aa380c9fed8712d8db8}{%
+           family={{Meta AI}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{fullhash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{fullhashraw}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{bibnamehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authorbibnamehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authornamehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authorfullhash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authorfullhashraw}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://ai.meta.com/blog/meta-llama-3-1/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Introducing Llama 3.1: Our most capable models to date}
+      \field{year}{2024}
+    \endentry
+    \entry{meta2024llama31hf}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=ca43b8b2bdf82aa380c9fed8712d8db8}{%
+           family={{Meta AI}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{fullhash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{fullhashraw}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{bibnamehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authorbibnamehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authornamehash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authorfullhash}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \strng{authorfullhashraw}{ca43b8b2bdf82aa380c9fed8712d8db8}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://huggingface.co/meta-llama/Llama-3.1-8B}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Llama 3.1 --- Model Card and License}
+      \field{year}{2024}
+    \endentry
+    \entry{qwen2024qwen25blog}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=4622c4bb7444dadba22813c2addff5e7}{%
+           family={{Qwen Team}},
+           familyi={Q\bibinitperiod}}}%
+      }
+      \strng{namehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{fullhash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{fullhashraw}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{bibnamehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authorbibnamehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authornamehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authorfullhash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authorfullhashraw}{4622c4bb7444dadba22813c2addff5e7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://qwenlm.github.io/blog/qwen2.5/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Qwen2.5: A Party of Foundation Models}
+      \field{year}{2024}
+    \endentry
+    \entry{google2024gemmaterms}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=0f98f9c132af315a916cf1272843fc7b}{%
+           family={{Google DeepMind}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{0f98f9c132af315a916cf1272843fc7b}
+      \strng{fullhash}{0f98f9c132af315a916cf1272843fc7b}
+      \strng{fullhashraw}{0f98f9c132af315a916cf1272843fc7b}
+      \strng{bibnamehash}{0f98f9c132af315a916cf1272843fc7b}
+      \strng{authorbibnamehash}{0f98f9c132af315a916cf1272843fc7b}
+      \strng{authornamehash}{0f98f9c132af315a916cf1272843fc7b}
+      \strng{authorfullhash}{0f98f9c132af315a916cf1272843fc7b}
+      \strng{authorfullhashraw}{0f98f9c132af315a916cf1272843fc7b}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://ai.google.dev/gemma/terms}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Gemma Terms of Use}
+      \field{year}{2024}
+    \endentry
+    \entry{qwen2024qwen25license}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=da7e055abb5fc1aa8ed2d2a502b3a612}{%
+           family={{Alibaba Cloud}},
+           familyi={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \strng{fullhash}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \strng{fullhashraw}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \strng{bibnamehash}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \strng{authorbibnamehash}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \strng{authornamehash}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \strng{authorfullhash}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \strng{authorfullhashraw}{da7e055abb5fc1aa8ed2d2a502b3a612}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://huggingface.co/Qwen/Qwen2.5-7B/blob/main/LICENSE}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Qwen2.5 License Agreement}
+      \field{year}{2024}
+    \endentry
+    \entry{robertson2009bm25}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=c7dab237c14cbb4e5def052a91d7ec99}{%
+           family={Robertson},
+           familyi={R\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod}}}%
+        {{hash=cc9cdb3b111faeedc87e7f6c561d2ff8}{%
+           family={Zaragoza},
+           familyi={Z\bibinitperiod},
            given={Hugo},
            giveni={H\bibinitperiod}}}%
-        {{hash=c641a91d616b6eda08cbbdca7b7eb186}{%
-           family={Lavril},
-           familyi={L\bibinitperiod},
-           given={Thibaut},
-           giveni={T\bibinitperiod}}}%
-        {{hash=a32ece3bc966e7e88747e905158c9a6a}{%
-           family={Izacard},
-           familyi={I\bibinitperiod},
-           given={Gautier},
-           giveni={G\bibinitperiod}}}%
-        {{hash=7222f9d76b0fff504f39e7c9c2a526be}{%
-           family={Martinet},
-           familyi={M\bibinitperiod},
-           given={Xavier},
-           giveni={X\bibinitperiod}}}%
-        {{hash=08284515d256b832e9dba10a88af84f4}{%
-           family={Lachaux},
-           familyi={L\bibinitperiod},
-           given={Marie-Anne},
-           giveni={M\bibinithyphendelim A\bibinitperiod}}}%
-        {{hash=1d29ae55d8d993d9f195b3c97bd34f7c}{%
-           family={Lacroix},
-           familyi={L\bibinitperiod},
-           given={Timothée},
-           giveni={T\bibinitperiod}}}%
-        {{hash=e0d9a8657c1043f53c54f3f5a6ff305f}{%
-           family={Rozière},
-           familyi={R\bibinitperiod},
-           given={Baptiste},
-           giveni={B\bibinitperiod}}}%
-        {{hash=78a420900f50a8470ad085fb05231bf6}{%
-           family={Goyal},
-           familyi={G\bibinitperiod},
-           given={Naman},
-           giveni={N\bibinitperiod}}}%
-        {{hash=00ce63f55ae2ce6ea638e5f991996584}{%
-           family={Hambro},
-           familyi={H\bibinitperiod},
-           given={Eric},
-           giveni={E\bibinitperiod}}}%
-        {{hash=5373a3313da61427121b3e9733df1ed2}{%
-           family={Azhar},
-           familyi={A\bibinitperiod},
-           given={Faisal},
-           giveni={F\bibinitperiod}}}%
       }
-      \strng{namehash}{c237483431fea681283a37adbb23a59f}
-      \strng{fullhash}{685ba9e774fd21d3e8ece22557eada7e}
-      \strng{fullhashraw}{685ba9e774fd21d3e8ece22557eada7e}
-      \strng{bibnamehash}{c237483431fea681283a37adbb23a59f}
-      \strng{authorbibnamehash}{c237483431fea681283a37adbb23a59f}
-      \strng{authornamehash}{c237483431fea681283a37adbb23a59f}
-      \strng{authorfullhash}{685ba9e774fd21d3e8ece22557eada7e}
-      \strng{authorfullhashraw}{685ba9e774fd21d3e8ece22557eada7e}
+      \strng{namehash}{f0a2bfb8afb93f12dec6aaefe2c3199a}
+      \strng{fullhash}{f0a2bfb8afb93f12dec6aaefe2c3199a}
+      \strng{fullhashraw}{f0a2bfb8afb93f12dec6aaefe2c3199a}
+      \strng{bibnamehash}{f0a2bfb8afb93f12dec6aaefe2c3199a}
+      \strng{authorbibnamehash}{f0a2bfb8afb93f12dec6aaefe2c3199a}
+      \strng{authornamehash}{f0a2bfb8afb93f12dec6aaefe2c3199a}
+      \strng{authorfullhash}{f0a2bfb8afb93f12dec6aaefe2c3199a}
+      \strng{authorfullhashraw}{f0a2bfb8afb93f12dec6aaefe2c3199a}
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{arXiv preprint arXiv:2302.13971}
-      \field{title}{LLaMA: Open and Efficient Foundation Language Models}
-      \field{year}{2023}
+      \field{journaltitle}{Foundations and Trends in Information Retrieval}
+      \field{number}{4}
+      \field{title}{The Probabilistic Relevance Framework: BM25 and Beyond}
+      \field{volume}{3}
+      \field{year}{2009}
+      \field{pages}{333\bibrangedash 389}
+      \range{pages}{57}
     \endentry
-    \entry{chen2024bge}{article}{}{}
-      \name{author}{6}{}{%
-        {{hash=e24c13695b0b0d62c63b9422b5c4fa5d}{%
-           family={Chen},
-           familyi={C\bibinitperiod},
-           given={Jianlv},
-           giveni={J\bibinitperiod}}}%
-        {{hash=d71b1119f50662a9107099735aa4912f}{%
-           family={Xiao},
-           familyi={X\bibinitperiod},
-           given={Shitao},
-           giveni={S\bibinitperiod}}}%
-        {{hash=6d65862b32d88d540bffb1875cb56520}{%
-           family={Zhang},
-           familyi={Z\bibinitperiod},
-           given={Peitian},
-           giveni={P\bibinitperiod}}}%
-        {{hash=384c2cf85f0e11e983ea193103b000e8}{%
-           family={Luo},
-           familyi={L\bibinitperiod},
-           given={Kun},
-           giveni={K\bibinitperiod}}}%
-        {{hash=627b0ecff46f0730d7b063b53fecf933}{%
-           family={Lian},
-           familyi={L\bibinitperiod},
-           given={Defu},
-           giveni={D\bibinitperiod}}}%
-        {{hash=7e48bdec050a7bea1bb0d4acff3023eb}{%
-           family={Liu},
-           familyi={L\bibinitperiod},
-           given={Zheng},
-           giveni={Z\bibinitperiod}}}%
+    \entry{weaviateHybridDocs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=2a1e8d184d8101d9d99e3d491cd7be71}{%
+           family={{Weaviate}},
+           familyi={W\bibinitperiod}}}%
       }
-      \strng{namehash}{bacb2af35bde68e3692dbc3a479bda48}
-      \strng{fullhash}{8e81fd98b1eef3ab93e6cbe7e60f152a}
-      \strng{fullhashraw}{8e81fd98b1eef3ab93e6cbe7e60f152a}
-      \strng{bibnamehash}{8e81fd98b1eef3ab93e6cbe7e60f152a}
-      \strng{authorbibnamehash}{8e81fd98b1eef3ab93e6cbe7e60f152a}
-      \strng{authornamehash}{bacb2af35bde68e3692dbc3a479bda48}
-      \strng{authorfullhash}{8e81fd98b1eef3ab93e6cbe7e60f152a}
-      \strng{authorfullhashraw}{8e81fd98b1eef3ab93e6cbe7e60f152a}
+      \strng{namehash}{2a1e8d184d8101d9d99e3d491cd7be71}
+      \strng{fullhash}{2a1e8d184d8101d9d99e3d491cd7be71}
+      \strng{fullhashraw}{2a1e8d184d8101d9d99e3d491cd7be71}
+      \strng{bibnamehash}{2a1e8d184d8101d9d99e3d491cd7be71}
+      \strng{authorbibnamehash}{2a1e8d184d8101d9d99e3d491cd7be71}
+      \strng{authornamehash}{2a1e8d184d8101d9d99e3d491cd7be71}
+      \strng{authorfullhash}{2a1e8d184d8101d9d99e3d491cd7be71}
+      \strng{authorfullhashraw}{2a1e8d184d8101d9d99e3d491cd7be71}
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{arXiv preprint arXiv:2402.03216}
-      \field{title}{BGE M3-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation}
+      \field{howpublished}{\url{https://weaviate.io/developers/weaviate/search/hybrid}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Hybrid Search --- Weaviate Documentation}
+      \field{year}{2024}
+    \endentry
+    \entry{qdrantHybridTutorial}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=070c734ecb0abfb4f99834860f2b4d47}{%
+           family={{Qdrant Team}},
+           familyi={Q\bibinitperiod}}}%
+      }
+      \strng{namehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{fullhash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{fullhashraw}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{bibnamehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authorbibnamehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authornamehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authorfullhash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authorfullhashraw}{070c734ecb0abfb4f99834860f2b4d47}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://qdrant.tech/articles/hybrid-search/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Hybrid Search with Qdrant}
       \field{year}{2024}
     \endentry
     \entry{reimers2019sentence}{article}{}{}
@@ -497,6 +575,7 @@
       \strng{authornamehash}{2466af6376c9c5e3658dcc6692351f3e}
       \strng{authorfullhash}{2466af6376c9c5e3658dcc6692351f3e}
       \strng{authorfullhashraw}{2466af6376c9c5e3658dcc6692351f3e}
+      \field{extraname}{1}
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
@@ -505,7 +584,118 @@
       \field{title}{Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks}
       \field{year}{2019}
     \endentry
-    \entry{gerganov2023ggml}{misc}{}{}
+    \entry{sbertDocs}{misc}{}{}
+      \name{author}{2}{}{%
+        {{hash=da9947b27b0d1c4c912e2b391426d443}{%
+           family={Reimers},
+           familyi={R\bibinitperiod},
+           given={Nils},
+           giveni={N\bibinitperiod}}}%
+        {{hash=ea70b44be1920f6e8c379706bc7d047a}{%
+           family={Gurevych},
+           familyi={G\bibinitperiod},
+           given={Iryna},
+           giveni={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{2466af6376c9c5e3658dcc6692351f3e}
+      \strng{fullhash}{2466af6376c9c5e3658dcc6692351f3e}
+      \strng{fullhashraw}{2466af6376c9c5e3658dcc6692351f3e}
+      \strng{bibnamehash}{2466af6376c9c5e3658dcc6692351f3e}
+      \strng{authorbibnamehash}{2466af6376c9c5e3658dcc6692351f3e}
+      \strng{authornamehash}{2466af6376c9c5e3658dcc6692351f3e}
+      \strng{authorfullhash}{2466af6376c9c5e3658dcc6692351f3e}
+      \strng{authorfullhashraw}{2466af6376c9c5e3658dcc6692351f3e}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.sbert.net/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{SentenceTransformers Documentation}
+      \field{year}{2024}
+    \endentry
+    \entry{openaiEmbeddingsGuide}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=0523b13262b12c215d8009938f5c14f1}{%
+           family={{OpenAI}},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{0523b13262b12c215d8009938f5c14f1}
+      \strng{fullhash}{0523b13262b12c215d8009938f5c14f1}
+      \strng{fullhashraw}{0523b13262b12c215d8009938f5c14f1}
+      \strng{bibnamehash}{0523b13262b12c215d8009938f5c14f1}
+      \strng{authorbibnamehash}{0523b13262b12c215d8009938f5c14f1}
+      \strng{authornamehash}{0523b13262b12c215d8009938f5c14f1}
+      \strng{authorfullhash}{0523b13262b12c215d8009938f5c14f1}
+      \strng{authorfullhashraw}{0523b13262b12c215d8009938f5c14f1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://platform.openai.com/docs/guides/embeddings}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Embeddings --- OpenAI API Reference}
+      \field{year}{2024}
+    \endentry
+    \entry{malkov2016hnsw}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=1761d9a54a91e198bbbb1ab8c90b87cf}{%
+           family={Malkov},
+           familyi={M\bibinitperiod},
+           given={Yu\bibnamedelima A.},
+           giveni={Y\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=0ab161f0ecfa8c1f0510bd561839d6ac}{%
+           family={Yashunin},
+           familyi={Y\bibinitperiod},
+           given={D.\bibnamedelimi A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{41f677ba5b31db2db6a749a416e76e0e}
+      \strng{fullhash}{41f677ba5b31db2db6a749a416e76e0e}
+      \strng{fullhashraw}{41f677ba5b31db2db6a749a416e76e0e}
+      \strng{bibnamehash}{41f677ba5b31db2db6a749a416e76e0e}
+      \strng{authorbibnamehash}{41f677ba5b31db2db6a749a416e76e0e}
+      \strng{authornamehash}{41f677ba5b31db2db6a749a416e76e0e}
+      \strng{authorfullhash}{41f677ba5b31db2db6a749a416e76e0e}
+      \strng{authorfullhashraw}{41f677ba5b31db2db6a749a416e76e0e}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{number}{4}
+      \field{title}{Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs}
+      \field{volume}{42}
+      \field{year}{2020}
+      \field{pages}{824\bibrangedash 836}
+      \range{pages}{13}
+    \endentry
+    \entry{qdrantSparseVectors}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=070c734ecb0abfb4f99834860f2b4d47}{%
+           family={{Qdrant Team}},
+           familyi={Q\bibinitperiod}}}%
+      }
+      \strng{namehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{fullhash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{fullhashraw}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{bibnamehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authorbibnamehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authornamehash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authorfullhash}{070c734ecb0abfb4f99834860f2b4d47}
+      \strng{authorfullhashraw}{070c734ecb0abfb4f99834860f2b4d47}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://qdrant.tech/documentation/concepts/vectors/\#sparse-vectors}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Sparse Vectors --- Qdrant Documentation}
+      \field{year}{2024}
+    \endentry
+    \entry{ggmlGgufSpec}{misc}{}{}
       \name{author}{1}{}{%
         {{hash=04310eba93e5dc1c0adb659291d1aeca}{%
            family={Gerganov},
@@ -521,14 +711,60 @@
       \strng{authornamehash}{04310eba93e5dc1c0adb659291d1aeca}
       \strng{authorfullhash}{04310eba93e5dc1c0adb659291d1aeca}
       \strng{authorfullhashraw}{04310eba93e5dc1c0adb659291d1aeca}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{howpublished}{\url{https://github.com/ggerganov/llama.cpp}}
+      \field{howpublished}{\url{https://github.com/ggerganov/ggml/blob/master/docs/gguf.md}}
       \field{note}{Accedido: febrero 2026}
-      \field{title}{llama.cpp: LLM inference in C/C++}
-      \field{year}{2023}
+      \field{title}{GGUF Specification}
+      \field{year}{2024}
+    \endentry
+    \entry{hfGgufDocs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=e0b6bb846c6a3e0649ce0e3cd9355df3}{%
+           family={{Hugging Face}},
+           familyi={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \strng{fullhash}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \strng{fullhashraw}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \strng{bibnamehash}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \strng{authorbibnamehash}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \strng{authornamehash}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \strng{authorfullhash}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \strng{authorfullhashraw}{e0b6bb846c6a3e0649ce0e3cd9355df3}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://huggingface.co/docs/hub/gguf}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{GGUF --- Hugging Face Documentation}
+      \field{year}{2024}
+    \endentry
+    \entry{ollamaImportGguf}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=567602858fa5c17f5ef764a00a47bd8d}{%
+           family={{Ollama Team}},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{567602858fa5c17f5ef764a00a47bd8d}
+      \strng{fullhash}{567602858fa5c17f5ef764a00a47bd8d}
+      \strng{fullhashraw}{567602858fa5c17f5ef764a00a47bd8d}
+      \strng{bibnamehash}{567602858fa5c17f5ef764a00a47bd8d}
+      \strng{authorbibnamehash}{567602858fa5c17f5ef764a00a47bd8d}
+      \strng{authornamehash}{567602858fa5c17f5ef764a00a47bd8d}
+      \strng{authorfullhash}{567602858fa5c17f5ef764a00a47bd8d}
+      \strng{authorfullhashraw}{567602858fa5c17f5ef764a00a47bd8d}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://github.com/ollama/ollama/blob/main/docs/import.md}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Import a GGUF model into Ollama}
+      \field{year}{2024}
     \endentry
     \entry{hu2021lora}{article}{}{}
       \name{author}{8}{}{%
@@ -581,13 +817,131 @@
       \strng{authornamehash}{d775178c34083951ab1e07df578582c3}
       \strng{authorfullhash}{08f4b49735d5d145be00bc9c07f38975}
       \strng{authorfullhashraw}{08f4b49735d5d145be00bc9c07f38975}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{arXiv preprint arXiv:2106.09685}
       \field{title}{LoRA: Low-Rank Adaptation of Large Language Models}
       \field{year}{2021}
+    \endentry
+    \entry{anthropicMcpAnnouncement}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=f431db65cea024a5f19eab835afefee2}{%
+           family={{Anthropic}},
+           familyi={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{fullhash}{f431db65cea024a5f19eab835afefee2}
+      \strng{fullhashraw}{f431db65cea024a5f19eab835afefee2}
+      \strng{bibnamehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authorbibnamehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authornamehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authorfullhash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authorfullhashraw}{f431db65cea024a5f19eab835afefee2}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.anthropic.com/news/model-context-protocol}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Introducing the Model Context Protocol}
+      \field{year}{2024}
+    \endentry
+    \entry{fastapiFeatures}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=f5305ee02dd2a5c6215b53401b4a10b0}{%
+           family={Ramírez},
+           familyi={R\bibinitperiod},
+           given={Sebastián},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \strng{fullhash}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \strng{fullhashraw}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \strng{bibnamehash}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \strng{authorbibnamehash}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \strng{authornamehash}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \strng{authorfullhash}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \strng{authorfullhashraw}{f5305ee02dd2a5c6215b53401b4a10b0}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://fastapi.tiangolo.com/features/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{FastAPI Features}
+      \field{year}{2024}
+    \endentry
+    \entry{langchainRetrievalDocs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=8de59538e5206b848891f2b0e1898dfb}{%
+           family={{LangChain}},
+           familyi={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{8de59538e5206b848891f2b0e1898dfb}
+      \strng{fullhash}{8de59538e5206b848891f2b0e1898dfb}
+      \strng{fullhashraw}{8de59538e5206b848891f2b0e1898dfb}
+      \strng{bibnamehash}{8de59538e5206b848891f2b0e1898dfb}
+      \strng{authorbibnamehash}{8de59538e5206b848891f2b0e1898dfb}
+      \strng{authornamehash}{8de59538e5206b848891f2b0e1898dfb}
+      \strng{authorfullhash}{8de59538e5206b848891f2b0e1898dfb}
+      \strng{authorfullhashraw}{8de59538e5206b848891f2b0e1898dfb}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://python.langchain.com/docs/concepts/retrieval/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Retrieval --- LangChain Documentation}
+      \field{year}{2024}
+    \endentry
+    \entry{llamaindexRagDocs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=89dd061bf2d39f455faefc9b5242eff7}{%
+           family={{LlamaIndex}},
+           familyi={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{89dd061bf2d39f455faefc9b5242eff7}
+      \strng{fullhash}{89dd061bf2d39f455faefc9b5242eff7}
+      \strng{fullhashraw}{89dd061bf2d39f455faefc9b5242eff7}
+      \strng{bibnamehash}{89dd061bf2d39f455faefc9b5242eff7}
+      \strng{authorbibnamehash}{89dd061bf2d39f455faefc9b5242eff7}
+      \strng{authornamehash}{89dd061bf2d39f455faefc9b5242eff7}
+      \strng{authorfullhash}{89dd061bf2d39f455faefc9b5242eff7}
+      \strng{authorfullhashraw}{89dd061bf2d39f455faefc9b5242eff7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://docs.llamaindex.ai/en/stable/understanding/rag/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Building a RAG Pipeline --- LlamaIndex}
+      \field{year}{2024}
+    \endentry
+    \entry{litellmDocs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=e55570fcae7fe71eb510b57e3c608f39}{%
+           family={{BerriAI}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{e55570fcae7fe71eb510b57e3c608f39}
+      \strng{fullhash}{e55570fcae7fe71eb510b57e3c608f39}
+      \strng{fullhashraw}{e55570fcae7fe71eb510b57e3c608f39}
+      \strng{bibnamehash}{e55570fcae7fe71eb510b57e3c608f39}
+      \strng{authorbibnamehash}{e55570fcae7fe71eb510b57e3c608f39}
+      \strng{authornamehash}{e55570fcae7fe71eb510b57e3c608f39}
+      \strng{authorfullhash}{e55570fcae7fe71eb510b57e3c608f39}
+      \strng{authorfullhashraw}{e55570fcae7fe71eb510b57e3c608f39}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://docs.litellm.ai/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{LiteLLM Documentation --- Unified LLM API}
+      \field{year}{2024}
     \endentry
   \enddatalist
 \endrefsection

@@ -1,77 +1,63 @@
 \chapter{Estado del Arte}
 \label{cap:estado}
 
-En este capítulo se expone el marco teórico y tecnológico sobre el que se fundamenta el presente proyecto. Se analizarán las tecnologías punteras en el campo de los Modelos de Lenguaje Grande, las técnicas de recuperación de información que sustentan los sistemas RAG, y el ecosistema de herramientas de código abierto que hacen viable su despliegue sin dependencias externas.
+Este capítulo resume la base técnica sobre la que se construye el sistema. Se revisan los LLMs y el motivo por el que, por sí solos, no son suficientes en entornos corporativos; se explica RAG como arquitectura práctica para responder con evidencia; y se describen los componentes clave para ejecutar todo en local: embeddings, bases vectoriales, cuantización, LoRA y MCP como estándar emergente de integración de herramientas.
 
 % ============================================================
 \section{Grandes Modelos de Lenguaje (LLMs)}
 % ============================================================
-Los Modelos de Lenguaje Grande (LLMs, por sus siglas en inglés) representan el estado del arte en el campo del Procesamiento del Lenguaje Natural (PLN). Impulsados por la arquitectura \textit{Transformer} introducida por Vaswani et al. en 2017 \cite{vaswani2017attention}, estos modelos utilizan mecanismos de atención para procesar secuencias verbales capturando el contexto y las relaciones semánticas complejas con un rendimiento sin precedentes.
+Los grandes modelos de lenguaje (LLMs) son modelos neuronales entrenados para predecir el siguiente \textit{token} en una secuencia. El salto de rendimiento moderno llega con la arquitectura \textit{Transformer} \cite{vaswani2017attention}, donde la atención permite capturar relaciones de contexto de forma mucho más efectiva que arquitecturas previas.
 
-\subsection{Modelos Comerciales vs. Código Abierto}
-Mientras que sistemas comerciales como GPT-4 \textit{(OpenAI)} o Claude 3 \textit{(Anthropic)} lideran las métricas públicas, las opciones \textit{Open Source} (Código Abierto) han experimentado un crecimiento abrumador. En este segmento, modelos de la familia LLaMA introducidos por Meta \cite{touvron2023llama} han descentralizado el acceso a capacidades generativas avanzadas de varios miles de millones de parámetros. Su ventaja en despliegues corporativos resulta evidente: al poder ejecutarse de manera distribuida y en local o \textit{on-premise}, el operador retiene la soberanía íntegra sobre los datos subyacentes e inputs operacionales (``prompts'') insertados en todo el ciclo de inferencia.
+\subsection{Propietarios vs. pesos abiertos}
+En la práctica, hay dos enfoques:
 
-\begin{table}[H]
-\centering
-\caption{Comparativa de familias de LLMs relevantes para el proyecto.}
-\label{tab:llms-comparativa}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Modelo} & \textbf{Parámetros} & \textbf{Licencia} & \textbf{Local} & \textbf{Multilingüe} \\
-\midrule
-GPT-4 (OpenAI)      & $\sim$1.7T & Propietaria & No  & Sí \\
-Claude 3 (Anthropic) & ---        & Propietaria & No  & Sí \\
-LLaMA 3.1 (Meta)     & 8--405B   & Open Source & Sí & Sí \\
-Qwen 2.5 (Alibaba)   & 0.5--72B  & Open Source & Sí & Sí \\
-Mistral (Mistral AI)  & 7--8x22B & Open Source & Sí & Sí \\
-Gemma 2 (Google)      & 2--27B   & Open Source & Sí & Parcial \\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{itemize}
+    \item \textbf{Modelos propietarios vía API (SaaS):} ofrecen rendimiento alto y producto maduro, pero implican dependencia de un proveedor externo y un flujo de datos fuera del perímetro. Además, normalmente no se publica información completa sobre el modelo (tamaño exacto, detalles de entrenamiento o parámetros).
+    \item \textbf{Modelos de pesos abiertos (\textit{open-weights}):} permiten ejecución local u \textit{on-premise}, lo que habilita control de datos, trazabilidad y operación sin conectividad externa. Ejemplos representativos son Llama 3.1 \cite{meta2024llama31,meta2024llama31hf} y Qwen2.5 \cite{qwen2024qwen25blog}.
+\end{itemize}
 
-En el presente proyecto se seleccionan los modelos LLaMA 3.1 8B de Meta y Qwen 2.5 de Alibaba. LLaMA 3.1 destaca por su rendimiento consolidado en tareas de instrucción y su amplio soporte comunitario. Qwen 2.5, por su parte, ofrece capacidades multilingües superiores y una arquitectura que se presta especialmente bien al ajuste fino con LoRA, como se discutirá en la Sección~\ref{sec:lora}.
+En este proyecto se prioriza el segundo enfoque porque el requisito principal es operar en local. Es importante distinguir ``pesos abiertos'' de ``código abierto'': la disponibilidad de pesos no implica licencias OSI y puede incluir condiciones de uso específicas según el proveedor \cite{meta2024llama31hf,google2024gemmaterms,qwen2024qwen25license}.
+
+Se seleccionan Llama 3.1 8B y Qwen2.5 por ser viables en despliegue local y por su ecosistema \cite{meta2024llama31,qwen2024qwen25blog}.
 
 % ============================================================
 \section{Generación Aumentada por Recuperación (RAG)}
 % ============================================================
-Aunque los LLMs presentan altas métricas de razonamiento, sufren el fenómeno habitualmente conocido como ``alucinación''. Éste surge pues sus pesos estáticos están formados por distribuciones probabilísticas que no tienen la habilidad nativa de consultar bases de datos en tiempo real al generar cada \textit{token}.
+Un LLM no consulta bases de datos en tiempo real durante la generación: produce texto a partir de patrones aprendidos. En un entorno corporativo eso es un problema porque la respuesta debe estar respaldada por documentación actual y verificable. Para resolverlo se utiliza RAG, que introduce una etapa de recuperación antes de la generación \cite{lewis2020rag}.
 
-La técnica de \textit{Retrieval-Augmented Generation} (RAG), formalizada académicamente por Lewis et al. en 2020 \cite{lewis2020rag}, propone un enfoque híbrido. La pipeline RAG tradicional consta de dos fases:
+Un pipeline RAG típico tiene dos fases:
+
 \begin{enumerate}
-    \item \textbf{Recuperación (Retrieval):} Empleando modelos de \textit{Embeddings}, se transforma la base de conocimiento y la consulta del usuario en vectores numéricos n-dimensionales que recogen representaciones espaciales semánticas. Tras esto, se buscan los vectores más similares matemáticamente en una Base de Datos Vectorial especializada.
-    \item \textbf{Generación (Generation):} El contexto recuperado proveniente de los vectores afines se le entrega estructuralmente formateado al modelo generativo bajo una instrucción ``de sistema'', obligando y restringiendo su actuación para fundamentar la respuesta empíricamente en el contexto hallado.
+    \item \textbf{Retrieval:} la consulta se transforma en un embedding y se recuperan fragmentos relevantes desde un índice vectorial mediante búsqueda de vecinos próximos (ANN).
+    \item \textbf{Generation:} el LLM recibe la pregunta junto con el contexto recuperado. Esto reduce respuestas no fundamentadas y permite devolver trazabilidad hacia los documentos usados.
 \end{enumerate}
 
-\subsection{Variantes Avanzadas de RAG}
-La investigación reciente ha producido numerosas extensiones del paradigma RAG original:
+\subsection{Mejoras prácticas: híbrida y reranking}
+En producción, RAG casi nunca se deja ``simple'':
 
 \begin{itemize}
-    \item \textbf{Búsqueda Híbrida:} Combina la recuperación densa (basada en embeddings) con la recuperación dispersa (BM25 o TF-IDF), logrando capturar tanto la semántica profunda como las coincidencias léxicas exactas \cite{chen2024bge}. El presente proyecto implementa esta variante.
-    \item \textbf{Reranking:} Tras la fase de recuperación, un modelo especializado reordena los fragmentos candidatos según su relevancia contextual, mejorando la precisión del contexto inyectado.
-    \item \textbf{RAG con Memoria:} Extiende el paradigma incorporando el historial de conversación como contexto adicional, permitiendo consultas de seguimiento coherentes.
+    \item \textbf{Búsqueda híbrida:} se combina recuperación densa (embeddings) con recuperación dispersa (BM25) para no perder coincidencias exactas (IDs, nombres de campos, artículos legales, acrónimos) \cite{robertson2009bm25,weaviateHybridDocs,qdrantHybridTutorial}. Esta es la variante implementada en el proyecto.
+    \item \textbf{Re-ranking:} se reordenan los fragmentos candidatos con un modelo o heurística adicional para seleccionar los más relevantes antes de construir el contexto.
+    \item \textbf{Memoria conversacional acotada:} se añade contexto del historial cuando aporta valor, evitando que crezca el \textit{prompt} sin control.
 \end{itemize}
 
 % ============================================================
 \section{Modelos de Embeddings}
 % ============================================================
-Los modelos de embeddings transforman cadenas de texto en vectores numéricos de dimensión fija, donde la proximidad geométrica entre vectores refleja la similitud semántica entre los textos originales. La métrica de similitud más empleada es la similitud del coseno:
+Los embeddings convierten texto en vectores numéricos donde la distancia representa similitud semántica. En RAG, los embeddings son la base del retrieval. Una métrica común es la similitud del coseno:
 
 \begin{equation}
 \text{sim}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{||\mathbf{a}|| \cdot ||\mathbf{b}||}
 \end{equation}
 
-Entre las familias de modelos de embeddings más relevantes destacan:
+Para embeddings en local, una opción práctica y extendida es SentenceTransformers (Sentence-BERT) \cite{reimers2019sentence,sbertDocs}. Frente a alternativas comerciales (p.ej. OpenAI embeddings) \cite{openaiEmbeddingsGuide}, estos modelos permiten despliegue \textit{on-premise} sin dependencias externas.
 
-\begin{itemize}
-    \item \textbf{SentenceTransformers} \cite{reimers2019sentence}: Suite de modelos basados en la arquitectura BERT que producen embeddings de alta calidad optimizados para la similitud semántica. Su variante \texttt{paraphrase-multilingual-MiniLM-L12-v2}, utilizada en este proyecto, genera vectores de 384 dimensiones con soporte nativo para más de 50 idiomas.
-    \item \textbf{OpenAI Embeddings:} Modelos comerciales como \texttt{text-embedding-3-small} ofrecen calidad superior pero requieren conexión a internet, lo que los descarta para despliegues puramente \textit{on-premise}.
-    \item \textbf{E5 y BGE:} Familias emergentes de embeddings de código abierto con rendimiento comparable a las alternativas comerciales, aunque con mayores requisitos de VRAM.
-\end{itemize}
+En este proyecto se utiliza un modelo multilingüe de SentenceTransformers por compatibilidad con documentación en español/inglés y facilidad de despliegue local \cite{sbertDocs}.
 
 % ============================================================
 \section{Bases de Datos Vectoriales}
 % ============================================================
-La eficiencia de un sistema RAG depende fundamentalmente de la capacidad de su base de datos vectorial para realizar búsquedas de vecinos más próximos (\textit{k-NN}) en alta dimensionalidad con latencias mínimas.
+La base vectorial define latencia y escalabilidad del sistema RAG. En grandes volúmenes, se usa búsqueda aproximada (ANN) con índices eficientes. Uno de los enfoques más utilizados es HNSW \cite{malkov2016hnsw}, un grafo navegable jerárquico que permite consultas rápidas a alta dimensionalidad.
 
 \begin{table}[H]
 \centering
@@ -79,70 +65,54 @@ La eficiencia de un sistema RAG depende fundamentalmente de la capacidad de su b
 \label{tab:vectordb-comparativa}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Base de Datos} & \textbf{Licencia} & \textbf{On-Premise} & \textbf{Filtrado} & \textbf{Híbrida} \\
+\textbf{Base de datos} & \textbf{Licencia} & \textbf{On-Premise} & \textbf{Filtrado} & \textbf{Híbrida} \\
 \midrule
-Qdrant       & Apache 2.0 & Sí & Sí & Sí (BM25) \\
-Pinecone     & Propietaria & No (SaaS) & Sí & Parcial \\
-Weaviate     & BSD-3 & Sí & Sí & Sí \\
-ChromaDB     & Apache 2.0 & Sí & Limitado & No \\
-Milvus       & Apache 2.0 & Sí & Sí & Sí \\
+Qdrant   & Apache 2.0 & Sí & Sí & Sí \\
+Weaviate & BSD-3 & Sí & Sí & Sí \\
+Milvus   & Apache 2.0 & Sí & Sí & Sí \\
+Chroma   & Apache 2.0 & Sí & Limitado & Limitado \\
+Pinecone & Propietaria & No (SaaS) & Sí & Parcial \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Se seleccionó \textbf{Qdrant} por su combinación de licencia abierta, soporte nativo de búsqueda híbrida (densa + dispersa), filtrado por metadatos y su rendimiento demostrado en producción con colecciones de millones de vectores. Su API REST nativa facilita la integración con el backend Python.
-
-El índice HNSW (\textit{Hierarchical Navigable Small World}) empleado por Qdrant ofrece búsquedas aproximadas de vecinos más próximos con complejidad logarítmica $O(\log n)$, haciéndolo escalable a grandes volúmenes documentales sin degradación significativa de la latencia de búsqueda.
+Se selecciona \textbf{Qdrant} por ser \textit{on-premise}, por su filtrado por metadatos y por soporte en su ecosistema para búsqueda híbrida (dense + sparse) \cite{qdrantHybridTutorial,qdrantSparseVectors}. Además, dispone de API REST clara, lo que simplifica la integración con backend Python.
 
 % ============================================================
-\section{Cuantización de Modelos}
+\section{Cuantización y formatos para inferencia local}
 \label{sec:cuantizacion}
 % ============================================================
-La ejecución local de LLMs en hardware generalista requiere técnicas de compresión que reduzcan el consumo de memoria VRAM. La cuantización consiste en representar los pesos del modelo con menor precisión numérica, pasando de coma flotante de 16 bits (FP16) a representaciones enteras de 8 o 4 bits.
+Para ejecutar LLMs localmente con recursos limitados se recurre a cuantización: reducir precisión de los pesos para disminuir VRAM y acelerar inferencia. En el ecosistema local, el formato GGUF se utiliza ampliamente para empaquetar modelos cuantizados junto con metadatos, especialmente en \texttt{llama.cpp} \cite{ggmlGgufSpec,hfGgufDocs}.
 
-\begin{itemize}
-    \item \textbf{Q8\_0 (8 bits):} Reduce el consumo de VRAM a la mitad respecto a FP16 con una degradación de calidad inferior al 1\% en benchmarks estándar. Es la cuantización elegida para el modelo principal de conversación (LLaMA 3.1 8B).
-    \item \textbf{Q4\_0 (4 bits):} Reduce el consumo a una cuarta parte del modelo original. Se observan pérdidas medibles de calidad (2--5\%) que lo hacen adecuado para tareas de resumen donde la fidelidad absoluta es menos crítica.
-    \item \textbf{GGUF:} Formato de archivo diseñado por el proyecto \texttt{llama.cpp} \cite{gerganov2023ggml} que empaqueta los pesos cuantizados junto con los metadatos del modelo, permitiendo su carga eficiente en memoria.
-\end{itemize}
-
-Ollama, la plataforma de ejecución local empleada en este proyecto, utiliza internamente \texttt{llama.cpp} y el formato GGUF para servir los modelos cuantizados con aceleración GPU nativa.
+En este proyecto, la ejecución local se apoya en herramientas que consumen modelos GGUF y los sirven por API. Por ejemplo, Ollama documenta flujos de importación de modelos GGUF \cite{ollamaImportGguf}.
 
 % ============================================================
-\section{Ajuste Fino Eficiente con LoRA}
+\section{Ajuste fino eficiente con LoRA}
 \label{sec:lora}
 % ============================================================
-El ajuste fino (\textit{fine-tuning}) permite adaptar un modelo pre-entrenado al dominio específico de una organización. Sin embargo, el ajuste fino completo de un modelo de 8 mil millones de parámetros requiere cantidades prohibitivas de VRAM y tiempo de computación.
-
-La técnica LoRA (\textit{Low-Rank Adaptation}), introducida por Hu et al. \cite{hu2021lora}, propone una solución elegante: en lugar de modificar todos los pesos del modelo, se insertan pares de matrices de rango reducido $A$ y $B$ en las capas de atención del transformador, donde la actualización de pesos se aproxima como:
+El ajuste fino adapta un modelo generalista a un dominio concreto, pero entrenar todos los parámetros es costoso. LoRA propone entrenar adaptadores de bajo rango insertados en capas del modelo, reduciendo el número de parámetros actualizados y haciendo viable el entrenamiento con GPUs moderadas \cite{hu2021lora}:
 
 \begin{equation}
 W' = W + \Delta W = W + BA
 \end{equation}
 
-Con $B \in \mathbb{R}^{d \times r}$ y $A \in \mathbb{R}^{r \times k}$, donde $r \ll \min(d, k)$ es el rango de adaptación (típicamente $r = 8$ o $r = 16$). Esta factorización reduce drásticamente el número de parámetros entrenables (del orden del 0.1\% del total), permitiendo el ajuste fino en GPUs con 8--16 GB de VRAM en cuestión de horas.
+donde $A$ y $B$ son matrices de rango reducido y $r \ll \min(d,k)$.
 
 % ============================================================
 \section{Model Context Protocol (MCP)}
 % ============================================================
-El \textit{Model Context Protocol} (MCP) \cite{anthropic2024mcp} es un estándar abierto propuesto por Anthropic en noviembre de 2024 para formalizar la comunicación entre modelos de lenguaje y herramientas externas. MCP define una interfaz cliente-servidor donde:
+MCP es un estándar abierto propuesto por Anthropic (2024) para integrar herramientas externas con agentes basados en LLM mediante una interfaz cliente-servidor tipada \cite{anthropicMcpAnnouncement}. Un servidor MCP expone herramientas (\textit{tools}) y un cliente MCP descubre e invoca dichas herramientas con argumentos estructurados.
 
-\begin{itemize}
-    \item El \textbf{servidor MCP} publica un catálogo de herramientas (\textit{tools}) con sus firmas de entrada/salida.
-    \item El \textbf{cliente MCP} (habitualmente integrado en el agente) descubre las herramientas disponibles y las invoca proporcionando los argumentos requeridos.
-\end{itemize}
-
-Este protocolo estandariza lo que anteriormente requería implementaciones ad-hoc para cada integración, facilitando la interoperabilidad. En el presente proyecto, se implementa un servidor MCP nativo con la librería \texttt{fastmcp} de Python que expone las funciones de consulta a la API del BOE como herramientas MCP consumibles por JARVIS.
+En este proyecto se desarrolla un servidor MCP orientado a consulta normativa del BOE. Este servidor se ha validado en ejecución por terminal con un LLM y un cliente MCP compatible. Sin embargo, en el alcance actual, la integración MCP nativa no se incorpora en la interfaz web utilizada, por limitaciones del cliente. Por ello, la funcionalidad BOE dentro del sistema se integra mediante llamadas a API, manteniendo la operatividad y dejando preparada la migración a MCP completo en iteraciones futuras \cite{anthropicMcpAnnouncement}.
 
 % ============================================================
-\section{Tecnologías de Soporte del Ecosistema}
+\section{Tecnologías de soporte del ecosistema}
 % ============================================================
-Recientemente, diversos ecosistemas facilitan en la actualidad el puente entre motores de ejecución \textit{Backend} y la lógica RAG:
-\begin{itemize}
-    \item \textbf{Ollama:} Se ha consolidado como un proyecto clave para instanciar, cargar en VRAM y exponer inferencia local multiplataforma de manera compatible y eficiente con hardware generalista, a menudo empleando cuantización sub 8-bit.
-    \item \textbf{LiteLLM:} Proxy unificado que traduce las APIs propietarias de más de 100 proveedores de LLM al formato estándar de OpenAI, permitiendo cambiar de modelo sin alterar el código cliente.
-    \item \textbf{LangChain y LlamaIndex:} Bibliotecas estándar en Python para orquestar la conexión de fuentes de datos (desde archivos locales hasta almacenamiento en nube Azure/AWS), gestionar troceado semántico o \textit{chunking} de texto e inyectarlo ordenadamente al motor LLM vía su API correspondiente.
-    \item \textbf{FastAPI:} Framework web moderno de Python basado en tipado estricto y validación automática con Pydantic, que genera documentación OpenAPI/Swagger de forma nativa. Seleccionado por su rendimiento asíncrono y su ecosistema de inyección de dependencias.
-\end{itemize}
+Para implementar un RAG completo en local hacen falta piezas de integración:
 
-Sin embargo, las alternativas comerciales genéricas continúan pecando de ser soluciones ``caja blanca'' o, contrariamente, de un elevado coste por \textit{tokens} ingeridos cuando se trata de conectar sistemas altamente regulados o heterogéneos (sistemas integrados con Webhooks directos a instancias locales). Esto resalta la necesidad de desarrollar plataformas desacopladas de código abierto que permitan su extensión en el tejido empresarial, tal y como se asienta el presente fundamento del proyecto.
+\begin{itemize}
+    \item \textbf{FastAPI:} backend en Python con documentación OpenAPI automática \cite{fastapiFeatures}.
+    \item \textbf{LangChain / LlamaIndex:} utilidades para \textit{retrievers}, \textit{chunking} y orquestación RAG \cite{langchainRetrievalDocs,llamaindexRagDocs}.
+    \item \textbf{LiteLLM:} proxy que unifica APIs de múltiples proveedores bajo un formato compatible con OpenAI \cite{litellmDocs}.
+    \item \textbf{Ollama:} ejecución local de modelos y exposición por API, compatible con flujos GGUF \cite{ollamaImportGguf}.
+\end{itemize}

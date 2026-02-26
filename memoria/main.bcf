@@ -2385,15 +2385,38 @@
     <bcf:citekey order="9" intorder="1">anthropic2024mcp</bcf:citekey>
     <bcf:citekey order="10" intorder="1">es2023ragas</bcf:citekey>
     <bcf:citekey order="11" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="12" intorder="1">touvron2023llama</bcf:citekey>
-    <bcf:citekey order="13" intorder="1">lewis2020rag</bcf:citekey>
-    <bcf:citekey order="14" intorder="1">chen2024bge</bcf:citekey>
-    <bcf:citekey order="15" intorder="1">reimers2019sentence</bcf:citekey>
-    <bcf:citekey order="16" intorder="1">gerganov2023ggml</bcf:citekey>
-    <bcf:citekey order="17" intorder="1">hu2021lora</bcf:citekey>
-    <bcf:citekey order="18" intorder="1">anthropic2024mcp</bcf:citekey>
-    <bcf:citekey order="19" intorder="1">hu2021lora</bcf:citekey>
-    <bcf:citekey order="20" intorder="1">es2023ragas</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">meta2024llama31</bcf:citekey>
+    <bcf:citekey order="12" intorder="2">meta2024llama31hf</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">qwen2024qwen25blog</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">meta2024llama31hf</bcf:citekey>
+    <bcf:citekey order="14" intorder="2">google2024gemmaterms</bcf:citekey>
+    <bcf:citekey order="14" intorder="3">qwen2024qwen25license</bcf:citekey>
+    <bcf:citekey order="15" intorder="1">meta2024llama31</bcf:citekey>
+    <bcf:citekey order="15" intorder="2">qwen2024qwen25blog</bcf:citekey>
+    <bcf:citekey order="16" intorder="1">lewis2020rag</bcf:citekey>
+    <bcf:citekey order="17" intorder="1">robertson2009bm25</bcf:citekey>
+    <bcf:citekey order="17" intorder="2">weaviateHybridDocs</bcf:citekey>
+    <bcf:citekey order="17" intorder="3">qdrantHybridTutorial</bcf:citekey>
+    <bcf:citekey order="18" intorder="1">reimers2019sentence</bcf:citekey>
+    <bcf:citekey order="18" intorder="2">sbertDocs</bcf:citekey>
+    <bcf:citekey order="19" intorder="1">openaiEmbeddingsGuide</bcf:citekey>
+    <bcf:citekey order="20" intorder="1">sbertDocs</bcf:citekey>
+    <bcf:citekey order="21" intorder="1">malkov2016hnsw</bcf:citekey>
+    <bcf:citekey order="22" intorder="1">qdrantHybridTutorial</bcf:citekey>
+    <bcf:citekey order="22" intorder="2">qdrantSparseVectors</bcf:citekey>
+    <bcf:citekey order="23" intorder="1">ggmlGgufSpec</bcf:citekey>
+    <bcf:citekey order="23" intorder="2">hfGgufDocs</bcf:citekey>
+    <bcf:citekey order="24" intorder="1">ollamaImportGguf</bcf:citekey>
+    <bcf:citekey order="25" intorder="1">hu2021lora</bcf:citekey>
+    <bcf:citekey order="26" intorder="1">anthropicMcpAnnouncement</bcf:citekey>
+    <bcf:citekey order="27" intorder="1">anthropicMcpAnnouncement</bcf:citekey>
+    <bcf:citekey order="28" intorder="1">fastapiFeatures</bcf:citekey>
+    <bcf:citekey order="29" intorder="1">langchainRetrievalDocs</bcf:citekey>
+    <bcf:citekey order="29" intorder="2">llamaindexRagDocs</bcf:citekey>
+    <bcf:citekey order="30" intorder="1">litellmDocs</bcf:citekey>
+    <bcf:citekey order="31" intorder="1">ollamaImportGguf</bcf:citekey>
+    <bcf:citekey order="32" intorder="1">hu2021lora</bcf:citekey>
+    <bcf:citekey order="33" intorder="1">es2023ragas</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
