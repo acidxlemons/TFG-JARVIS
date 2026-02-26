@@ -52,7 +52,7 @@ Los embeddings convierten texto en vectores numéricos donde la distancia repres
 
 Para embeddings en local, una opción práctica y extendida es SentenceTransformers (Sentence-BERT) \cite{reimers2019sentence,sbertDocs}. Frente a alternativas comerciales (p.ej. OpenAI embeddings) \cite{openaiEmbeddingsGuide}, estos modelos permiten despliegue \textit{on-premise} sin dependencias externas.
 
-En este proyecto se utiliza un modelo multilingüe de SentenceTransformers por compatibilidad con documentación en español/inglés y facilidad de despliegue local \cite{sbertDocs}.
+En este proyecto se utiliza un modelo multilingüe de SentenceTransformers por compatibilidad con documentación en español/inglés y facilidad de despliegue local \cite{sbertDocs}. Adicionalmente, el sistema contempla un proceso de \textit{fine-tuning} sobre este modelo base para mejorar la representación semántica en el dominio específico corporativo, ajustando el espacio vectorial a la terminología propia.
 
 % ============================================================
 \section{Bases de Datos Vectoriales}
@@ -90,13 +90,17 @@ En este proyecto, la ejecución local se apoya en herramientas que consumen mode
 \section{Ajuste fino eficiente con LoRA}
 \label{sec:lora}
 % ============================================================
-El ajuste fino adapta un modelo generalista a un dominio concreto, pero entrenar todos los parámetros es costoso. LoRA propone entrenar adaptadores de bajo rango insertados en capas del modelo, reduciendo el número de parámetros actualizados y haciendo viable el entrenamiento con GPUs moderadas \cite{hu2021lora}:
+El ajuste fino (\textit{fine-tuning}) adapta un modelo generalista a un dominio concreto enseñándole nueva terminología, estilo o formatos de respuesta. Sin embargo, entrenar todos los parámetros de un LLM moderno requiere una capacidad de cómputo inmensa.
+
+Para resolver este problema, la técnica LoRA (\textit{Low-Rank Adaptation}) propone entrenar únicamente unos adaptadores de bajo rango que se insertan en las capas de atención del modelo original. Durante el entrenamiento, los pesos originales se mantienen congelados (\textit{frozen}) y solo se actualizan los adaptadores, reduciendo drásticamente el número de parámetros a entrenar y haciendo viable el ajuste fino con GPUs moderadas \cite{hu2021lora}:
 
 \begin{equation}
 W' = W + \Delta W = W + BA
 \end{equation}
 
 donde $A$ y $B$ son matrices de rango reducido y $r \ll \min(d,k)$.
+
+En este proyecto se explora el ajuste fino mediante LoRA sobre un LLM base con el objetivo de mejorar su adherencia a un formato específico. No obstante, se observó empíricamente que, para tareas de RAG puras, el \textit{fine-tuning} en el LLM resultaba menos eficaz que un buen ajuste del \textit{prompt} (\textit{prompt engineering}) combinado con un modelo de embeddings bien adaptado al dominio. Por ello, la estrategia final descansa más sobre la calidad del contexto recuperado que sobre la modificación de los pesos del LLM.
 
 % ============================================================
 \section{Model Context Protocol (MCP)}
