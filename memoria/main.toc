@@ -4,13 +4,13 @@
 \contentsline {chapter}{Abstract}{\es@scroman {ix}}{chapter*.4}%
 \contentsline {chapter}{\numberline {1}Introducción}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Motivación}{1}{section.1.1}%
-\contentsline {subsection}{\numberline {1.1.1}Problemática del Shadow AI en Entornos Corporativos}{2}{subsection.1.1.1}%
-\contentsline {section}{\numberline {1.2}Objetivos del Proyecto}{2}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Alcance y Limitaciones}{3}{section.1.3}%
-\contentsline {subsection}{\numberline {1.3.1}Alcance}{3}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {1.3.2}Limitaciones}{4}{subsection.1.3.2}%
-\contentsline {section}{\numberline {1.4}Contribuciones Principales}{4}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Estructura de la Memoria}{5}{section.1.5}%
+\contentsline {subsection}{\numberline {1.1.1}Problemática del Shadow AI en entornos corporativos}{2}{subsection.1.1.1}%
+\contentsline {section}{\numberline {1.2}Objetivos del proyecto}{3}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Alcance y limitaciones}{4}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Alcance}{4}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Limitaciones}{5}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Contribuciones principales}{5}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Estructura de la memoria}{6}{section.1.5}%
 \contentsline {chapter}{\numberline {2}Estado del Arte}{7}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Grandes Modelos de Lenguaje (LLMs)}{7}{section.2.1}%
 \contentsline {subsection}{\numberline {2.1.1}Modelos Comerciales vs. Código Abierto}{7}{subsection.2.1.1}%

@@ -93,6 +93,209 @@
       \field{pages}{9459\bibrangedash 9474}
       \range{pages}{16}
     \endentry
+    \entry{microsoft2024worktrend}{misc}{}{}
+      \name{author}{2}{}{%
+        {{hash=140864078aeca1c7c35b4beb33c53c34}{%
+           family={{Microsoft}},
+           familyi={M\bibinitperiod}}}%
+        {{hash=e884c507c5198a4578a84498f7a323e2}{%
+           family={{LinkedIn}},
+           familyi={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{64f6752446501f4e654f51a93be683dc}
+      \strng{fullhash}{64f6752446501f4e654f51a93be683dc}
+      \strng{fullhashraw}{64f6752446501f4e654f51a93be683dc}
+      \strng{bibnamehash}{64f6752446501f4e654f51a93be683dc}
+      \strng{authorbibnamehash}{64f6752446501f4e654f51a93be683dc}
+      \strng{authornamehash}{64f6752446501f4e654f51a93be683dc}
+      \strng{authorfullhash}{64f6752446501f4e654f51a93be683dc}
+      \strng{authorfullhashraw}{64f6752446501f4e654f51a93be683dc}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.microsoft.com/en-us/worklab/work-trend-index/ai-at-work-is-here-now-comes-the-hard-part}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{2024 Work Trend Index: AI at Work Is Here. Now Comes the Hard Part}
+      \field{year}{2024}
+    \endentry
+    \entry{cyberhaven2024shadow}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=cdf1c227ab6a19518673a33a17aeb4ac}{%
+           family={{Cyberhaven}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \strng{fullhash}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \strng{fullhashraw}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \strng{bibnamehash}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \strng{authorbibnamehash}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \strng{authornamehash}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \strng{authorfullhash}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \strng{authorfullhashraw}{cdf1c227ab6a19518673a33a17aeb4ac}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.cyberhaven.com/blog/shadow-ai}}
+      \field{note}{Análisis sobre 1,6 millones de trabajadores. Accedido: febrero 2026}
+      \field{title}{Shadow AI: The Growing Risk of Unauthorized AI Use in the Enterprise}
+      \field{year}{2024}
+    \endentry
+    \entry{kalisa2024shadow}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=3f023ee682ceb47c469c42858019a749}{%
+           family={{Kalisa AI}},
+           familyi={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{3f023ee682ceb47c469c42858019a749}
+      \strng{fullhash}{3f023ee682ceb47c469c42858019a749}
+      \strng{fullhashraw}{3f023ee682ceb47c469c42858019a749}
+      \strng{bibnamehash}{3f023ee682ceb47c469c42858019a749}
+      \strng{authorbibnamehash}{3f023ee682ceb47c469c42858019a749}
+      \strng{authornamehash}{3f023ee682ceb47c469c42858019a749}
+      \strng{authorfullhash}{3f023ee682ceb47c469c42858019a749}
+      \strng{authorfullhashraw}{3f023ee682ceb47c469c42858019a749}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://kalisa.ai/shadow-ai/}}
+      \field{note}{Datos corporativos en herramientas IA crecieron 485\% entre 2023--2024. Accedido: febrero 2026}
+      \field{title}{Shadow AI: The Unseen Risk Lurking in Your Organization}
+      \field{year}{2024}
+    \endentry
+    \entry{komprise2025survey}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=04f35663b44ba178a51b9ba61068586f}{%
+           family={{Komprise}},
+           familyi={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{04f35663b44ba178a51b9ba61068586f}
+      \strng{fullhash}{04f35663b44ba178a51b9ba61068586f}
+      \strng{fullhashraw}{04f35663b44ba178a51b9ba61068586f}
+      \strng{bibnamehash}{04f35663b44ba178a51b9ba61068586f}
+      \strng{authorbibnamehash}{04f35663b44ba178a51b9ba61068586f}
+      \strng{authornamehash}{04f35663b44ba178a51b9ba61068586f}
+      \strng{authorfullhash}{04f35663b44ba178a51b9ba61068586f}
+      \strng{authorfullhashraw}{04f35663b44ba178a51b9ba61068586f}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.komprise.com/resource/2025-it-survey/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{2025 IT Survey: 44\% of Organizations Report Sensitive Data Leakage into AI}
+      \field{year}{2025}
+    \endentry
+    \entry{pwc2024shadowai}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=61835b68ccef417c7b0f4743bc983d0a}{%
+           family={{PwC}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{61835b68ccef417c7b0f4743bc983d0a}
+      \strng{fullhash}{61835b68ccef417c7b0f4743bc983d0a}
+      \strng{fullhashraw}{61835b68ccef417c7b0f4743bc983d0a}
+      \strng{bibnamehash}{61835b68ccef417c7b0f4743bc983d0a}
+      \strng{authorbibnamehash}{61835b68ccef417c7b0f4743bc983d0a}
+      \strng{authornamehash}{61835b68ccef417c7b0f4743bc983d0a}
+      \strng{authorfullhash}{61835b68ccef417c7b0f4743bc983d0a}
+      \strng{authorfullhashraw}{61835b68ccef417c7b0f4743bc983d0a}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.pwc.com/}}
+      \field{note}{54\% de empresas con IA no autorizada recibieron escrutinio regulatorio. Accedido: febrero 2026}
+      \field{title}{Managing Shadow AI Risks: Regulatory Scrutiny and Compliance Challenges}
+      \field{year}{2024}
+    \endentry
+    \entry{ibm2025databreach}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=be1607e249ec56f051f2ca41b8a707cf}{%
+           family={{IBM Security}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{be1607e249ec56f051f2ca41b8a707cf}
+      \strng{fullhash}{be1607e249ec56f051f2ca41b8a707cf}
+      \strng{fullhashraw}{be1607e249ec56f051f2ca41b8a707cf}
+      \strng{bibnamehash}{be1607e249ec56f051f2ca41b8a707cf}
+      \strng{authorbibnamehash}{be1607e249ec56f051f2ca41b8a707cf}
+      \strng{authornamehash}{be1607e249ec56f051f2ca41b8a707cf}
+      \strng{authorfullhash}{be1607e249ec56f051f2ca41b8a707cf}
+      \strng{authorfullhashraw}{be1607e249ec56f051f2ca41b8a707cf}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.ibm.com/reports/data-breach}}
+      \field{note}{Incidentes Shadow AI añaden \$308.000 de coste medio por brecha. Accedido: febrero 2026}
+      \field{title}{Cost of a Data Breach Report 2025}
+      \field{year}{2025}
+    \endentry
+    \entry{anthropic2024mcp}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=f431db65cea024a5f19eab835afefee2}{%
+           family={{Anthropic}},
+           familyi={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{fullhash}{f431db65cea024a5f19eab835afefee2}
+      \strng{fullhashraw}{f431db65cea024a5f19eab835afefee2}
+      \strng{bibnamehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authorbibnamehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authornamehash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authorfullhash}{f431db65cea024a5f19eab835afefee2}
+      \strng{authorfullhashraw}{f431db65cea024a5f19eab835afefee2}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://modelcontextprotocol.io/}}
+      \field{note}{Accedido: febrero 2026}
+      \field{title}{Model Context Protocol Specification}
+      \field{year}{2024}
+    \endentry
+    \entry{es2023ragas}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=d8dead04bec0d1ebb462dd6ac4504a36}{%
+           family={Es},
+           familyi={E\bibinitperiod},
+           given={Shahul},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5ebf432f1942f224b50ebd01708c854c}{%
+           family={James},
+           familyi={J\bibinitperiod},
+           given={Jithin},
+           giveni={J\bibinitperiod}}}%
+        {{hash=3d36fadaa097eea8962c0e05d187b8a2}{%
+           family={Espinosa-Anke},
+           familyi={E\bibinithyphendelim A\bibinitperiod},
+           given={Luis},
+           giveni={L\bibinitperiod}}}%
+        {{hash=b66c934ea85e43f75cae6e977ceaca03}{%
+           family={Schockaert},
+           familyi={S\bibinitperiod},
+           given={Steven},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{c1c4ea85e78c313d8c00616419b5c4d6}
+      \strng{fullhash}{6f9b389c1f3fc11e9601e665bb932466}
+      \strng{fullhashraw}{6f9b389c1f3fc11e9601e665bb932466}
+      \strng{bibnamehash}{6f9b389c1f3fc11e9601e665bb932466}
+      \strng{authorbibnamehash}{6f9b389c1f3fc11e9601e665bb932466}
+      \strng{authornamehash}{c1c4ea85e78c313d8c00616419b5c4d6}
+      \strng{authorfullhash}{6f9b389c1f3fc11e9601e665bb932466}
+      \strng{authorfullhashraw}{6f9b389c1f3fc11e9601e665bb932466}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2309.15217}
+      \field{title}{RAGAS: Automated Evaluation of Retrieval Augmented Generation}
+      \field{year}{2023}
+    \endentry
     \entry{vaswani2017attention}{article}{}{}
       \name{author}{8}{}{%
         {{hash=7f28e84700536646dd6620a0db07ad09}{%
@@ -144,8 +347,8 @@
       \strng{authornamehash}{ee273ab30cfb889666f8c4d806eb9ce7}
       \strng{authorfullhash}{f82970bbd2bdd7a002d2af62b743d5cc}
       \strng{authorfullhashraw}{f82970bbd2bdd7a002d2af62b743d5cc}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Advances in Neural Information Processing Systems (NeurIPS)}
@@ -216,8 +419,8 @@
       \strng{authornamehash}{c237483431fea681283a37adbb23a59f}
       \strng{authorfullhash}{685ba9e774fd21d3e8ece22557eada7e}
       \strng{authorfullhashraw}{685ba9e774fd21d3e8ece22557eada7e}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{arXiv preprint arXiv:2302.13971}
@@ -265,8 +468,8 @@
       \strng{authornamehash}{bacb2af35bde68e3692dbc3a479bda48}
       \strng{authorfullhash}{8e81fd98b1eef3ab93e6cbe7e60f152a}
       \strng{authorfullhashraw}{8e81fd98b1eef3ab93e6cbe7e60f152a}
-      \field{sortinit}{5}
-      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{arXiv preprint arXiv:2402.03216}
@@ -294,8 +497,8 @@
       \strng{authornamehash}{2466af6376c9c5e3658dcc6692351f3e}
       \strng{authorfullhash}{2466af6376c9c5e3658dcc6692351f3e}
       \strng{authorfullhashraw}{2466af6376c9c5e3658dcc6692351f3e}
-      \field{sortinit}{6}
-      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP)}
@@ -318,8 +521,8 @@
       \strng{authornamehash}{04310eba93e5dc1c0adb659291d1aeca}
       \strng{authorfullhash}{04310eba93e5dc1c0adb659291d1aeca}
       \strng{authorfullhashraw}{04310eba93e5dc1c0adb659291d1aeca}
-      \field{sortinit}{7}
-      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{howpublished}{\url{https://github.com/ggerganov/llama.cpp}}
@@ -378,75 +581,13 @@
       \strng{authornamehash}{d775178c34083951ab1e07df578582c3}
       \strng{authorfullhash}{08f4b49735d5d145be00bc9c07f38975}
       \strng{authorfullhashraw}{08f4b49735d5d145be00bc9c07f38975}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{arXiv preprint arXiv:2106.09685}
       \field{title}{LoRA: Low-Rank Adaptation of Large Language Models}
       \field{year}{2021}
-    \endentry
-    \entry{anthropic2024mcp}{misc}{}{}
-      \name{author}{1}{}{%
-        {{hash=f431db65cea024a5f19eab835afefee2}{%
-           family={{Anthropic}},
-           familyi={A\bibinitperiod}}}%
-      }
-      \strng{namehash}{f431db65cea024a5f19eab835afefee2}
-      \strng{fullhash}{f431db65cea024a5f19eab835afefee2}
-      \strng{fullhashraw}{f431db65cea024a5f19eab835afefee2}
-      \strng{bibnamehash}{f431db65cea024a5f19eab835afefee2}
-      \strng{authorbibnamehash}{f431db65cea024a5f19eab835afefee2}
-      \strng{authornamehash}{f431db65cea024a5f19eab835afefee2}
-      \strng{authorfullhash}{f431db65cea024a5f19eab835afefee2}
-      \strng{authorfullhashraw}{f431db65cea024a5f19eab835afefee2}
-      \field{sortinit}{9}
-      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{\url{https://modelcontextprotocol.io/}}
-      \field{note}{Accedido: febrero 2026}
-      \field{title}{Model Context Protocol Specification}
-      \field{year}{2024}
-    \endentry
-    \entry{es2023ragas}{article}{}{}
-      \name{author}{4}{}{%
-        {{hash=d8dead04bec0d1ebb462dd6ac4504a36}{%
-           family={Es},
-           familyi={E\bibinitperiod},
-           given={Shahul},
-           giveni={S\bibinitperiod}}}%
-        {{hash=5ebf432f1942f224b50ebd01708c854c}{%
-           family={James},
-           familyi={J\bibinitperiod},
-           given={Jithin},
-           giveni={J\bibinitperiod}}}%
-        {{hash=3d36fadaa097eea8962c0e05d187b8a2}{%
-           family={Espinosa-Anke},
-           familyi={E\bibinithyphendelim A\bibinitperiod},
-           given={Luis},
-           giveni={L\bibinitperiod}}}%
-        {{hash=b66c934ea85e43f75cae6e977ceaca03}{%
-           family={Schockaert},
-           familyi={S\bibinitperiod},
-           given={Steven},
-           giveni={S\bibinitperiod}}}%
-      }
-      \strng{namehash}{c1c4ea85e78c313d8c00616419b5c4d6}
-      \strng{fullhash}{6f9b389c1f3fc11e9601e665bb932466}
-      \strng{fullhashraw}{6f9b389c1f3fc11e9601e665bb932466}
-      \strng{bibnamehash}{6f9b389c1f3fc11e9601e665bb932466}
-      \strng{authorbibnamehash}{6f9b389c1f3fc11e9601e665bb932466}
-      \strng{authornamehash}{c1c4ea85e78c313d8c00616419b5c4d6}
-      \strng{authorfullhash}{6f9b389c1f3fc11e9601e665bb932466}
-      \strng{authorfullhashraw}{6f9b389c1f3fc11e9601e665bb932466}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{journaltitle}{arXiv preprint arXiv:2309.15217}
-      \field{title}{RAGAS: Automated Evaluation of Retrieval Augmented Generation}
-      \field{year}{2023}
     \endentry
   \enddatalist
 \endrefsection
