@@ -1,0 +1,254 @@
+\chapter{Descripción Funcional del Sistema}
+\label{cap:funcional}
+
+En este capítulo describo el sistema que he desarrollado desde la perspectiva del usuario final. Detallo qué puede hacer el sistema, cómo se presenta la interfaz conversacional, qué funcionalidades están disponibles y cómo puede interactuar el usuario con cada una de ellas. Mi objetivo es ofrecer una visión completa y comprensible de las capacidades del sistema sin entrar todavía en los detalles de implementación técnica, que reservo para el Capítulo~\ref{cap:implementacion}.
+
+% ============================================================
+\section{Visión General}
+% ============================================================
+
+JARVIS (\textit{Just A Rather Very Intelligent System}) es un asistente conversacional corporativo desplegado en la infraestructura interna de la organización. Los empleados acceden al sistema a través de un navegador web y pueden interactuar con él en lenguaje natural para realizar las siguientes tareas:
+
+\begin{itemize}
+    \item Consultar documentos corporativos internos (manuales, políticas, procedimientos, informes).
+    \item Analizar páginas web proporcionando una URL.
+    \item Buscar información actualizada en internet.
+    \item Analizar imágenes y documentos escaneados.
+    \item Consultar legislación del Boletín Oficial del Estado (BOE).
+    \item Mantener conversaciones generales con un modelo de lenguaje.
+    \item Consultar el estado de la indexación de documentos.
+    \item Listar los documentos disponibles en la base de conocimiento.
+\end{itemize}
+
+He diseñado el sistema para que \textbf{detecte automáticamente la intención del usuario} a partir del texto del mensaje, sin necesidad de comandos explícitos, menús ni modos manuales. El usuario simplemente escribe su pregunta o solicitud y el sistema decide internamente qué funcionalidad activar. Esta transparencia hace que la experiencia sea natural e intuitiva, similar a interactuar con un asistente humano.
+
+% ============================================================
+\section{Acceso al Sistema e Inicio de Sesión}
+% ============================================================
+
+El sistema se accede a través de una URL corporativa protegida por HTTPS (puerto 8443). Al acceder por primera vez, el usuario es redirigido al flujo de autenticación corporativa mediante Azure Active Directory (SSO). El proceso es el siguiente:
+
+\begin{enumerate}
+    \item El usuario accede a \texttt{https://servidor:8443} desde su navegador.
+    \item El sistema redirige al portal de autenticación de Azure AD (Microsoft).
+    \item El usuario introduce sus credenciales corporativas (las mismas que utiliza para acceder a Outlook, Teams o SharePoint).
+    \item Tras la autenticación exitosa, se le redirige de vuelta al sistema con su sesión iniciada.
+    \item El sistema identifica automáticamente su nombre, correo electrónico y los grupos a los que pertenece en Azure AD.
+\end{enumerate}
+
+No es necesario crear una cuenta separada ni recordar credenciales adicionales. Los grupos del directorio activo determinan a qué documentos tiene acceso cada usuario, implementando así un control de acceso departamental transparente.
+
+% ============================================================
+\section{Interfaz de Usuario}
+\label{sec:interfaz}
+% ============================================================
+
+La interfaz de usuario es una aplicación web tipo chat, similar en aspecto y funcionamiento a ChatGPT o Microsoft Copilot. La interfaz se estructura en los siguientes elementos principales:
+
+\subsection{Panel Principal de Chat}
+
+El área central de la pantalla constituye el panel de conversación. El usuario escribe su mensaje en un campo de texto en la parte inferior y la respuesta del asistente aparece en la parte superior, en un formato de chat alternado (mensaje del usuario a la derecha, respuesta del asistente a la izquierda).
+
+Las respuestas se muestran en \textbf{streaming en tiempo real}: el texto aparece progresivamente, token a token, a medida que el modelo lo genera. Esto proporciona retroalimentación inmediata al usuario y evita la sensación de espera prolongada.
+
+Las respuestas soportan formato enriquecido:
+\begin{itemize}
+    \item \textbf{Markdown:} Negritas, cursivas, listas, encabezados, código en línea.
+    \item \textbf{Bloques de código:} Con resaltado de sintaxis para múltiples lenguajes.
+    \item \textbf{Tablas:} Para información estructurada.
+    \item \textbf{Enlaces:} URLs clicables a fuentes externas o documentos referenciados.
+    \item \textbf{Emojis:} Para indicaciones visuales de modo de operación (📚 RAG, 🌐 Web, 🔍 Búsqueda, 🖼️ Visión).
+\end{itemize}
+
+\subsection{Panel Lateral de Conversaciones}
+
+A la izquierda de la interfaz se muestra un panel con el historial de conversaciones del usuario. Cada conversación tiene un título generado automáticamente y puede retomarse en cualquier momento. Las conversaciones se almacenan de forma persistente en la base de datos PostgreSQL del sistema.
+
+\subsection{Carga de Archivos Adjuntos}
+
+La interfaz permite adjuntar archivos directamente en el chat mediante un botón de clip o arrastrando y soltando (\textit{drag and drop}). Los tipos de archivos soportados incluyen:
+
+\begin{itemize}
+    \item \textbf{Imágenes} (PNG, JPG, WebP): Se procesan con modelos de visión multimodal para describir, transcribir o analizar su contenido.
+    \item \textbf{Documentos PDF:} Si el PDF contiene texto seleccionable, OpenWebUI extrae el texto y lo envía al modelo junto con la pregunta del usuario. Si el PDF es escaneado, se recomienda utilizar la vía de ingesta automatizada (carpeta \texttt{data/watch}) para que el motor OCR lo procese.
+\end{itemize}
+
+% ============================================================
+\section{Modos de Operación}
+\label{sec:modos}
+% ============================================================
+
+A continuación describo los modos de operación fundamentales que he configurado en el sistema, vistos desde la perspectiva del usuario, con ejemplos de los tipos de consultas que activan cada modo.
+
+\subsection{Consulta de Documentos Internos (RAG)}
+\label{subsec:modo-rag}
+
+Este es el modo principal del sistema y la funcionalidad que justifica todo el proyecto. Cuando el usuario formula una pregunta relacionada con documentos corporativos, el sistema busca automáticamente en su base de conocimiento vectorial y genera una respuesta fundamentada exclusivamente en el contenido de los documentos recuperados.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} ``¿Cuál es la política de calidad de la empresa?''
+    \item \textbf{Comportamiento:} El sistema busca en Qdrant los fragmentos más relevantes del documento de calidad indexado, los inyecta como contexto en el prompt y genera una respuesta precisa basada en el contenido real del documento.
+    \item \textbf{Indicador visual:} 📚 \texttt{Buscando en documentos internos...}
+\end{itemize}
+
+Las respuestas en modo RAG incluyen \textbf{referencias a las fuentes}: el nombre del documento, la página y la puntuación de relevancia de cada fragmento utilizado, proporcionando trazabilidad completa.
+
+El sistema también detecta preguntas de seguimiento: si el usuario pregunta ``¿Y cuándo fue la última revisión?'' tras una consulta RAG, el sistema mantiene el modo RAG y utiliza el contexto de la conversación anterior para contextualizar la nueva búsqueda.
+
+\subsection{Búsqueda en Internet}
+\label{subsec:modo-web}
+
+Para consultas que requieren información actualizada o que exceden el ámbito de los documentos internos, el sistema ofrece búsqueda en internet.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} ``Busca en internet las últimas noticias sobre Docker''
+    \item \textbf{Comportamiento:} El sistema ejecuta una búsqueda en DuckDuckGo, recupera los resultados más relevantes y genera una respuesta sintetizada con enlaces a las fuentes originales.
+    \item \textbf{Indicador visual:} 🌐 \texttt{Buscando en internet...}
+\end{itemize}
+
+Las respuestas incluyen los enlaces directos a las fuentes consultadas en una sección de ``Fuentes'' al final del mensaje. El sistema detecta automáticamente consultas que necesitan información fresca (noticias, precios, resultados deportivos) y añade contexto temporal a la búsqueda.
+
+\subsection{Análisis de Páginas Web (Scraping)}
+\label{subsec:modo-scraping}
+
+Cuando el usuario incluye una URL en su mensaje, el sistema descarga y analiza el contenido de la página web automáticamente.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} ``Resume esta página: https://ejemplo.com/articulo''
+    \item \textbf{Comportamiento:} El sistema abre la URL en un navegador automatizado (Playwright), espera a que se renderice todo el JavaScript, extrae el contenido textual limpio y genera un resumen o responde la pregunta del usuario basándose en el contenido extraído.
+    \item \textbf{Indicador visual:} 🔍 \texttt{Analizando URL...}
+\end{itemize}
+
+El contenido extraído queda almacenado en la \textbf{memoria de sesión del usuario}, lo que permite realizar preguntas de seguimiento como ``¿Qué dice el tercer párrafo?'' sin necesidad de volver a enviar la URL. Además, el usuario puede optar por indexar el contenido permanentemente en la colección \texttt{webs} de Qdrant para futuras consultas RAG.
+
+\subsection{Análisis de Imágenes (Visión/OCR)}
+\label{subsec:modo-vision}
+
+El sistema permite analizar imágenes adjuntadas directamente en el chat.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} [Adjuntar foto de un documento] ``¿Qué pone en este documento?''
+    \item \textbf{Comportamiento:} La imagen se envía a un modelo de visión multimodal (Qwen 2.5 VL o LLaVA) que describe, transcribe o analiza el contenido visual.
+    \item \textbf{Indicador visual:} 🖼️ \texttt{Analizando imagen...}
+\end{itemize}
+
+La última imagen analizada queda almacenada en la memoria de sesión, permitiendo preguntas de seguimiento como ``¿Y cuál es la fecha que aparece?'' sin necesidad de reenviar la imagen.
+
+\subsection{Consulta Legislativa del BOE}
+\label{subsec:modo-boe}
+
+El sistema integra la capacidad de consultar el Boletín Oficial del Estado (BOE) directamente desde la interfaz de chat.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} ``Busca en el BOE la ley de protección de datos''
+    \item \textbf{Comportamiento:} El sistema resuelve semánticamente el nombre coloquial de la ley a su identificador oficial del BOE, consulta la API de Datos Abiertos del BOE y devuelve un resumen estructurado de la ley solicitada.
+    \item \textbf{Indicador visual:} 🏛️ \texttt{Consultando el BOE...}
+\end{itemize}
+
+El sistema también soporta consultas por número de artículo (``dame el artículo 5 de la LOPD'') y consultas del sumario del día (``¿qué ha salido hoy en el BOE?'').
+
+\subsection{Listar Documentos Disponibles}
+\label{subsec:modo-listar}
+
+El usuario puede consultar en cualquier momento qué documentos están indexados en el sistema.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} ``¿Qué documentos tienes?'' o simplemente ``/docs''
+    \item \textbf{Comportamiento:} El sistema consulta las colecciones de Qdrant a las que el usuario tiene acceso y devuelve una lista organizada por tipo (documentos locales y webs guardadas), mostrando el nombre de cada documento.
+\end{itemize}
+
+\subsection{Estado del Sistema}
+\label{subsec:modo-status}
+
+El usuario puede verificar el estado de la indexación y los procesos internos.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} ``¿Cómo va la indexación?''
+    \item \textbf{Comportamiento:} El sistema consulta el servicio Indexer y devuelve información sobre el estado de sincronización con SharePoint, documentos pendientes y estadísticas de la base de conocimiento.
+\end{itemize}
+
+\subsection{Ayuda y Capacidades}
+\label{subsec:modo-ayuda}
+
+El usuario puede solicitar información sobre las capacidades del sistema.
+
+\begin{itemize}
+    \item \textbf{Ejemplo de consulta:} ``¿Qué puedes hacer?'' o ``ayuda''
+    \item \textbf{Comportamiento:} El sistema devuelve un mensaje formateado con una descripción de todas las funcionalidades disponibles y ejemplos de uso.
+\end{itemize}
+
+\subsection{Conversación General}
+\label{subsec:modo-chat}
+
+Si el mensaje del usuario no coincide con ninguno de los modos especializados anteriores, el sistema funciona como un asistente conversacional general, respondiendo preguntas, manteniendo conversaciones y proporcionando información a partir del conocimiento general del modelo de lenguaje.
+
+% ============================================================
+\section{Escenarios de Uso Completos}
+\label{sec:escenarios}
+% ============================================================
+
+Para ilustrar la experiencia del usuario de forma integral, describo a continuación tres escenarios de uso representativos de las capacidades que he integrando:
+
+\subsection{Escenario 1: Consulta de un procedimiento corporativo}
+
+Un empleado del departamento de calidad necesita verificar un requisito específico:
+
+\begin{enumerate}
+    \item El empleado accede al sistema e inicia sesión con sus credenciales corporativas.
+    \item Escribe: ``¿Cuáles son los requisitos para la auditoría interna según el manual de calidad?''
+    \item El sistema detecta la intención RAG, busca en los documentos del departamento de calidad y responde con los requisitos específicos extraídos del manual, incluyendo referencias a la sección y página del documento original.
+    \item El empleado pregunta: ``¿Y cada cuánto tiempo se debe realizar?''
+    \item El sistema, en modo \textit{sticky}, mantiene el contexto RAG y responde con la periodicidad especificada en el documento.
+\end{enumerate}
+
+\subsection{Escenario 2: Análisis de una normativa del BOE}
+
+Un responsable legal necesita revisar una disposición reciente:
+
+\begin{enumerate}
+    \item Escribe: ``Busca en el BOE el real decreto sobre teletrabajo''
+    \item El sistema consulta la API del BOE, localiza el real decreto correspondiente y devuelve un resumen estructurado con título, fecha de publicación, número de artículos y un extracto del contenido.
+    \item El responsable pregunta: ``Dame el artículo 5''
+    \item El sistema recupera el texto completo del artículo solicitado.
+\end{enumerate}
+
+\subsection{Escenario 3: Análisis de una web tecnológica}
+
+Un ingeniero necesita evaluar una herramienta:
+
+\begin{enumerate}
+    \item Escribe: ``https://docs.docker.com/compose/compose-file/ ¿Qué opciones de despliegue GPU existen?''
+    \item El sistema descarga la página, extrae el contenido y genera una respuesta centrada en las opciones de GPU del fichero Docker Compose.
+    \item El ingeniero pregunta: ``Guarda esta web para futuras consultas''
+    \item El sistema indexa el contenido en la colección \texttt{webs} de Qdrant, disponible para consultas RAG posteriores.
+\end{enumerate}
+
+% ============================================================
+\section{Panel de Administración y Monitorización}
+\label{sec:admin}
+% ============================================================
+
+Además de la interfaz de chat para usuarios regulares, el sistema ofrece herramientas de administración y monitorización para los administradores del sistema:
+
+\subsection{Dashboards de Grafana}
+
+Los administradores acceden a paneles de control interactivos en Grafana que muestran en tiempo real:
+
+\begin{itemize}
+    \item \textbf{Métricas de uso:} Número de consultas por minuto, distribución de modos de operación (cuántas consultas RAG, web search, chat, etc.), tiempos de respuesta (percentiles p50, p95, p99) y tasa de errores.
+    \item \textbf{Métricas de GPU:} Consumo de VRAM en tiempo real, temperatura del chip, utilización de los cores CUDA y potencia consumida. Esto permite detectar cuándo la GPU está al límite y ajustar la carga de modelos.
+    \item \textbf{Métricas de infraestructura:} Estado de las bases de datos, conexiones activas, espacio disponible en disco.
+\end{itemize}
+
+\subsection{Administración de la Base de Datos}
+
+pgAdmin 4 proporciona acceso directo a la base de datos PostgreSQL del sistema, permitiendo auditar las tablas de usuarios, conversaciones y sesiones almacenadas por OpenWebUI.
+
+\subsection{Gestión de Modelos}
+
+Desde la interfaz de administración de OpenWebUI, los administradores pueden:
+\begin{itemize}
+    \item Visualizar los modelos disponibles en Ollama.
+    \item Modificar la configuración de los Pipelines (Valves) sin reiniciar servicios.
+    \item Gestionar usuarios y permisos.
+\end{itemize}

@@ -120,12 +120,18 @@ Las contribuciones técnicas concretas de este trabajo son:
 
 El resto de este documento se estructura de la siguiente manera:
 
-En el \textbf{Capítulo~\ref{cap:estado}} se expone el estado del arte de los LLMs, los sistemas RAG, los modelos de embeddings, las bases de datos vectoriales, técnicas de cuantización y MCP.
+En el \textbf{Capítulo~\ref{cap:estado}} se expone el estado del arte de los LLMs, los sistemas RAG, los modelos de embeddings, las bases de datos vectoriales, técnicas de cuantización, LoRA y MCP.
 
-El \textbf{Capítulo~\ref{cap:metodologia}} describe la metodología seguida, las iteraciones del proyecto, el entorno hardware, el stack tecnológico completo y las herramientas de gestión y documentación utilizadas.
+El \textbf{Capítulo~\ref{cap:tecnologias}} describe en profundidad el marco tecnológico del proyecto, detallando cada tecnología utilizada con especial énfasis en OpenWebUI y su sistema de Pipelines, que constituye el mecanismo de extensión central del sistema.
 
-El \textbf{Capítulo~\ref{cap:arquitectura}} profundiza en el diseño de la arquitectura general del sistema, detallando sus capas funcionales, la orquestación con Docker, el flujo de datos extremo a extremo y el stack de observabilidad.
+El \textbf{Capítulo~\ref{cap:sistemas}} analiza los sistemas existentes similares al desarrollado, incluyendo asistentes comerciales (ChatGPT Enterprise, Microsoft Copilot, Google Gemini) y soluciones de código abierto (PrivateGPT, AnythingLLM, Danswer), presentando una tabla comparativa exhaustiva.
 
-El \textbf{Capítulo~\ref{cap:resultados}} explica el proceso de implementación de cada subsistema principal (JARVIS, embeddings, web scraping, OCR, SharePoint, BOE y fine-tuning), acompañado de fragmentos de código, métricas de rendimiento y una evaluación cualitativa de resultados.
+El \textbf{Capítulo~\ref{cap:funcional}} ofrece una descripción funcional completa del sistema desde la perspectiva del usuario: la interfaz conversacional, los modos de operación disponibles, escenarios de uso y el panel de administración.
 
-Por último, el \textbf{Capítulo~\ref{cap:conclusiones}} recoge las conclusiones, lecciones aprendidas y futuras líneas de trabajo.
+El \textbf{Capítulo~\ref{cap:implementacion}} constituye el núcleo técnico del proyecto. Describe la filosofía de diseño iterativo, la arquitectura de microservicios, la distinción entre desarrollo propio y herramientas externas, el mecanismo Pipeline (hook) de OpenWebUI, el agente enrutador JARVIS, el motor RAG, las integraciones (SharePoint, BOE, web), la seguridad, el stack de observabilidad (Prometheus, Grafana), la caché Redis y el fine-tuning con LoRA.
+
+El \textbf{Capítulo~\ref{cap:metodologia}} describe la metodología ágil seguida, las iteraciones de desarrollo, el entorno hardware, el stack tecnológico completo, la estimación de presupuesto y la estrategia de documentación.
+
+El \textbf{Capítulo~\ref{cap:resultados}} presenta los resultados obtenidos en producción: métricas de rendimiento, evaluación funcional de cada modo de operación, análisis de alucinaciones y el impacto de la caché.
+
+Por último, el \textbf{Capítulo~\ref{cap:conclusiones}} recoge las conclusiones, lecciones aprendidas, el grado de consecución de los objetivos y las líneas futuras de trabajo.
