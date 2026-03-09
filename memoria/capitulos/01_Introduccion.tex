@@ -5,15 +5,17 @@
 \section{Motivación}
 % ============================================================
 
-En los entornos corporativos actuales, el volumen de información disponible crece de forma constante, pero no crece de forma ordenada. La documentación relevante suele estar repartida entre repositorios como Microsoft SharePoint, PDFs internos (muchos de ellos escaneados), wikis, portales de proveedores, procedimientos técnicos y fuentes públicas como el Boletín Oficial del Estado (BOE). En la práctica, el problema habitual no es ``falta de información'', sino \textbf{dispersión, formatos heterogéneos y dificultad para recuperar contenido útil} cuando se necesita.
+En los entornos corporativos actuales, el volumen de información disponible crece de forma constante, pero no crece de forma ordenada. La documentación relevante suele estar repartida entre repositorios como Microsoft SharePoint, PDFs internos, muchos de ellos escaneados, wikis, portales de proveedores, procedimientos técnicos y fuentes públicas como el Boletín Oficial del Estado (BOE). En la práctica, el problema habitual no es la falta de información, sino la \textbf{dispersión, la heterogeneidad de formatos y la dificultad para recuperar contenido útil} cuando se necesita.
 
-Los métodos tradicionales de búsqueda por palabras clave tienden a fallar en situaciones comunes: cuando el usuario no conoce el término exacto (sinónimos, acrónimos internos o nomenclaturas no estandarizadas), cuando la información está contenida en documentos extensos o cuando el contenido está en PDFs escaneados y requiere OCR. Como consecuencia, tareas rutinarias ---confirmar un procedimiento, localizar un requisito normativo, recuperar una especificación o una decisión de arquitectura anterior--- se convierten en procesos lentos, repetitivos y con alto riesgo de omisión.
+Los métodos tradicionales de búsqueda por palabras clave fallan en situaciones muy comunes: cuando el usuario no conoce el término exacto, cuando la información está contenida en documentos largos, cuando existen sinónimos o acrónimos internos, o cuando el contenido está en PDFs escaneados y requiere OCR. Como consecuencia, tareas rutinarias como confirmar un procedimiento, localizar un requisito normativo o recuperar una especificación se convierten en procesos lentos y propensos a errores.
 
 En paralelo, la popularización de los grandes modelos de lenguaje (LLMs, \textit{Large Language Models}) ha permitido interactuar con sistemas de información mediante lenguaje natural. Sin embargo, en un contexto corporativo, una respuesta fluida pero incorrecta tiene un coste elevado: puede inducir decisiones erróneas y generar confianza injustificada. El problema se agrava cuando el modelo no dispone de acceso al conocimiento interno, cuando la documentación cambia con frecuencia o cuando la consulta requiere precisión y respaldo documental.
 
-Por este motivo, resulta especialmente relevante el enfoque de Generación Aumentada por Recuperación (RAG, \textit{Retrieval-Augmented Generation}), que combina la generación de lenguaje con la recuperación de información desde una base documental. En lugar de ``responder de memoria'', el sistema fundamenta la respuesta en documentos recuperados, mejorando la \textbf{utilidad}, la \textbf{trazabilidad} y reduciendo la probabilidad de \textbf{respuestas no justificadas} \cite{lewis2020rag}.
+Por este motivo, resulta especialmente relevante el enfoque de Generación Aumentada por Recuperación (RAG, \textit{Retrieval-Augmented Generation}), que combina la generación de lenguaje con la recuperación de información desde una base documental. En lugar de responder de memoria, el sistema fundamenta la respuesta en documentos recuperados, mejorando la \textbf{utilidad}, la \textbf{trazabilidad} y reduciendo la probabilidad de \textbf{respuestas no justificadas} \cite{lewis2020rag}.
 
-Con esta motivación, este Trabajo de Fin de Grado aborda el diseño, desarrollo e integración de un sistema RAG corporativo (\textit{Enterprise RAG System}) desplegado en infraestructura controlada (on-premise), capaz de ingerir documentos desde múltiples fuentes heterogéneas (SharePoint, BOE y web) y ofrecer a los usuarios una interfaz conversacional orientada a consultas técnicas, con recuperación semántica y soporte documental.
+Este Trabajo de Fin de Grado no parte de entrenar un modelo desde cero. Sería un objetivo desproporcionado para el alcance del proyecto y, además, no resolvería por sí mismo el problema principal, que no es crear otro LLM generalista, sino \textbf{poner modelos ya existentes a trabajar de forma útil, segura y controlada sobre información corporativa cambiante}. Por ello, el trabajo se centra en seleccionar, integrar, adaptar y orquestar tecnologías existentes de código abierto y pesos abiertos: modelos de lenguaje ejecutados localmente, embeddings, una base de datos vectorial, un backend propio en Python, mecanismos de ingesta documental y una interfaz conversacional empresarial.
+
+Con esta motivación, el proyecto aborda el diseño, desarrollo e integración de un sistema RAG corporativo desplegado en infraestructura controlada (\textit{on-premise}), capaz de ingerir documentos desde fuentes heterogéneas y ofrecer a los usuarios una interfaz conversacional orientada a consultas técnicas, con recuperación semántica y soporte documental.
 
 % ============================================================
 \subsection{Problemática del Shadow AI en entornos corporativos}
@@ -28,35 +30,55 @@ Los riesgos principales asociados a este fenómeno son:
 
 \begin{itemize}
     \item \textbf{Exposición de información sensible}: al introducir documentos, fragmentos de procedimientos, incidencias, datos operativos o contenido contractual en herramientas externas, la información puede salir del perímetro de seguridad corporativo. Un estudio de Komprise (2025) reveló que el 44\% de las organizaciones ha experimentado fugas de datos sensibles hacia herramientas de IA \cite{komprise2025survey}.
-
-    \item \textbf{Riesgo regulatorio y de cumplimiento}: en sectores regulados o con datos personales/sensibles, el tratamiento de la información exige garantías sobre finalidad, acceso, ubicación y medidas de seguridad. Un estudio de PwC (2024) indicó que el 54\% de las empresas que utilizaban herramientas de IA no autorizadas recibieron escrutinio regulatorio, con multas medias de 5 millones de euros en Europa \cite{pwc2024shadowai}. El uso informal de herramientas externas introduce incertidumbre y eleva el riesgo de incumplimiento normativo, especialmente ante el RGPD y la próxima Ley de IA de la UE.
-
+    \item \textbf{Riesgo regulatorio y de cumplimiento}: en sectores regulados o con datos personales o sensibles, el tratamiento de la información exige garantías sobre finalidad, acceso, ubicación y medidas de seguridad. El uso informal de herramientas externas introduce incertidumbre y eleva el riesgo de incumplimiento normativo.
     \item \textbf{Calidad y consistencia}: los modelos generalistas pueden producir respuestas plausibles incluso cuando carecen de base documental. En ámbitos técnicos o normativos, esto se traduce en errores silenciosos con apariencia de certeza.
-
-    \item \textbf{Ausencia de gobernanza}: sin control centralizado, la organización no sabe qué herramientas se usan, con qué datos, con qué finalidad ni con qué impacto. Según IBM, los incidentes relacionados con Shadow AI añaden un coste medio de 308.000 dólares por brecha de seguridad \cite{ibm2025databreach}.
+    \item \textbf{Ausencia de gobernanza}: sin control centralizado, la organización no sabe qué herramientas se usan, con qué datos, con qué finalidad ni con qué impacto.
 \end{itemize}
 
-Este proyecto aborda directamente esta problemática mediante una alternativa interna: un sistema conversacional desplegado en la infraestructura de la organización (on-premise), donde los documentos no se envían a servicios externos y donde las respuestas se apoyan en recuperación documental, reduciendo respuestas no fundamentadas y permitiendo trazabilidad hacia fuentes internas.
+Este proyecto aborda directamente esta problemática mediante una alternativa interna: un sistema conversacional desplegado en la infraestructura de la organización, donde los documentos no se envían a servicios externos y donde las respuestas se apoyan en recuperación documental, reduciendo respuestas no fundamentadas y permitiendo trazabilidad hacia fuentes internas.
+
+% ============================================================
+\section{Solución propuesta y enfoque del trabajo}
+\label{sec:solucion}
+% ============================================================
+
+La solución propuesta consiste en construir un asistente corporativo que actúe como punto único de acceso a la información de la organización. La idea no es sustituir todos los sistemas documentales existentes, sino superponer una capa de consulta en lenguaje natural que permita a cualquier usuario localizar y comprender información dispersa sin necesidad de conocer de antemano dónde está almacenada ni en qué formato se encuentra.
+
+Para resolver los problemas descritos en la sección anterior, el sistema combina varios bloques:
+
+\begin{itemize}
+    \item \textbf{Modelos ya existentes ejecutados en local}: se reutilizan LLMs y modelos de embeddings disponibles públicamente, desplegados dentro de la infraestructura propia.
+    \item \textbf{Un backend propio en Python}: se desarrolla la lógica que conecta los modelos con las fuentes documentales, aplica reglas de acceso y construye respuestas trazables.
+    \item \textbf{Un pipeline RAG}: antes de responder, el sistema recupera fragmentos relevantes de la documentación para que la generación se apoye en evidencia.
+    \item \textbf{Conectores e integraciones}: se incorporan mecanismos para trabajar con SharePoint, documentos escaneados, páginas web y normativa del BOE.
+    \item \textbf{Una interfaz conversacional reutilizable}: en lugar de crear una interfaz desde cero, se aprovecha OpenWebUI y se amplía mediante un pipeline propio.
+\end{itemize}
+
+Este enfoque tiene dos ventajas. La primera es práctica: permite construir un sistema funcional en el contexto de un TFG sin depender del entrenamiento masivo de modelos. La segunda es metodológica: separa claramente qué aporta la tecnología base y qué aporta el trabajo realizado en el proyecto. En este caso, la contribución no está en crear un nuevo modelo fundacional, sino en \textbf{diseñar una arquitectura útil, explicar por qué cada pieza es necesaria y desarrollar la lógica que convierte herramientas sueltas en un sistema corporativo coherente}.
 
 % ============================================================
 \section{Objetivos del proyecto}
 \label{sec:objetivos}
 % ============================================================
 
-El objetivo principal de este trabajo es desarrollar un asistente conversacional avanzado sustentado en una arquitectura RAG 100\% on-premise, maximizando la confidencialidad de los datos internos y reduciendo la dependencia de servicios externos.
+El objetivo principal de este trabajo es desarrollar un asistente conversacional corporativo sustentado en una arquitectura RAG \textit{on-premise}, capaz de consultar documentación cambiante almacenada en la nube o en otras fuentes heterogéneas sin sacar los datos del entorno controlado de la organización. Aunque la idea general es poder trabajar con repositorios documentales de distinto tipo, la implementación y las pruebas de este TFG se han realizado principalmente sobre SharePoint como caso real de integración.
+
+La motivación operativa es clara: si los problemas detectados son dispersión documental, formatos heterogéneos, riesgo de \textit{Shadow AI} y falta de trazabilidad, la respuesta técnica debe ser un sistema que recupere información de forma centralizada, la explique con lenguaje natural y deje claro en qué documentos se apoya.
 
 Para alcanzar este objetivo general, se han definido los siguientes objetivos específicos:
 
 \begin{enumerate}
-    \item \textbf{Diseño de arquitectura desacoplada y modular}: desarrollar un backend en Python (FastAPI) integrado con una base de datos vectorial (Qdrant), una base de datos relacional (PostgreSQL), ejecución local de modelos (Ollama) y un componente de gestión/enrutamiento de LLMs (LiteLLM).
+    \item \textbf{Diseñar una arquitectura modular basada en componentes existentes y desarrollo propio}: combinar modelos de lenguaje locales, embeddings, una base de datos vectorial y una interfaz conversacional, añadiendo un backend en Python que orqueste todo el sistema.
 
-    \item \textbf{Ingesta multicanal y sincronización automatizada}: proporcionar capacidad de ingesta y actualización desde fuentes heterogéneas mediante Microsoft Graph para SharePoint, OCR acelerado por GPU con PaddleOCR para documentos escaneados, y extracción web semántica estática y dinámica mediante Playwright.
+    \item \textbf{Permitir ingesta multicanal y actualización de conocimiento}: incorporar carga y actualización documental desde fuentes heterogéneas, con especial foco en SharePoint, incluyendo OCR para documentos escaneados y extracción web cuando sea necesario.
 
-    \item \textbf{Acceso a normativa del BOE y preparación para MCP}: integrar la consulta del BOE dentro del sistema para permitir búsquedas y consultas normativas desde la interfaz conversacional. En la implementación actual, esta funcionalidad se realiza mediante llamadas a API. Adicionalmente, se desarrolla un servidor compatible con el enfoque de Model Context Protocol (MCP) \cite{anthropic2024mcp} como base para integraciones futuras; dicho servidor MCP funciona y puede utilizarse desde terminal con un LLM y un cliente compatible, pero no se integra todavía de forma nativa en la interfaz web utilizada.
+    \item \textbf{Ofrecer respuestas fundamentadas y trazables}: implementar un flujo RAG que priorice la recuperación documental frente a la generación libre y muestre al usuario sobre qué fuentes se construye cada respuesta.
 
-    \item \textbf{Enrutamiento inteligente de consultas}: implementar un agente en Python (JARVIS Pipeline) capaz de detectar la intención del usuario y derivar cada consulta al modo de operación más adecuado (RAG, búsqueda web controlada, scraping, normativa, visión o conversación general), priorizando utilidad y trazabilidad.
+    \item \textbf{Añadir capacidades complementarias sin entrenar modelos desde cero}: integrar búsqueda web controlada, scraping, análisis de imágenes y consulta normativa del BOE reutilizando herramientas ya disponibles y conectándolas mediante lógica propia.
 
-    \item \textbf{Despliegue, operación y observabilidad}: contenerizar el sistema con Docker y habilitar métricas de uso y rendimiento mediante Prometheus y Grafana, facilitando monitorización y análisis del comportamiento del sistema.
+    \item \textbf{Explorar MCP como línea de integración futura}: desarrollar un servidor compatible con el enfoque de Model Context Protocol (MCP) \cite{anthropic2024mcp} para el caso del BOE, dejando preparada una vía de evolución aunque la interfaz web del proyecto siga usando integración por API en la implementación actual.
+
+    \item \textbf{Desplegar el sistema de forma reproducible y observable}: contenerizar el ecosistema con Docker y habilitar métricas y paneles de monitorización que permitan operar y analizar el sistema.
 \end{enumerate}
 
 % ============================================================
@@ -65,31 +87,38 @@ Para alcanzar este objetivo general, se han definido los siguientes objetivos es
 
 \subsection{Alcance}
 
-El proyecto cubre el ciclo completo de construcción de un sistema RAG empresarial, desde el diseño de arquitectura hasta su despliegue reproducible:
+El proyecto cubre el ciclo completo de construcción de un sistema RAG empresarial, desde el diseño de la arquitectura hasta su despliegue reproducible. El alcance real del trabajo se resume en los siguientes puntos:
 
 \begin{itemize}
+    \item Selección y despliegue de modelos existentes de lenguaje, visión y embeddings; no se entrena un modelo fundacional desde cero.
     \item Diseño e implementación de una arquitectura basada en microservicios contenerizados.
-    \item Pipeline de ingesta documental con soporte para PDFs, HTML, imágenes y documentación de SharePoint.
-    \item Motor de búsqueda semántica basado en embeddings y almacenamiento vectorial.
-    \item Interfaz conversacional web con autenticación corporativa (SSO).
-    \item Integración con fuentes externas (SharePoint, BOE e Internet) gestionada desde el propio sistema.
-    \item Stack de monitorización y observabilidad para métricas y rendimiento.
+    \item Desarrollo de un backend propio en Python para orquestación, recuperación documental, control de acceso y conexión con herramientas externas.
+    \item Integración de un pipeline de ingesta documental con soporte para PDFs, HTML, imágenes y documentación alojada en SharePoint.
+    \item Construcción de un motor de búsqueda semántica basado en embeddings y almacenamiento vectorial.
+    \item Integración de una interfaz conversacional web con autenticación corporativa.
+    \item Integración funcional con fuentes externas como SharePoint, BOE e Internet.
+    \item Desarrollo de un servidor MCP para normativa del BOE como prueba de concepto técnica orientada a futuras integraciones.
+    \item Incorporación de un stack de monitorización y observabilidad para analizar uso y rendimiento.
 \end{itemize}
+
+En relación con MCP, conviene precisar el alcance para evitar ambigüedades: en este TFG no se desarrolla un cliente MCP completo dentro de la interfaz web, sino un \textbf{servidor MCP propio} validado en entorno compatible. La funcionalidad visible por el usuario final se presta actualmente mediante llamadas a API, mientras que MCP queda como capacidad implementada y preparada para evolucionar.
 
 \subsection{Limitaciones}
 
 Se identifican las siguientes limitaciones reconocidas:
 
 \begin{itemize}
-    \item \textbf{Requisitos hardware}: el sistema requiere una GPU NVIDIA con al menos 16~GB de VRAM para mantener un rendimiento aceptable en tareas de OCR e inferencia local, lo que limita su ejecución en hardware sin aceleración.
+    \item \textbf{Requisitos hardware}: el sistema requiere una GPU NVIDIA con suficiente VRAM para mantener un rendimiento aceptable en tareas de OCR e inferencia local.
 
-    \item \textbf{BOE: integración funcional por API, no por MCP en la interfaz web}: el sistema permite búsquedas y consultas normativas del BOE desde la interfaz conversacional mediante llamadas a API. Sin embargo, la integración MCP nativa no se incorpora en la interfaz web utilizada, debido a limitaciones actuales del cliente.
+    \item \textbf{Predominio de SharePoint en la validación}: aunque la arquitectura está pensada para documentos cambiantes en la nube y de distinta naturaleza, la validación experimental se ha centrado sobre todo en SharePoint, que es la integración más desarrollada del proyecto.
 
-    \item \textbf{MCP validado en entorno de terminal}: el servidor MCP desarrollado se ha validado en ejecución desde terminal con un LLM y un cliente compatible, quedando su integración directa en la interfaz web como línea futura.
+    \item \textbf{BOE con doble nivel de integración}: el sistema permite consultas normativas desde la interfaz mediante API, pero la integración MCP nativa en la web no se incorpora todavía por limitaciones del cliente utilizado.
 
-    \item \textbf{Sesgo en el ajuste fino}: el fine-tuning LoRA se realiza con datos sintéticos generados por el propio modelo base, lo que puede introducir sesgos y limitar la generalización.
+    \item \textbf{MCP validado fuera de la interfaz principal}: el servidor MCP desarrollado funciona en entorno de terminal con clientes compatibles, pero su adopción dentro de la interfaz web queda como trabajo futuro.
 
-    \item \textbf{Evaluación acotada}: la evaluación se realiza principalmente de forma cualitativa y orientada a validación funcional; benchmarks académicos formales como RAGAS \cite{es2023ragas} o ARES quedan fuera del alcance temporal del proyecto.
+    \item \textbf{Sesgo en el ajuste fino}: el \textit{fine-tuning} LoRA se realiza con datos sintéticos generados a partir del propio sistema base, lo que puede introducir sesgos y limitar la generalización.
+
+    \item \textbf{Evaluación acotada}: la evaluación se realiza principalmente de forma funcional y cualitativa; benchmarks académicos más formales quedan fuera del alcance temporal del proyecto.
 \end{itemize}
 
 % ============================================================
@@ -99,19 +128,19 @@ Se identifican las siguientes limitaciones reconocidas:
 Las contribuciones técnicas concretas de este trabajo son:
 
 \begin{enumerate}
-    \item Una arquitectura reproducible basada en microservicios, definida declarativamente en Docker Compose, con un conjunto de servicios interconectados orientados a ingesta, almacenamiento, recuperación, generación y monitorización.
+    \item Una arquitectura reproducible basada en microservicios, definida declarativamente en Docker Compose, con servicios orientados a ingesta, almacenamiento, recuperación, generación y monitorización.
 
-    \item Un agente enrutador (JARVIS) capaz de seleccionar distintos modos de operación en función de la intención detectada, priorizando recuperación documental cuando el caso lo requiere.
+    \item Un agente enrutador, JARVIS, capaz de seleccionar distintos modos de operación en función de la intención detectada y de guiar cada consulta hacia el subsistema adecuado.
 
     \item Un pipeline de ingesta multicanal que unifica SharePoint, scraping web, OCR y carga manual en una única base de conocimiento vectorial.
 
-    \item Una integración funcional con el BOE dentro del sistema, permitiendo búsquedas y consultas normativas mediante API.
+    \item Una integración funcional con el BOE dentro del sistema, permitiendo búsquedas y consultas normativas desde la experiencia conversacional.
 
-    \item Desarrollo y validación de un servidor MCP para consulta normativa del BOE, operativo en ejecución por terminal con un LLM y un cliente compatible, y planteado como base para integraciones MCP nativas en iteraciones futuras.
+    \item El desarrollo y validación de un servidor MCP para consulta normativa del BOE, operativo fuera de la interfaz principal y planteado como base de evolución futura.
 
-    \item Un flujo de fine-tuning con LoRA orientado a adaptar modelos base al dominio de uso definido, con las limitaciones derivadas del uso de datos sintéticos.
+    \item Un flujo de adaptación de modelos base mediante LoRA orientado al dominio del proyecto, evaluado como complemento y no como núcleo de la solución.
 
-    \item Publicación del sistema como proyecto de código abierto en GitHub\footnote{\url{https://github.com/acidxlemons/TFG-JARVIS}}, con documentación para despliegue reproducible.
+    \item La publicación del sistema como proyecto de código abierto en GitHub\footnote{\url{https://github.com/acidxlemons/TFG-JARVIS}}, con documentación para despliegue reproducible.
 \end{enumerate}
 
 % ============================================================
@@ -120,18 +149,18 @@ Las contribuciones técnicas concretas de este trabajo son:
 
 El resto de este documento se estructura de la siguiente manera:
 
-En el \textbf{Capítulo~\ref{cap:estado}} se expone el estado del arte de los LLMs, los sistemas RAG, los modelos de embeddings, las bases de datos vectoriales, técnicas de cuantización, LoRA y MCP.
+En el \textbf{Capítulo~\ref{cap:estado}} se presentan los fundamentos que permiten entender la solución propuesta: qué son los LLMs, por qué un LLM por sí solo no basta en este problema y qué papel desempeñan RAG, los embeddings, las bases vectoriales, la cuantización, LoRA y MCP.
 
-El \textbf{Capítulo~\ref{cap:tecnologias}} describe en profundidad el marco tecnológico del proyecto, detallando cada tecnología utilizada con especial énfasis en OpenWebUI y su sistema de Pipelines, que constituye el mecanismo de extensión central del sistema.
+El \textbf{Capítulo~\ref{cap:tecnologias}} aterriza las tecnologías concretas utilizadas en el proyecto, explicando para qué sirve cada una, por qué se ha elegido y cuál es su papel dentro del sistema completo.
 
-El \textbf{Capítulo~\ref{cap:sistemas}} analiza los sistemas existentes similares al desarrollado, incluyendo asistentes comerciales (ChatGPT Enterprise, Microsoft Copilot, Google Gemini) y soluciones de código abierto (PrivateGPT, AnythingLLM, Danswer), presentando una tabla comparativa exhaustiva.
+El \textbf{Capítulo~\ref{cap:sistemas}} analiza sistemas existentes similares al desarrollado, tanto comerciales como de código abierto, para situar la propuesta dentro del ecosistema actual.
 
-El \textbf{Capítulo~\ref{cap:funcional}} ofrece una descripción funcional completa del sistema desde la perspectiva del usuario: la interfaz conversacional, los modos de operación disponibles, escenarios de uso y el panel de administración.
+El \textbf{Capítulo~\ref{cap:funcional}} ofrece una descripción funcional completa del sistema desde la perspectiva del usuario: interfaz conversacional, modos de operación, escenarios de uso y panel de administración.
 
-El \textbf{Capítulo~\ref{cap:implementacion}} constituye el núcleo técnico del proyecto. Describe la filosofía de diseño iterativo, la arquitectura de microservicios, la distinción entre desarrollo propio y herramientas externas, el mecanismo Pipeline (hook) de OpenWebUI, el agente enrutador JARVIS, el motor RAG, las integraciones (SharePoint, BOE, web), la seguridad, el stack de observabilidad (Prometheus, Grafana), la caché Redis y el fine-tuning con LoRA.
+El \textbf{Capítulo~\ref{cap:implementacion}} constituye el núcleo técnico del proyecto. Describe la arquitectura, la separación entre desarrollo propio y herramientas externas, el mecanismo Pipeline de OpenWebUI, el agente JARVIS, el motor RAG y las integraciones principales.
 
-El \textbf{Capítulo~\ref{cap:metodologia}} describe la metodología ágil seguida, las iteraciones de desarrollo, el entorno hardware, el stack tecnológico completo, la estimación de presupuesto y la estrategia de documentación.
+El \textbf{Capítulo~\ref{cap:metodologia}} describe la metodología seguida, las iteraciones de desarrollo, el entorno hardware, el stack tecnológico completo, la estimación de presupuesto y la estrategia de documentación.
 
-El \textbf{Capítulo~\ref{cap:resultados}} presenta los resultados obtenidos en producción: métricas de rendimiento, evaluación funcional de cada modo de operación, análisis de alucinaciones y el impacto de la caché.
+El \textbf{Capítulo~\ref{cap:resultados}} presenta los resultados obtenidos: métricas de rendimiento, evaluación funcional y análisis del comportamiento del sistema.
 
-Por último, el \textbf{Capítulo~\ref{cap:conclusiones}} recoge las conclusiones, lecciones aprendidas, el grado de consecución de los objetivos y las líneas futuras de trabajo.
+Por último, el \textbf{Capítulo~\ref{cap:conclusiones}} recoge las conclusiones, el grado de consecución de los objetivos y las líneas futuras de trabajo.

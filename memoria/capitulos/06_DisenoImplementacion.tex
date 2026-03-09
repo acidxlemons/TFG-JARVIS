@@ -1,7 +1,7 @@
 \chapter{Diseño e Implementación}
 \label{cap:implementacion}
 
-Este capítulo constituye el núcleo técnico de mi Trabajo de Fin de Grado. Aquí describo en profundidad cómo he construido el sistema, qué partes son de mi propio desarrollo frente a la configuración de herramientas externas, y cómo he interconectado los distintos microservicios para materializar las funcionalidades que abordamos en el capítulo anterior, acoplando cada pieza de forma progresiva hasta conformar el ecosistema completo. Acompaño la explicación con fragmentos de código reales extraídos del repositorio del proyecto.
+Este capítulo constituye el núcleo técnico de mi Trabajo de Fin de Grado. Aquí describo cómo se ha construido el sistema, qué partes son desarrollo propio y qué partes reutilizan herramientas ya existentes, y cómo se han interconectado los distintos microservicios para convertir una colección de componentes sueltos en un asistente corporativo funcional. Acompaño la explicación con fragmentos de código reales extraídos del repositorio del proyecto.
 
 % ============================================================
 \section{Filosofía de Diseño: Necesidad, Solución, Iteración}
@@ -19,7 +19,7 @@ El sistema no se diseñó como un bloque monolítico, sino que emergió de un pr
 
     \item \textbf{Tercera limitación:} Muchos PDFs corporativos eran escaneados y no contenían texto seleccionable. \textit{Solución:} Se integró PaddleOCR con aceleración GPU en el Indexer.
 
-    \item \textbf{Cuarta limitación:} Los usuarios necesitaban acceder a información que no estaba en los documentos internos (noticias, páginas web, normativa). \textit{Solución:} Se añadieron los modos de búsqueda web (DuckDuckGo), scraping (Playwright) y consulta del BOE (MCP).
+    \item \textbf{Cuarta limitación:} Los usuarios necesitaban acceder a información que no estaba en los documentos internos, como noticias, páginas web o normativa. \textit{Solución:} Se añadieron los modos de búsqueda web, scraping y consulta del BOE. En la interfaz principal, la consulta normativa se resuelve mediante API; además, se desarrolló un servidor MCP como línea de integración futura.
 
     \item \textbf{Quinta limitación:} Sin visibilidad sobre el rendimiento del sistema, era imposible detectar cuellos de botella. \textit{Solución:} Se implementó el stack de observabilidad: métricas Prometheus en el backend, NVIDIA DCGM para GPU, y dashboards Grafana.
 
@@ -35,11 +35,11 @@ Esta aproximación iterativa ---identificar una carencia, evaluar alternativas, 
 \label{sec:arquitectura-general}
 % ============================================================
 
-Para tener visibilidad técnica, he diseñado el sistema mediante una arquitectura compuesta por 12 microservicios contenerizados empleando Docker, orquestados mediante Docker Compose y aislados en una red virtual propia (\texttt{jarvis-network}). La Figura~\ref{fig:arquitectura} muestra el diagrama de arquitectura y el flujo de datos principal.
+Para tener visibilidad técnica, se ha diseñado el sistema mediante una arquitectura compuesta por 12 servicios principales y varios servicios auxiliares de soporte y arranque, todos ellos contenerizados con Docker, orquestados mediante Docker Compose y aislados en una red virtual propia (\texttt{jarvis-network}). El flujo resumido de tecnologías ya se ha presentado en el Capítulo~\ref{cap:tecnologias}; aquí se detalla la función de cada servicio dentro de la arquitectura funcional.
 
 \begin{table}[H]
 \centering
-\caption{Servicios del sistema y su función.}
+\caption{Servicios principales de la arquitectura y su función.}
 \label{tab:servicios-completos}
 \begin{tabular}{llc}
 \toprule
@@ -65,7 +65,7 @@ Todos los servicios comparten una red Docker interna de tipo \textit{bridge} den
 
 \subsection{Orquestación con Docker Compose}
 
-La totalidad del ecosistema se define de forma declarativa en un único fichero \texttt{docker-compose.yml}. Este manifiesto YAML describe los 12 servicios, sus dependencias (\texttt{depends\_on}), volúmenes persistentes para datos, variables de entorno, políticas de reinicio (\texttt{restart: unless-stopped}) y reservas de recursos GPU.
+La totalidad del ecosistema se define de forma declarativa en un único fichero \texttt{docker-compose.yml}. Este manifiesto YAML describe tanto los servicios principales de la arquitectura como varios servicios auxiliares de inicialización y observabilidad, además de sus dependencias (\texttt{depends\_on}), volúmenes persistentes para datos, variables de entorno, políticas de reinicio (\texttt{restart: unless-stopped}) y reservas de recursos GPU.
 
 Los servicios que requieren aceleración GPU (Ollama, PaddleOCR) utilizan la directiva de Docker Compose:
 
@@ -120,7 +120,7 @@ Backend FastAPI             & \textbf{Propio}        & ~3.000 líneas. Pipeline 
 Indexer                     & \textbf{Propio}        & ~1.200 líneas. Sincronización SharePoint, cron interno, ingesta automatizada, detección OCR. \\
 Servidor MCP-BOE            & \textbf{Propio}        & ~400 líneas. Resolución semántica de leyes, consulta API BOE. \\
 Pipeline Fine-Tuning        & \textbf{Propio}        & Scripts de generación de dataset sintético, entrenamiento LoRA, exportación GGUF. \\
-Docker Compose              & \textbf{Propio}        & Manifiesto de 12 servicios con redes, volúmenes, GPU y dependencias. \\
+Docker Compose              & \textbf{Propio}        & Manifiesto de la arquitectura completa, incluyendo servicios principales, redes, volúmenes, GPU y dependencias. \\
 Configuración LiteLLM       & \textbf{Propio}        & YAML de modelos, aliases, caché Redis, fallbacks, rate limits. \\
 Configuración NGINX         & \textbf{Propio}        & Certificados TLS, proxy pass, WebSocket upgrade. \\
 Configuración Prometheus    & \textbf{Propio}        & Targets de scraping, intervalos, reglas. \\

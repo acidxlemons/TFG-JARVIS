@@ -1,13 +1,13 @@
 \chapter*{Resumen}
 \addcontentsline{toc}{chapter}{Resumen}
 
-Este Trabajo de Fin de Grado presenta el diseño, desarrollo y despliegue de un sistema de Generación Aumentada por Recuperación (\textit{Retrieval-Augmented Generation}, RAG) de ámbito corporativo, ejecutado íntegramente en infraestructura local (\textit{on-premise}) y construido exclusivamente con tecnologías de código abierto y desarrollo autónomo.
+Este Trabajo de Fin de Grado presenta el diseño, desarrollo y despliegue de un sistema de Generación Aumentada por Recuperación (\textit{Retrieval-Augmented Generation}, RAG) de ámbito corporativo, ejecutado íntegramente en infraestructura local (\textit{on-premise}) y basado en la integración de modelos y herramientas existentes de código abierto junto con desarrollo propio.
 
-El sistema permite a los empleados de una organización interactuar con sus documentos internos, páginas web y fuentes legislativas oficiales (\textit{BOE}) a través de una interfaz conversacional basada en lenguaje natural. La arquitectura emplea una pila de microservicios contenerizados con Docker que integra múltiples Modelos de Lenguaje Grande (LLMs) ejecutados localmente mediante Ollama, una base de datos vectorial Qdrant para la búsqueda semántica, y un agente enrutador inteligente denominado JARVIS que detecta automáticamente la intención del usuario y delega cada consulta al método de operación más adecuado.
+El sistema permite a los empleados de una organización interactuar con sus documentos internos, páginas web y fuentes legislativas oficiales mediante una interfaz conversacional basada en lenguaje natural. La arquitectura emplea una pila de microservicios contenerizados con Docker que integra modelos de lenguaje ejecutados localmente mediante Ollama, una base de datos vectorial Qdrant para la búsqueda semántica y un agente enrutador denominado JARVIS, que detecta automáticamente la intención del usuario y delega cada consulta al modo de operación más adecuado.
 
-Entre las fuentes de información integradas se incluyen: Microsoft SharePoint (sincronización automática vía Microsoft Graph API), la cual ha sido probada y testada en un entorno laboral funcional. Páginas web (scraping con Playwright y extracción NLP con Trafilatura), documentos PDF escaneados (OCR con PaddleOCR acelerado por GPU) y el Boletín Oficial del Estado (BOE) mediante el protocolo Model Context Protocol (MCP).
+Entre las fuentes de información integradas se incluyen Microsoft SharePoint, que ha sido la fuente principal de validación práctica del sistema; páginas web procesadas mediante scraping y extracción de contenido; documentos PDF escaneados tratados con OCR acelerado por GPU; y el Boletín Oficial del Estado (BOE), integrado funcionalmente por API y complementado con un servidor MCP desarrollado como línea de evolución futura.
 
-El sistema ha sido desplegado y validado en un entorno real con resultados satisfactorios, alcanzando tiempos de respuesta inferiores a 3.5 segundos y eliminando de manera casi completa las alucinaciones en modo RAG mediante técnicas de temperatura determinista y prompts restrictivos así como un fine-tunning del embedding vectorial.
+El sistema ha sido desplegado y validado en un entorno real con resultados satisfactorios, alcanzando tiempos de respuesta inferiores a 3.5 segundos y reduciendo de forma muy significativa las alucinaciones en modo RAG mediante prompts restrictivos, baja temperatura de inferencia y una estrategia de recuperación documental diseñada para priorizar la trazabilidad.
 
 \vspace{0.5cm}
 \noindent\textbf{Palabras clave:} RAG, LLM, inteligencia artificial, embeddings, base de datos vectorial, microservicios, Docker, Ollama, Qdrant, on-premise, código abierto.
@@ -17,13 +17,13 @@ El sistema ha sido desplegado y validado en un entorno real con resultados satis
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-This Bachelor's Thesis presents the design, development and deployment of a corporate Retrieval-Augmented Generation (RAG) system, executed entirely on local infrastructure (on-premise) and built exclusively with open-source technologies and autonomous development.
+This Bachelor's Thesis presents the design, development and deployment of a corporate Retrieval-Augmented Generation (RAG) system, executed entirely on local infrastructure (on-premise) and based on the integration of existing open-source models and tools together with original development.
 
-The system enables employees of an organization to interact with their internal documents, web pages and official legislative sources (\textit{BOE}) through a conversational interface based on natural language. The architecture employs a stack of containerized microservices orchestrated with Docker, integrating multiple Large Language Models (LLMs) running locally via Ollama, a Qdrant vector database for semantic search, and an intelligent routing agent called JARVIS that automatically detects user intent and delegates each query to the most appropriate operation method.
+The system enables employees of an organization to interact with internal documents, web pages and official legislative sources through a natural-language conversational interface. The architecture relies on containerized microservices orchestrated with Docker, integrating locally executed language models through Ollama, a Qdrant vector database for semantic search, and a routing agent called JARVIS that automatically detects user intent and delegates each query to the most suitable operating mode.
 
-Integrated information sources include: Microsoft SharePoint (automatic synchronization via Microsoft Graph API), which has been proven and tested in a functional work environment. Web pages (scraping with Playwright and NLP extraction with Trafilatura), scanned PDF documents (OCR with GPU-accelerated PaddleOCR) and the Spanish Official State Gazette (BOE) through the Model Context Protocol (MCP).
+Integrated information sources include Microsoft SharePoint, which served as the main real-world validation source; web pages processed through scraping and content extraction; scanned PDF documents handled through GPU-accelerated OCR; and the Spanish Official State Gazette (BOE), functionally integrated through API calls and complemented by an MCP server developed as a future integration path.
 
-The system has been deployed and validated in a real production environment with satisfactory results, achieving response times under 3.5 seconds and almost completely eliminating hallucinations in RAG mode through deterministic temperature techniques and restrictive system prompts, as well as vector embedding fine-tuning.
+The system has been deployed and validated in a real environment with satisfactory results, achieving response times under 3.5 seconds and significantly reducing hallucinations in RAG mode through restrictive prompting, low-temperature inference and a retrieval strategy focused on traceable evidence.
 
 \vspace{0.5cm}
 \noindent\textbf{Keywords:} RAG, LLM, artificial intelligence, embeddings, vector database, microservices, Docker, Ollama, Qdrant, on-premise, open source.

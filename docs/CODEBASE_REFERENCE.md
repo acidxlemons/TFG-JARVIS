@@ -1,222 +1,115 @@
-# 📜 Codebase Reference: Mapa de Código - JARVIS
+# Codebase Reference
 
-**Proyecto**: TFG - Universidad Rey Juan Carlos
+## Propósito
 
-> **Objetivo**: Documento técnico que describe la función y responsabilidad de cada script y módulo en el repositorio.
+Este documento describe la estructura real del repositorio y aclara qué carpetas forman parte del sistema activo. Su objetivo es evitar ambigüedades entre código operativo, documentación y memoria académica.
 
----
+## Estructura general del proyecto
 
-## 📁 Estructura General del Proyecto
-
+```text
+TFG-JARVIS/
+├── backend/                 # Backend principal y lógica RAG
+├── config/                  # Configuración de servicios
+├── database/                # Recursos auxiliares de datos
+├── docs/                    # Documentación técnica y académica complementaria
+├── github_pages/            # Recursos para publicación estática
+├── mcp-boe-server/          # Servidor MCP del BOE
+├── memoria/                 # Memoria del TFG en LaTeX
+├── scripts/                 # Scripts de mantenimiento y experimentación
+├── services/                # Servicios auxiliares y componentes desplegables
+├── docker-compose.yml       # Orquestación principal
+└── README.md                # Entrada general del repositorio
 ```
-TFG-RAG-Clean/
-├── backend/               # API principal (FastAPI)
-├── services/              # Microservicios (Indexer, OpenWebUI, LiteLLM)
-├── mcp-boe-server/        # Servidor MCP para el BOE
-├── scripts/               # Utilidades y scripts de mantenimiento
-├── config/                # Configuración de servicios
-├── docs/                  # Documentación
-├── docker-compose.yml     # Orquestación de contenedores
-└── .env                   # Variables de entorno
-```
 
----
+## Carpetas principales
 
-## 🏛️ 1. MCP BOE Server (`/mcp-boe-server`)
+### `backend/`
 
-Servidor que expone la API del Boletín Oficial del Estado mediante el protocolo MCP.
+Contiene el backend principal del sistema. Aquí reside la lógica de procesamiento de consultas, recuperación documental, integraciones y exposición de endpoints.
 
-| Archivo | Descripción | Líneas |
-|---------|-------------|--------|
-| **`mcp_boe_server.py`** | **Servidor principal**. Define las 7 herramientas MCP (`get_boe_summary`, `search_legislation`, etc.) usando FastMCP. Soporta modo STDIO y HTTP. | ~200 |
-| **`boe_connector.py`** | **Conector API**. Toda la lógica de llamadas HTTP a la API Open Data del BOE. Métodos para sumario, búsqueda, consolidados, análisis. | ~400 |
-| **`test_mcp_real.py`** | **Test completo**. Conecta al servidor MCP, lista herramientas, ejecuta llamadas reales y verifica respuestas. | ~150 |
-| **`test_mcp_direct.py`** | Test HTTP directo al endpoint `/mcp`. | ~100 |
-| **`test_mcp_boe.py`** | Test básico de conexión. | ~50 |
-| **`requirements.txt`** | Dependencias: `fastmcp`, `requests`. | 2 |
-| **`Dockerfile`** | Imagen Docker para despliegue containerizado. | ~20 |
-| **`claude_desktop_config.json`** | Ejemplo de configuración para Claude Desktop. | ~10 |
+Responsabilidades típicas:
 
----
+- flujo RAG;
+- integración con Qdrant;
+- llamadas a modelos a través de LiteLLM u Ollama;
+- scraping y procesamiento documental;
+- métricas y endpoints de servicio.
 
-## 🖥️ 2. Backend Principal (`/backend/app`)
+### `services/`
 
-El "cerebro" del sistema. API REST con FastAPI.
+Agrupa servicios auxiliares que forman parte de la arquitectura desplegable. Según la configuración concreta, aquí pueden residir componentes como el pipeline de OpenWebUI, el indexador o servicios específicos de soporte.
 
-### 2.1 Archivo Principal
+### `mcp-boe-server/`
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`main.py`** | **Entrada de la API**. Define todos los endpoints REST. Incluye: `/api/v1/search`, `/api/v1/chat`, `/scrape/url`, `/documents/list`, `/boe/*`. Es el archivo más grande (~2000 líneas). |
+Contiene el servidor MCP para el dominio del BOE. Este componente es relevante porque aclara una parte del alcance del TFG:
 
-### 2.2 Carpeta `/api` - Endpoints
+- existe un servidor MCP desarrollado específicamente para normativa;
+- está validado como componente independiente;
+- su existencia no implica que toda la interfaz principal funcione ya mediante MCP.
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`chat.py`** | Endpoint `/chat`. Flujo conversacional principal. Detecta intención (RAG vs charla), gestiona historial. |
-| **`documents.py`** | Endpoints para subir documentos (`POST /documents/upload`) y listar (`GET /documents/list`). |
-| **`web_search.py`** | Endpoint de búsqueda web. Usa DuckDuckGo (con fallback a HTML scraping). |
-| **`scrape.py`** | Endpoint `/scrape/url`. Scrapea URLs, extrae texto, lo indexa en Qdrant (colección `webs`). |
+### `scripts/`
 
-### 2.3 Carpeta `/core` - Lógica Central
+Incluye scripts de apoyo para tareas de operación, pruebas o experimentación, por ejemplo:
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`rag/retriever.py`** | **Motor RAG**. Consulta Qdrant con búsqueda híbrida (semántica + léxica), aplica filtros, hace Reranking. |
-| **`rag/chain.py`** | **Orquestador**. Combina documentos recuperados, construye prompt, llama al LLM. |
-| **`agent/tools.py`** | Define herramientas (Tools) que el agente puede usar. |
-| **`memory/manager.py`** | Gestiona memoria conversacional (historial) en Redis/Postgres. |
-| **`query_processor.py`** | Limpia queries: quita saludos, reformula para mejor búsqueda. |
+- generación de datasets;
+- fine-tuning;
+- validaciones;
+- utilidades de mantenimiento.
 
-### 2.4 Carpeta `/processing` - Procesamiento de Documentos
+### `config/`
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`ocr/paddle_ocr.py`** | Motor OCR con GPU. Usa PaddlePaddle para convertir PDFs escaneados a texto. |
-| **`chunking/smart_chunker.py`** | Divide textos largos en fragmentos lógicos respetando párrafos. |
-| **`embeddings/sentence_transformer.py`** | Genera vectores (embeddings) usando Sentence Transformers. |
+Configura servicios del despliegue:
 
-### 2.5 Carpeta `/integrations` - Conectores Externos
+- NGINX,
+- Prometheus,
+- Grafana,
+- integraciones específicas.
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`boe_connector.py`** | Conector al BOE (usado por el backend directamente, distinto al MCP). |
-| **`sharepoint/client.py`** | Cliente Microsoft Graph para SharePoint. |
-| **`sharepoint/sync.py`** | Sincronización delta (solo cambios) con SharePoint. |
-| **`scraper/playwright_scraper.py`** | Navegador headless para webs dinámicas (JavaScript). |
+### `memoria/`
 
-### 2.6 Carpeta `/storage`
+Es la referencia académica principal del proyecto. Su estructura vigente está documentada en [`../memoria/README.md`](../memoria/README.md).
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`qdrant_client.py`** | Wrapper para operaciones en Qdrant (upsert, search, delete). |
-| **`postgres_client.py`** | Conexión a PostgreSQL para metadatos. |
-| **`redis_client.py`** | Cliente Redis para cache. |
+La carpeta contiene:
 
----
+- `main.tex` como documento principal;
+- capítulos activos en `memoria/capitulos/`;
+- bibliografía en `bibliografia.bib`;
+- archivos de front matter como resumen y portada.
 
-## 🔌 3. Pipeline OpenWebUI (`/services/openwebui/pipelines`)
+### `docs/`
 
-### 3.1 jarvis.py (Pipeline Principal)
+Documentación complementaria del proyecto:
 
-El "Director de Orquesta" que decide qué hacer con cada mensaje.
+- guía académica;
+- mapa del código;
+- arquitectura técnica;
+- integración con BOE y SharePoint;
+- guías de despliegue y pruebas.
 
-| Función | Propósito |
-|---------|-----------|
-| **`pipe()`** | Punto de entrada. Recibe mensaje, decide acción, retorna respuesta. |
-| **`_detect_intent()`** | Determina intención: `rag`, `chat`, `web_search`, `boe`, `ocr`, `url`. |
-| **`_is_boe_query()`** | Detecta si el mensaje pide información del BOE. |
-| **`_detect_url_in_query()`** | Extrae URLs del mensaje con regex. |
-| **`_wants_web_search()`** | Detecta "busca en internet", "busca en la web", etc. |
-| **`_wants_rag_search()`** | Detecta "busca en tus documentos", "consulta los archivos". |
-| **`_call_backend_chat()`** | Llama a `/chat` del backend con contexto RAG. |
-| **`_call_boe_search()`** | Llama al endpoint BOE del backend. |
-| **`_call_litellm_with_history()`** | Llama al LLM con historial conversacional. |
-| **`_build_chat_history()`** | Extrae historial de OpenWebUI. |
+## Memoria académica activa
 
----
+La memoria compila con los siguientes capítulos:
 
-## 🔄 4. Indexer Service (`/services/indexer`)
+1. `01_Introduccion.tex`
+2. `02_EstadoDelArte.tex`
+3. `03_MarcoTecnologico.tex`
+4. `04_SistemasRelacionados.tex`
+5. `05_DescripcionFuncional.tex`
+6. `06_DisenoImplementacion.tex`
+7. `07_Metodologia.tex`
+8. `08_Resultados.tex`
+9. `09_Conclusiones.tex`
 
-Servicio independiente que mantiene Qdrant actualizado.
+Los capítulos antiguos o duplicados que no formaban parte de la estructura activa se han eliminado para evitar inconsistencias.
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`main.py`** | API de control: `/scan`, `/sync`, `/status`. |
-| **`worker.py`** | **Obrero principal**. Loop que vigila `data/watch`, detecta archivos nuevos, ejecuta OCR+Chunking+Indexación. |
-| **`multi_site_sync.py`** | Gestor de múltiples sitios SharePoint. Lee `sharepoint_sites.json`, lanza sincronizaciones paralelas. |
-| **`ocr_processor.py`** | Delegador de OCR (local o servicio remoto). |
+## Artefactos generados
 
----
+Los ficheros auxiliares de LaTeX (`.aux`, `.toc`, `.out`, `.bbl`, etc.) no forman parte de la estructura canónica del proyecto y se han retirado de `memoria/` para evitar que queden índices o referencias obsoletas cuando no se recompila el documento.
 
-## ⚙️ 5. Scripts de Operaciones (`/scripts`)
+## Regla de consistencia
 
-### 5.1 Fine-Tuning & Entrenamiento
+Si hay discrepancias entre documentación operativa y memoria académica, debe prevalecer:
 
-| Archivo | Descripción |
-|---------|-------------|
-| **`finetune_embeddings_v2.py`** | Fine-tuning de embeddings con Multiple Negatives Ranking Loss. |
-| **`generate_dataset_from_qdrant.py`** | Genera pares Pregunta-Respuesta sintéticos desde Qdrant. |
-| **`evaluate_rag.py`** | Evalúa precisión del RAG contra Gold Dataset. |
-| **`finetune_reranker.py`** | Entrena el Cross-Encoder (Reranker). |
-| **`finetune_lora.py`** | Entrena adaptadores LoRA para el LLM. |
-| **`convert_lora_to_ollama.py`** | Convierte LoRA a GGUF para Ollama. |
-
-### 5.2 Gestión y Utilidades
-
-| Archivo | Descripción |
-|---------|-------------|
-| **`add_sharepoint_site.py`** | Asistente CLI para añadir sitios SharePoint. |
-| **`setup.sh`** | Instalador: Docker, NVIDIA drivers, carpetas. |
-| **`backup.sh`** / **`restore.sh`** | Backups de Qdrant y PostgreSQL. |
-| **`pull_models.sh`** | Descarga modelos de Ollama. |
-
----
-
-## 🔧 6. Configuración (`/config`)
-
-| Carpeta/Archivo | Descripción |
-|-----------------|-------------|
-| **`nginx/nginx.conf`** | Configuración del reverse proxy. |
-| **`nginx/ssl/`** | Certificados SSL. |
-| **`prometheus/prometheus.yml`** | Scrape targets para métricas. |
-| **`grafana/provisioning/`** | Datasources y dashboards pre-configurados. |
-| **`grafana/dashboards/enterprise_rag.json`** | Dashboard personalizado del sistema. |
-
----
-
-## 🐳 7. Docker Compose (`docker-compose.yml`)
-
-Define los 14 microservicios:
-
-| Servicio | Puerto | Descripción |
-|----------|--------|-------------|
-| `nginx` | 8443, 80 | Reverse proxy + SSL |
-| `openwebui` | 3002 | Interfaz de chat |
-| `tfg-backend` | 8002 | API principal |
-| `mcp-boe` | 8011 | Servidor MCP |
-| `qdrant` | 6335 | Base de datos vectorial |
-| `postgres` | 5433 | Metadatos y usuarios |
-| `redis` | 6380 | Cache |
-| `litellm` | 4001 | Proxy de LLMs |
-| `ollama` | 11435 | Servidor de modelos |
-| `indexer` | 8003 | Sincronización |
-| `prometheus` | 9091 | Métricas |
-| `grafana` | 3003 | Dashboards |
-| `minio` | 9002 | Almacenamiento S3 |
-| `dcgm-exporter` | 9401 | Métricas GPU |
-
----
-
-## 🧪 8. Tests (`/tests` y archivos raíz)
-
-| Archivo | Descripción |
-|---------|-------------|
-| **`test_boe_connection.py`** | Verifica conexión al BOE. |
-| **`test_boe_search.py`** | Prueba búsquedas en el BOE. |
-| **`test_boe_law_text.py`** | Prueba obtención de texto de leyes. |
-| **`test_boe_analysis.py`** | Prueba análisis jurídico. |
-| **`check_boe_sections.py`** | Verifica secciones del BOE. |
-
----
-
-## 📚 9. Documentación (`/docs`)
-
-| Archivo | Propósito |
-|---------|-----------|
-| **`README.md`** | Índice de documentación |
-| **`TECHNOLOGY_STACK.md`** | Explicación de tecnologías |
-| **`ENV_CONFIGURATION.md`** | Variables de entorno |
-| **`DEPLOYMENT_CHECKLIST.md`** | Guía de despliegue |
-| **`TECHNICAL_ARCHITECTURE.md`** | Arquitectura detallada |
-| **`STUDENT_GUIDE.md`** | Guía para TFG |
-| **`USER_GUIDE.md`** | Manual de usuario |
-| **`SHAREPOINT_INTEGRATION.md`** | Integración SharePoint |
-| **`ADVANCED_EXTENSIONS.md`** | MCP, SSO, Nginx |
-| **`BOE_INTEGRATION.md`** | Integración BOE |
-| **`FINE_TUNING_GUIDE.md`** | Fine-tuning |
-
----
-
-*Última actualización: Febrero 2026*  
-*Universidad Rey Juan Carlos - TFG*
+1. el código realmente activo del repositorio;
+2. la estructura definida en `memoria/main.tex`;
+3. el alcance explicitado en la memoria del TFG.

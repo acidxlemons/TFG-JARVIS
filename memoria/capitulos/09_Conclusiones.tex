@@ -5,30 +5,33 @@
 \section{Resumen General}
 % ============================================================
 
-El presente Trabajo de Fin de Grado ha tenido como objetivo el diseño, desarrollo y despliegue de un sistema de Generación Aumentada por Recuperación (RAG) de ámbito empresarial, desplegado íntegramente en infraestructura local y construido exclusivamente con tecnologías de código abierto. El resultado ha sido un ecosistema funcional, compuesto por 12 microservicios contenerizados, capaz de ingerir documentos corporativos desde múltiples fuentes, procesarlos semánticamente y ofrecer a los usuarios una interfaz conversacional inteligente para consultar su base de conocimiento.
+Este Trabajo de Fin de Grado ha permitido diseñar, desarrollar y desplegar un asistente corporativo basado en RAG ejecutado en infraestructura local. El resultado no es un nuevo modelo entrenado desde cero, sino un sistema completo que reutiliza modelos y herramientas existentes y los integra dentro de una arquitectura propia orientada a un problema concreto: consultar documentación corporativa cambiante de forma segura, comprensible y trazable.
 
-El sistema demuestra que la orquestación distribuida de múltiples modelos de Inteligencia Artificial (LLMs, Embeddings y Motores OCR visuales) ejecutados localmente no solamente viabiliza entornos de trabajo corporativos sumamente avanzados, sino que a su vez elimina por completo la dependencia de proveedores externos y los riesgos de fuga de datos asociados.
+La solución obtenida demuestra que es viable construir una capa conversacional útil sobre repositorios documentales empresariales sin depender de servicios externos para la inferencia principal. También demuestra que, en este tipo de proyectos, el valor diferencial está menos en crear un LLM nuevo y más en elegir bien las piezas, conectarlas con criterio y explicar claramente qué hace cada una dentro del conjunto.
 
 % ============================================================
 \section{Consecución de Objetivos}
 % ============================================================
 
-A continuación, se evalúa el grado de cumplimiento de cada uno de los objetivos específicos planteados en el Capítulo~\ref{cap:intro}:
+A continuación se evalúa el grado de cumplimiento de los objetivos planteados en el Capítulo~\ref{cap:intro}:
 
 \begin{enumerate}
-    \item \textbf{Diseño de Arquitectura Desacoplada} --- \textit{Cumplido.} Se ha implementado una arquitectura de microservicios completa, empaquetada en 12 contenedores Docker orquestados mediante un único manifiesto \texttt{docker-compose.yml}. La separación de responsabilidades permite sustituir cualquier componente (modelo de IA, base de datos, proxy) sin afectar al resto del sistema.
+    \item \textbf{Arquitectura modular basada en componentes existentes y desarrollo propio} --- \textit{Cumplido.} Se ha construido una arquitectura de microservicios donde conviven herramientas externas reutilizadas y servicios desarrollados específicamente para el proyecto.
 
-    \item \textbf{Integración Multicanal} --- \textit{Cumplido.} El sistema ingiere documentos desde tres fuentes heterogéneas: (a) Microsoft SharePoint mediante la API Graph con autenticación MSAL y sincronización delta incremental; (b) Web scraping con Playwright y limpieza con Trafilatura; (c) Carga manual de ficheros con OCR automático vía PaddleOCR cuando se detectan PDFs escaneados.
+    \item \textbf{Ingesta multicanal y actualización de conocimiento} --- \textit{Cumplido.} El sistema procesa documentos de distintas fuentes y formatos, con especial foco práctico en SharePoint, que ha sido el entorno principal de integración y prueba.
 
-    \item \textbf{Resolución Normativa} --- \textit{Cumplido parcialmente.} Se ha implementado un servidor MCP funcional que conecta con la API del BOE, con resolución semántica de nombres de leyes comunes. No obstante, la integración se considera un prototipo técnico dado que la cobertura legislativa se limita a un diccionario estático de leyes conocidas.
+    \item \textbf{Respuestas fundamentadas y trazables} --- \textit{Cumplido.} La arquitectura RAG permite responder sobre documentación recuperada y mostrar al usuario el soporte documental utilizado.
 
-    \item \textbf{Enrutamiento Inteligente} --- \textit{Cumplido.} El agente JARVIS detecta 9 modos de operación distintos (RAG, web search, scraping, visión, BOE, status, help, listado de documentos y conversación general) mediante heurísticas semánticas evaluadas en orden de prioridad estricto.
+    \item \textbf{Capacidades complementarias sin entrenar un modelo desde cero} --- \textit{Cumplido.} Se han integrado búsqueda web, scraping, OCR, análisis de imágenes y consulta normativa reutilizando tecnologías ya existentes y desarrollando la lógica de conexión necesaria.
 
-    \item \textbf{Despliegue y Monitorización} --- \textit{Cumplido.} El sistema se despliega en un servidor on-premise con stack completo de observabilidad: Prometheus para métricas, NVIDIA DCGM Exporter para telemetría GPU, Grafana para dashboards visuales y pgAdmin para auditoría de la base de datos relacional.
+    \item \textbf{Exploración de MCP como vía futura} --- \textit{Cumplido parcialmente.} Se ha implementado un servidor MCP funcional para el caso del BOE, validado en entornos compatibles, aunque la interfaz web principal sigue utilizando integración por API.
+
+    \item \textbf{Despliegue reproducible y observable} --- \textit{Cumplido.} El sistema se despliega mediante contenedores e incorpora monitorización para analizar su comportamiento.
 \end{enumerate}
 
-\subsection{Funcionalidades Logradas}
-La Tabla~\ref{tab:funcionalidades} resume la totalidad de funcionalidades implementadas en el sistema:
+\subsection{Funcionalidades logradas}
+
+La Tabla~\ref{tab:funcionalidades} resume la funcionalidad implementada:
 
 \begin{table}[H]
 \centering
@@ -41,17 +44,15 @@ La Tabla~\ref{tab:funcionalidades} resume la totalidad de funcionalidades implem
 Conversación general con LLMs locales & \checkmark \\
 RAG documental con búsqueda híbrida & \checkmark \\
 Web scraping con renderizado JavaScript & \checkmark \\
-Búsqueda en internet (DuckDuckGo) & \checkmark \\
-OCR de PDFs escaneados (GPU) & \checkmark \\
-Análisis de imágenes (visión multimodal) & \checkmark \\
-Consulta legislativa BOE (MCP) & \checkmark \\
-Sincronización automática SharePoint & \checkmark \\
-Control de acceso departamental (Azure AD) & \checkmark \\
-Monitorización GPU y métricas & \checkmark \\
-Caché de respuestas (Redis) & \checkmark \\
-Fine-tuning LoRA del modelo corporativo & \checkmark \\
-Autoayuda (``¿Qué puedes hacer?'') & \checkmark \\
-Estado de indexación (``¿Cómo va?'') & \checkmark \\
+Búsqueda en internet & \checkmark \\
+OCR de PDFs escaneados & \checkmark \\
+Análisis de imágenes & \checkmark \\
+Consulta normativa del BOE & \checkmark \\
+Sincronización automática con SharePoint & \checkmark \\
+Control de acceso departamental & \checkmark \\
+Monitorización del sistema & \checkmark \\
+Caché de respuestas & \checkmark \\
+Exploración de fine-tuning con LoRA & \checkmark \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -60,26 +61,22 @@ Estado de indexación (``¿Cómo va?'') & \checkmark \\
 \section{Comparación con Otros Sistemas}
 % ============================================================
 
-En el Capítulo~\ref{cap:sistemas} se presenta un análisis comparativo exhaustivo del sistema desarrollado frente a soluciones comerciales (ChatGPT Enterprise, Microsoft Copilot, Google Gemini, AWS Bedrock) y de código abierto (PrivateGPT, AnythingLLM, Danswer, LocalAI). La tabla comparativa completa (Tabla~\ref{tab:comparativa-sistemas}) evidencia que el sistema JARVIS es el único que combina ejecución 100\% on-premise, interfaz conversacional, RAG multi-fuente, OCR con GPU, web scraping, SSO corporativo, consulta legislativa del BOE, monitorización de GPU y extensibilidad mediante plugins, todo ello con coste de licencia cero.
+El análisis realizado en el Capítulo~\ref{cap:sistemas} sitúa la propuesta en una posición clara. Frente a soluciones comerciales como ChatGPT Enterprise o Microsoft Copilot, la principal ventaja es la soberanía del dato y la capacidad de adaptar el flujo interno del sistema. Frente a herramientas abiertas ya construidas, la propuesta destaca por integrar en una misma arquitectura autenticación corporativa, SharePoint, OCR, scraping, RAG y monitorización.
 
-La principal ventaja diferencial del sistema desarrollado frente a soluciones comerciales como ChatGPT o Microsoft Copilot es la \textbf{soberanía total sobre los datos}: ningún documento, consulta o respuesta abandona el perímetro del servidor corporativo. Frente a frameworks de código abierto como LangChain, la ventaja reside en ofrecer un \textbf{sistema llave en mano} completamente desplegable, con interfaz de usuario, autenticación corporativa y monitorización incluidas de serie.
+La conclusión más relevante de esa comparación es que la propuesta de este TFG no pretende competir con todos los productos del mercado en amplitud funcional, sino resolver de forma sólida una combinación muy concreta de requisitos: despliegue local, documentos corporativos cambiantes, integración con herramientas reales de empresa y respuestas trazables.
 
 % ============================================================
 \section{Lecciones Aprendidas}
 % ============================================================
 
-El desarrollo del proyecto ha conllevado numerosos retos técnicos cuya resolución ha aportado un conocimiento práctico de alto valor. Se destacan las lecciones más significativas:
+Las lecciones más importantes del proyecto pueden resumirse en los siguientes puntos:
 
 \begin{itemize}
-    \item \textbf{Gestión de VRAM como recurso escaso:} La GPU se convierte en el cuello de botella principal cuando se ejecutan simultáneamente múltiples modelos de lenguaje, modelos de visión y el motor OCR. La cuantización (Q8/Q4) y la estrategia de carga bajo demanda de Ollama resultaron indispensables para mantener el sistema operativo dentro de los 24 GB de VRAM disponibles.
-
-    \item \textbf{La calidad del chunking determina la calidad del RAG:} Se comprobó experimentalmente que la segmentación de documentos en fragmentos demasiado pequeños ($< 256$ tokens) produce respuestas fragmentadas y descontextualizadas, mientras que fragmentos demasiado grandes ($> 1536$ tokens) diluyen la relevancia semántica. El rango óptimo se estableció entre 512 y 1024 tokens con un solapamiento del 10--15\%.
-
-    \item \textbf{La temperatura del modelo es crítica en modo RAG:} Valores de temperatura superiores a 0.3 en el modo RAG producían respuestas creativas que añadían información no presente en el contexto recuperado. Fijar la temperatura a 0.1--0.2 eliminó completamente las alucinaciones en consultas documentales.
-
-    \item \textbf{El scraping web requiere un enfoque por capas:} Ninguna estrategia de extracción funciona universalmente para todas las páginas web. La implementación de una cadena de fallback (Trafilatura $\rightarrow$ Readability $\rightarrow$ BeautifulSoup) con umbrales mínimos de calidad demostró ser la solución más robusta.
-
-    \item \textbf{La autenticación SSO simplifica, pero no trivializa:} La integración con Azure AD vía OIDC requirió un esfuerzo significativo de configuración (registros de aplicación, permisos de Graph API, mapeo de grupos a colecciones), pero una vez establecida, eliminó la fricción de gestión de usuarios y simplificó enormemente el control de acceso departamental.
+    \item \textbf{El problema principal no era entrenar un modelo, sino integrarlo bien}: reutilizar modelos existentes ha sido suficiente para construir una solución útil, siempre que el contexto recuperado y la arquitectura estuvieran bien diseñados.
+    \item \textbf{La calidad del RAG depende mucho de la ingesta}: chunking, OCR, limpieza web y metadatos influyen tanto como el modelo generativo.
+    \item \textbf{La GPU es un recurso crítico}: cuantización, carga bajo demanda y monitorización han sido esenciales para mantener el sistema operativo.
+    \item \textbf{Las fuentes documentales corporativas cambian}: por eso la sincronización incremental y el foco en SharePoint han sido piezas centrales del proyecto.
+    \item \textbf{Guiar al usuario también es una decisión técnica}: en este tipo de sistemas, una buena experiencia no depende solo de acertar la respuesta, sino de dejar claro qué está haciendo el sistema y en qué documentos se basa.
 \end{itemize}
 
 % ============================================================
@@ -106,32 +103,22 @@ Redacción y maquetación de la memoria & 40 h \\
 % ============================================================
 \section{Trabajo Futuro y Líneas de Expansión}
 % ============================================================
-A pesar de la exhaustividad del proyecto, el ámbito de la Inteligencia Artificial evoluciona dinámicamente y expone ciertas vías de mejora continua:
+
+El proyecto abre varias líneas de evolución razonables:
 
 \begin{enumerate}
-    \item \textbf{Ajuste Fino Avanzado (\textit{Fine-Tuning}):} Aplicar estrategias estáticas de calibración paramétrica eficiente, tales como Low-Rank Adaptation (LoRA), adaptando dominios específicos (jerga interna empresarial) a los modelos instructivos LLaMA para depurar aún más el vocabulario de las respuestas. Adicionalmente, explorar técnicas de DPO (\textit{Direct Preference Optimization}) utilizando el historial de conversaciones reales como datos de preferencia.
-
-    \item \textbf{Indexación de Contenido Multimedia:} Ampliar los parsers del backend actual al espectro de hojas de cálculo (\textit{CSV/Excel}), PDFs e imágenes, sino acometer tareas de vectorización a nivel del audio corporativo con modelos \textit{Whisper} o motores combinados de fonética multimodal.
-
-    \item \textbf{Evaluación Cuantitativa Formal:} Implementar benchmarks académicos estándar para la evaluación de sistemas RAG, como RAGAS (\textit{Retrieval Augmented Generation Assessment}) \cite{es2023ragas}, que proporcionarían métricas formales de fidelidad, relevancia y cobertura del contexto recuperado.
-
-    \item \textbf{Federación Multi-Agent:} Diseñar la arquitectura orquestal de JARVIS para segmentar de forma atómica sus \textit{prompts}. Emplear redes recursivas de varios modelos reducidos cooperando para votar a consenso cuál es la mejor resolución al tratar interacciones altamente complejas.
-
-    \item \textbf{Integración Completa con Múltiples IDPs:} Avanzar sobre la presente Autenticación Única centrada en OIDC Azure AD para brindar cobertura horizontal a otros \textit{Identity Providers} (Google Workspace, Okta, Keycloak), incrementando el Control de Acceso Basado en Roles (RBAC) para denegar el acceso semántico en las bases sectorizadas.
-
-    \item \textbf{Interfaz Móvil y API Pública:} Desarrollar una aplicación móvil nativa o una Progressive Web App (PWA) que consuma la API REST del backend, democratizando el acceso al asistente fuera de la estación de trabajo de la oficina.
+    \item \textbf{Extender la integración documental}: ampliar la cobertura a más repositorios en la nube y sistemas documentales además de SharePoint.
+    \item \textbf{Completar la adopción de MCP}: conectar el servidor MCP desarrollado con clientes e interfaces que lo soporten de forma nativa.
+    \item \textbf{Mejorar la evaluación cuantitativa}: incorporar métricas formales y marcos de evaluación específicos para RAG.
+    \item \textbf{Ampliar tipos de contenido}: incluir hojas de cálculo, audio y otros formatos documentales empresariales.
+    \item \textbf{Refinar la adaptación al dominio}: seguir explorando embeddings especializados y técnicas de ajuste fino cuando aporten valor real.
+    \item \textbf{Generalizar el control de acceso}: ampliar la compatibilidad con otros proveedores de identidad y políticas más detalladas.
 \end{enumerate}
 
 % ============================================================
 \section{Impacto y Transferencia}
 % ============================================================
 
-El sistema desarrollado en este TFG demuestra que es viable construir un asistente conversacional corporativo de alto rendimiento utilizando exclusivamente software de código abierto y hardware \textit{commodity}. Este hallazgo tiene implicaciones directas para:
+El sistema desarrollado muestra que una organización puede construir una solución propia de consulta documental asistida por IA utilizando software abierto y hardware accesible, sin renunciar al control sobre sus datos. Esto resulta especialmente relevante en entornos donde la documentación cambia con frecuencia y donde no es aceptable depender completamente de servicios externos.
 
-\begin{itemize}
-    \item \textbf{Pequeñas y medianas empresas (PYMEs):} Que pueden desplegar su propia infraestructura de IA sin incurrir en costes recurrentes de servicios cloud ni comprometer la confidencialidad de sus datos operacionales.
-    \item \textbf{Administración Pública:} Donde las restricciones del RGPD y la Ley de Protección de Datos impiden el envío de datos ciudadanos a servidores fuera del Espacio Económico Europeo.
-    \item \textbf{Sector Defensa e Industria:} Donde la soberanía del dato no es negociable y la infraestructura debe operar en redes aisladas sin conexión a internet.
-\end{itemize}
-
-La publicación íntegra del código fuente en GitHub\footnote{\url{https://github.com/acidxlemons/TFG-JARVIS}} bajo licencia abierta facilita la replicabilidad del proyecto y su adaptación a otros dominios y organizaciones, contribuyendo al ecosistema de conocimiento abierto en el campo de la IA empresarial aplicada.
+La arquitectura propuesta también tiene valor transferible: aunque la implementación y las pruebas se han realizado sobre SharePoint, la idea de fondo es aplicable a documentos cambiantes en la nube y a otras fuentes corporativas de naturaleza similar. La publicación del código en GitHub\footnote{\url{https://github.com/acidxlemons/TFG-JARVIS}} facilita su replicabilidad y su adaptación a otros contextos.

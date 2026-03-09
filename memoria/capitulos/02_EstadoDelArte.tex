@@ -1,63 +1,94 @@
-\chapter{Estado del Arte}
+\chapter{Fundamentos de la solución propuesta}
 \label{cap:estado}
 
-Este capítulo resume la base técnica sobre la que se construye el sistema. Se revisan los LLMs y el motivo por el que, por sí solos, no son suficientes en entornos corporativos; se explica RAG como arquitectura práctica para responder con evidencia; y se describen los componentes clave para ejecutar todo en local: embeddings, bases vectoriales, cuantización, LoRA y MCP como estándar emergente de integración de herramientas.
+Este capítulo no pretende enumerar todas las tecnologías del sector, sino introducir únicamente los conceptos necesarios para entender la solución desarrollada en este TFG. La idea es guiar al lector desde el problema hasta la arquitectura elegida: primero se explica qué puede aportar un LLM y por qué no basta por sí solo; después se presenta RAG como mecanismo para responder con apoyo documental; y finalmente se describen los componentes que permiten ejecutar todo ello de forma local, controlada y útil en un contexto corporativo.
 
 % ============================================================
 \section{Grandes Modelos de Lenguaje (LLMs)}
 % ============================================================
-Los grandes modelos de lenguaje (LLMs) son modelos neuronales entrenados para predecir el siguiente \textit{token} en una secuencia. El salto de rendimiento moderno llega con la arquitectura \textit{Transformer} \cite{vaswani2017attention}, donde la atención permite capturar relaciones de contexto de forma mucho más efectiva que arquitecturas previas.
+
+Los grandes modelos de lenguaje (LLMs) son modelos neuronales entrenados para predecir el siguiente \textit{token} en una secuencia. El salto de rendimiento moderno llega con la arquitectura \textit{Transformer} \cite{vaswani2017attention}, donde el mecanismo de atención permite capturar relaciones de contexto con mucha más eficacia que arquitecturas previas.
+
+Desde el punto de vista del usuario, un LLM permite dialogar en lenguaje natural, resumir contenido, reformular instrucciones o generar texto coherente. Sin embargo, conviene aclarar un punto importante para este trabajo: un LLM no es una base de datos ni un buscador documental. Si se le pregunta por información corporativa que no forma parte de su entrenamiento o que ha cambiado recientemente, tenderá a responder con estimaciones plausibles, no necesariamente con hechos verificables.
 
 \subsection{Propietarios vs. pesos abiertos}
-En la práctica, hay dos enfoques:
+
+En la práctica, existen dos formas habituales de utilizar LLMs:
 
 \begin{itemize}
-    \item \textbf{Modelos propietarios vía API (SaaS):} ofrecen rendimiento alto y producto maduro, pero implican dependencia de un proveedor externo y un flujo de datos fuera del perímetro. Además, normalmente no se publica información completa sobre el modelo (tamaño exacto, detalles de entrenamiento o parámetros).
-    \item \textbf{Modelos de pesos abiertos (\textit{open-weights}):} permiten ejecución local u \textit{on-premise}, lo que habilita control de datos, trazabilidad y operación sin conectividad externa. Ejemplos representativos son Llama 3.1 \cite{meta2024llama31,meta2024llama31hf} y Qwen2.5 \cite{qwen2024qwen25blog}.
+    \item \textbf{Modelos propietarios vía API}: ofrecen un producto muy maduro y alto rendimiento, pero implican dependencia de un proveedor externo y procesamiento fuera del perímetro corporativo.
+    \item \textbf{Modelos de pesos abiertos (\textit{open-weights})}: permiten ejecución local u \textit{on-premise}, lo que habilita mayor control sobre datos, configuración y despliegue.
 \end{itemize}
 
-En este proyecto se prioriza el segundo enfoque porque el requisito principal es operar en local. Es importante distinguir ``pesos abiertos'' de ``código abierto'': la disponibilidad de pesos no implica licencias OSI y puede incluir condiciones de uso específicas según el proveedor \cite{meta2024llama31hf,google2024gemmaterms,qwen2024qwen25license}.
+En este proyecto se prioriza el segundo enfoque porque el requisito principal es operar en local. También conviene diferenciar entre \textit{pesos abiertos} y \textit{código abierto}: que un modelo pueda descargarse y ejecutarse localmente no implica necesariamente una licencia plenamente abierta \cite{meta2024llama31hf,google2024gemmaterms,qwen2024qwen25license}.
 
-Se seleccionan Llama 3.1 8B y Qwen2.5 por ser viables en despliegue local y por su ecosistema \cite{meta2024llama31,qwen2024qwen25blog}.
+El sistema desarrollado reutiliza modelos ya existentes, principalmente Llama 3.1 y Qwen2.5, por ser viables en despliegue local y contar con un ecosistema maduro \cite{meta2024llama31,qwen2024qwen25blog}. Esta decisión refuerza la idea central del proyecto: el valor no está en crear un nuevo modelo fundacional, sino en integrarlo correctamente con el conocimiento de la organización.
+
+% ============================================================
+\section{Por qué un LLM por sí solo no resuelve este problema}
+% ============================================================
+
+El problema abordado en este TFG no consiste en mantener una conversación general, sino en responder sobre documentación interna, normativa y contenidos que cambian con el tiempo. Un LLM aislado presenta varias limitaciones en este escenario:
+
+\begin{itemize}
+    \item No conoce por defecto los documentos privados de la organización.
+    \item No accede en tiempo real a repositorios documentales salvo que se le conecte explícitamente a ellos.
+    \item Puede mezclar conocimiento general con suposiciones plausibles.
+    \item No ofrece trazabilidad automática hacia los documentos utilizados.
+\end{itemize}
+
+Por ello, aunque los LLMs son la pieza que permite la interacción en lenguaje natural, no constituyen por sí mismos la solución completa. Hace falta una arquitectura adicional que recupere información, filtre fuentes, construya contexto y limite la generación a aquello que realmente se ha encontrado.
 
 % ============================================================
 \section{Generación Aumentada por Recuperación (RAG)}
 % ============================================================
-Un LLM no consulta bases de datos en tiempo real durante la generación: produce texto a partir de patrones aprendidos. En un entorno corporativo eso es un problema porque la respuesta debe estar respaldada por documentación actual y verificable. Para resolverlo se utiliza RAG, que introduce una etapa de recuperación antes de la generación \cite{lewis2020rag}.
+
+La arquitectura que responde a ese problema es RAG (\textit{Retrieval-Augmented Generation}) \cite{lewis2020rag}. Su idea básica es sencilla: antes de generar una respuesta, el sistema busca fragmentos relevantes de documentos y se los proporciona al modelo como contexto. De esta forma, el LLM deja de apoyarse solo en su memoria estadística y pasa a responder utilizando evidencia concreta.
 
 Un pipeline RAG típico tiene dos fases:
 
 \begin{enumerate}
-    \item \textbf{Retrieval:} la consulta se transforma en un embedding y se recuperan fragmentos relevantes desde un índice vectorial mediante búsqueda de vecinos próximos (ANN).
-    \item \textbf{Generation:} el LLM recibe la pregunta junto con el contexto recuperado. Esto reduce respuestas no fundamentadas y permite devolver trazabilidad hacia los documentos usados.
+    \item \textbf{Recuperación}: la pregunta del usuario se transforma en una representación numérica y se buscan fragmentos relevantes en una base documental indexada.
+    \item \textbf{Generación}: el LLM recibe la pregunta junto con ese contexto recuperado y redacta una respuesta basada en él.
 \end{enumerate}
 
-\subsection{Mejoras prácticas: híbrida y reranking}
-En producción, RAG casi nunca se deja ``simple'':
+Para un lector no técnico, puede entenderse como una combinación entre un buscador y un asistente conversacional. El buscador encuentra la información; el asistente la explica. Esa combinación es la razón por la que RAG encaja mejor en este proyecto que un chatbot convencional.
+
+\subsection{Mejoras prácticas: búsqueda híbrida y memoria acotada}
+
+En un sistema real, RAG no suele quedarse en una búsqueda semántica simple:
 
 \begin{itemize}
-    \item \textbf{Búsqueda híbrida:} se combina recuperación densa (embeddings) con recuperación dispersa (BM25) para no perder coincidencias exactas (IDs, nombres de campos, artículos legales, acrónimos) \cite{robertson2009bm25,weaviateHybridDocs,qdrantHybridTutorial}. Esta es la variante implementada en el proyecto.
-    \item \textbf{Re-ranking:} se reordenan los fragmentos candidatos con un modelo o heurística adicional para seleccionar los más relevantes antes de construir el contexto.
-    \item \textbf{Memoria conversacional acotada:} se añade contexto del historial cuando aporta valor, evitando que crezca el \textit{prompt} sin control.
+    \item \textbf{Búsqueda híbrida}: combina recuperación densa mediante embeddings con recuperación léxica tipo BM25 para no perder coincidencias exactas como siglas, identificadores, nombres de procedimientos o artículos legales \cite{robertson2009bm25,weaviateHybridDocs,qdrantHybridTutorial}.
+    \item \textbf{Reordenación y filtrado}: se seleccionan los fragmentos más útiles antes de enviarlos al modelo.
+    \item \textbf{Memoria conversacional acotada}: se conserva parte del historial cuando aporta contexto, pero evitando que el \textit{prompt} crezca sin control.
 \end{itemize}
+
+La solución de este TFG utiliza precisamente esa variante práctica de RAG, porque es la que mejor se adapta a consultas corporativas reales.
 
 % ============================================================
 \section{Modelos de Embeddings}
 % ============================================================
-Los embeddings convierten texto en vectores numéricos donde la distancia representa similitud semántica. En RAG, los embeddings son la base del retrieval. Una métrica común es la similitud del coseno:
+
+Los embeddings convierten texto en vectores numéricos donde la cercanía entre vectores representa similitud semántica. Son el mecanismo que permite pasar de una pregunta escrita por una persona a una búsqueda de contenido relacionada por significado y no solo por palabras exactas.
+
+Una medida habitual de similitud es la similitud del coseno:
 
 \begin{equation}
 \text{sim}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{||\mathbf{a}|| \cdot ||\mathbf{b}||}
 \end{equation}
 
-Para embeddings en local, una opción práctica y extendida es SentenceTransformers (Sentence-BERT) \cite{reimers2019sentence,sbertDocs}. Frente a alternativas comerciales (p.ej. OpenAI embeddings) \cite{openaiEmbeddingsGuide}, estos modelos permiten despliegue \textit{on-premise} sin dependencias externas.
+En este proyecto se emplean modelos de SentenceTransformers \cite{reimers2019sentence,sbertDocs}, ya existentes y desplegables en local, porque permiten generar embeddings sin depender de servicios externos. Esta decisión es importante por dos razones: preserva la privacidad y desacopla la búsqueda semántica del proveedor del LLM generativo.
 
-En este proyecto se utiliza un modelo multilingüe de SentenceTransformers por compatibilidad con documentación en español/inglés y facilidad de despliegue local \cite{sbertDocs}. Adicionalmente, el sistema contempla un proceso de \textit{fine-tuning} sobre este modelo base para mejorar la representación semántica en el dominio específico corporativo, ajustando el espacio vectorial a la terminología propia.
+También se explora la adaptación del modelo de embeddings al dominio del proyecto. Esto es relevante porque, en un entorno corporativo, términos internos, acrónimos y nomenclatura especializada pueden no estar bien representados por un modelo genérico.
 
 % ============================================================
-\section{Bases de Datos Vectoriales}
+\section{Bases de datos vectoriales}
 % ============================================================
-La base vectorial define latencia y escalabilidad del sistema RAG. En grandes volúmenes, se usa búsqueda aproximada (ANN) con índices eficientes. Uno de los enfoques más utilizados es HNSW \cite{malkov2016hnsw}, un grafo navegable jerárquico que permite consultas rápidas a alta dimensionalidad.
+
+Una vez calculados los embeddings, hace falta un sistema capaz de almacenarlos y consultarlos con rapidez. Ese papel lo cumplen las bases de datos vectoriales. En lugar de buscar solo texto, permiten buscar vectores parecidos al vector de la consulta.
+
+En colecciones grandes se usan índices aproximados para acelerar la búsqueda. Uno de los enfoques más extendidos es HNSW \cite{malkov2016hnsw}, un grafo navegable jerárquico diseñado para encontrar vecinos cercanos de forma eficiente.
 
 \begin{table}[H]
 \centering
@@ -76,23 +107,27 @@ Pinecone & Propietaria & No (SaaS) & Sí & Parcial \\
 \end{tabular}
 \end{table}
 
-Se selecciona \textbf{Qdrant} por ser \textit{on-premise}, por su filtrado por metadatos y por soporte en su ecosistema para búsqueda híbrida (dense + sparse) \cite{qdrantHybridTutorial,qdrantSparseVectors}. Además, dispone de API REST clara, lo que simplifica la integración con backend Python.
+Se selecciona \textbf{Qdrant} por ser \textit{on-premise}, por su filtrado por metadatos y por su buen soporte para búsqueda híbrida \cite{qdrantHybridTutorial,qdrantSparseVectors}. Para este TFG no es solo una decisión de rendimiento, sino también de control: permite separar colecciones, añadir metadatos y aplicar restricciones de acceso documentales.
 
 % ============================================================
-\section{Cuantización y formatos para inferencia local}
+\section{Cuantización y ejecución local}
 \label{sec:cuantizacion}
 % ============================================================
-Para ejecutar LLMs localmente con recursos limitados se recurre a cuantización: reducir precisión de los pesos para disminuir VRAM y acelerar inferencia. En el ecosistema local, el formato GGUF se utiliza ampliamente para empaquetar modelos cuantizados junto con metadatos, especialmente en \texttt{llama.cpp} \cite{ggmlGgufSpec,hfGgufDocs}.
 
-En este proyecto, la ejecución local se apoya en herramientas que consumen modelos GGUF y los sirven por API. Por ejemplo, Ollama documenta flujos de importación de modelos GGUF \cite{ollamaImportGguf}.
+Ejecutar LLMs localmente exige gestionar bien los recursos de hardware, especialmente la VRAM de la GPU. La cuantización reduce la precisión numérica de los pesos para disminuir consumo de memoria y hacer viable la inferencia en hardware más modesto.
+
+En el ecosistema local, el formato GGUF se utiliza ampliamente para empaquetar modelos cuantizados junto con sus metadatos \cite{ggmlGgufSpec,hfGgufDocs}. Herramientas como Ollama permiten servir estos modelos por API y simplifican mucho el despliegue \cite{ollamaImportGguf}.
+
+Este concepto es importante para entender una de las decisiones prácticas del proyecto: no basta con elegir un buen modelo, también hay que elegir una variante que realmente pueda ejecutarse en el hardware disponible sin bloquear el resto del sistema.
 
 % ============================================================
 \section{Ajuste fino eficiente con LoRA}
 \label{sec:lora}
 % ============================================================
-El ajuste fino (\textit{fine-tuning}) adapta un modelo generalista a un dominio concreto enseñándole nueva terminología, estilo o formatos de respuesta. Sin embargo, entrenar todos los parámetros de un LLM moderno requiere una capacidad de cómputo inmensa.
 
-Para resolver este problema, la técnica LoRA (\textit{Low-Rank Adaptation}) propone entrenar únicamente unos adaptadores de bajo rango que se insertan en las capas de atención del modelo original. Durante el entrenamiento, los pesos originales se mantienen congelados (\textit{frozen}) y solo se actualizan los adaptadores, reduciendo drásticamente el número de parámetros a entrenar y haciendo viable el ajuste fino con GPUs moderadas \cite{hu2021lora}:
+El ajuste fino (\textit{fine-tuning}) adapta un modelo generalista a un dominio concreto. Sin embargo, reentrenar por completo un LLM moderno está fuera del alcance normal de un TFG y tampoco era el objetivo principal de este trabajo.
+
+La técnica LoRA (\textit{Low-Rank Adaptation}) reduce drásticamente ese coste entrenando solo adaptadores de bajo rango insertados en el modelo original \cite{hu2021lora}:
 
 \begin{equation}
 W' = W + \Delta W = W + BA
@@ -100,23 +135,14 @@ W' = W + \Delta W = W + BA
 
 donde $A$ y $B$ son matrices de rango reducido y $r \ll \min(d,k)$.
 
-En este proyecto se explora el ajuste fino mediante LoRA sobre un LLM base con el objetivo de mejorar su adherencia a un formato específico. No obstante, se observó empíricamente que, para tareas de RAG puras, el \textit{fine-tuning} en el LLM resultaba menos eficaz que un buen ajuste del \textit{prompt} (\textit{prompt engineering}) combinado con un modelo de embeddings bien adaptado al dominio. Por ello, la estrategia final descansa más sobre la calidad del contexto recuperado que sobre la modificación de los pesos del LLM.
+En este proyecto, LoRA se estudia como una vía de adaptación incremental sobre modelos ya existentes, no como el eje principal de la solución. La experiencia obtenida muestra que, para consultas RAG puras, suele tener más impacto un buen contexto recuperado y un buen modelo de embeddings que modificar directamente los pesos del LLM generativo.
 
 % ============================================================
 \section{Model Context Protocol (MCP)}
 % ============================================================
-MCP es un estándar abierto propuesto por Anthropic (2024) para integrar herramientas externas con agentes basados en LLM mediante una interfaz cliente-servidor tipada \cite{anthropicMcpAnnouncement}. Un servidor MCP expone herramientas (\textit{tools}) y un cliente MCP descubre e invoca dichas herramientas con argumentos estructurados.
 
-En este proyecto se desarrolla un servidor MCP orientado a consulta normativa del BOE. Este servidor se ha validado en ejecución por terminal con un LLM y un cliente MCP compatible. Sin embargo, en el alcance actual, la integración MCP nativa no se incorpora en la interfaz web utilizada, por limitaciones del cliente. Por ello, la funcionalidad BOE dentro del sistema se integra mediante llamadas a API, manteniendo la operatividad y dejando preparada la migración a MCP completo en iteraciones futuras \cite{anthropicMcpAnnouncement}.
+MCP es un estándar abierto propuesto por Anthropic en 2024 para integrar herramientas externas con agentes basados en LLM mediante una interfaz cliente-servidor tipada \cite{anthropicMcpAnnouncement}. Un servidor MCP expone herramientas y un cliente compatible puede descubrirlas e invocarlas de forma estructurada.
 
-% ============================================================
-\section{Tecnologías de soporte del ecosistema}
-% ============================================================
-Para implementar un RAG completo en local hacen falta piezas de integración:
+Para este TFG, MCP es relevante por dos motivos. Primero, porque representa una forma moderna de conectar modelos con herramientas externas. Segundo, porque permite aclarar el alcance del trabajo: el proyecto no implementa una plataforma MCP completa desde cero, sino un \textbf{servidor MCP propio} orientado a consulta normativa del BOE, desarrollado como prueba de integración real.
 
-\begin{itemize}
-    \item \textbf{FastAPI:} backend en Python con documentación OpenAPI automática \cite{fastapiFeatures}.
-    \item \textbf{LangChain / LlamaIndex:} utilidades para \textit{retrievers}, \textit{chunking} y orquestación RAG \cite{langchainRetrievalDocs,llamaindexRagDocs}.
-    \item \textbf{LiteLLM:} proxy que unifica APIs de múltiples proveedores bajo un formato compatible con OpenAI \cite{litellmDocs}.
-    \item \textbf{Ollama:} ejecución local de modelos y exposición por API, compatible con flujos GGUF \cite{ollamaImportGguf}.
-\end{itemize}
+Ese servidor se ha validado en ejecución por terminal con clientes compatibles. Sin embargo, la funcionalidad visible dentro de la interfaz web sigue resolviéndose mediante API tradicional, ya que el cliente web utilizado no integra todavía MCP de forma nativa. Por tanto, MCP aparece en este trabajo como tecnología implementada y validada, pero todavía no como flujo principal de uso para el usuario final.

@@ -1,30 +1,55 @@
-\chapter{Marco Tecnológico}
+\chapter{Tecnologías utilizadas y criterio de elección}
 \label{cap:tecnologias}
 
-Este capítulo describe en profundidad las tecnologías que he utilizado para construir el ecosistema de este Trabajo de Fin de Grado. Profundizo especialmente en OpenWebUI, que he configurado como interfaz de usuario conversacional y punto de entrada principal del sistema, y detallo el resto de componentes tecnológicos que he integrado para hacer posible la ejecución local de modelos de lenguaje, el almacenamiento vectorial, la orquestación de servicios y la monitorización de todo el conjunto.
+Este capítulo aterriza la solución en tecnologías concretas. Su objetivo no es solo enumerar herramientas, sino explicar \textbf{para qué sirve cada una, por qué se ha elegido y qué papel desempeña dentro del sistema completo}. También resulta importante distinguir entre herramientas preexistentes reutilizadas en el proyecto y componentes desarrollados específicamente en este TFG.
 
 % ============================================================
-\section{OpenWebUI: Interfaz de Usuario Conversacional}
+\section{Python como lenguaje de integración principal}
+\label{sec:python}
+% ============================================================
+
+El lenguaje vertebrador del proyecto es Python. La razón principal no es solo su popularidad, sino su capacidad para actuar como lenguaje de integración entre bibliotecas de IA, servicios web, automatización y procesamiento documental. En este TFG, Python permite conectar en un mismo ecosistema el backend, el indexador, el pipeline de OpenWebUI, la integración con SharePoint, el scraping, el OCR y el servidor MCP.
+
+Además, buena parte de las herramientas reutilizadas en el proyecto exponen su mejor soporte precisamente en este lenguaje. Entre los paquetes y bibliotecas más importantes utilizados se encuentran:
+
+\begin{itemize}
+    \item \textbf{FastAPI} y \textbf{Uvicorn} para los servicios web y la API REST.
+    \item \textbf{Pydantic} para validación de datos y configuración tipada.
+    \item \textbf{sentence-transformers} para generación de embeddings.
+    \item \textbf{qdrant-client} para interacción con la base de datos vectorial.
+    \item \textbf{msal} y clientes asociados para autenticación y acceso a Microsoft Graph.
+    \item \textbf{playwright} para automatización de navegador.
+    \item \textbf{trafilatura}, \textbf{readability} y \textbf{BeautifulSoup} para extracción de contenido web.
+    \item \textbf{PaddleOCR} para OCR de documentos escaneados.
+    \item \textbf{duckduckgo\_search} para búsqueda web controlada.
+    \item \textbf{fastmcp} para el servidor MCP del BOE.
+    \item \textbf{prometheus-client} para exponer métricas del backend.
+\end{itemize}
+
+Esta elección también ayuda a explicar la naturaleza del trabajo realizado: el proyecto no consiste en inventar estas bibliotecas, sino en \textbf{utilizarlas de forma coordinada y construir sobre ellas la lógica que faltaba para el caso de uso corporativo}.
+
+% ============================================================
+\section{OpenWebUI: interfaz conversacional reutilizada}
 \label{sec:openwebui}
 % ============================================================
 
-OpenWebUI\footnote{\url{https://openwebui.com/}} es una plataforma de interfaz de usuario de código abierto diseñada para interactuar con modelos de lenguaje de forma conversacional a través del navegador web. Se trata de un proyecto mantenido por la comunidad que ha ganado una tracción significativa en el ecosistema de código abierto, acumulando más de 60.000 estrellas en GitHub y una comunidad activa de contribuidores \cite{openwebui2024docs}.
+OpenWebUI\footnote{\url{https://openwebui.com/}} es la interfaz conversacional utilizada como punto de entrada del sistema. Es una herramienta externa, ya existente, que he reutilizado para no invertir el esfuerzo del TFG en construir una interfaz de chat desde cero. Esta decisión permite concentrar el trabajo en la parte realmente diferencial del proyecto: la integración con las fuentes documentales y la lógica del asistente.
 
 \subsection{Arquitectura interna de OpenWebUI}
 
-OpenWebUI se estructura internamente como una aplicación web moderna con las siguientes capas:
+OpenWebUI se estructura como una aplicación web con tres bloques principales:
 
 \begin{itemize}
-    \item \textbf{Frontend (SvelteKit):} Interfaz web reactiva construida con Svelte y SvelteKit que proporciona una experiencia de usuario similar a ChatGPT: entrada de texto con soporte Markdown, streaming de respuestas en tiempo real, gestión de conversaciones, carga de archivos adjuntos y un panel lateral de navegación entre chats. El frontend se comunica con el backend mediante API REST y WebSockets para el streaming.
-
-    \item \textbf{Backend (Python/FastAPI):} Servidor API que gestiona la lógica de la aplicación: autenticación de usuarios, persistencia de conversaciones, gestión de modelos disponibles y enrutamiento de peticiones. El backend almacena toda la información de sesión en una base de datos SQL.
-
-    \item \textbf{Base de datos (SQLite/PostgreSQL):} Almacena usuarios, conversaciones, mensajes, configuraciones y metadatos. En despliegues pequeños utiliza SQLite; en producción se recomienda PostgreSQL, opción elegida en este proyecto.
+    \item \textbf{Frontend}: interfaz tipo chat accesible desde navegador, con historial de conversaciones, carga de adjuntos y streaming de respuestas.
+    \item \textbf{Backend}: lógica de autenticación, persistencia de chats y gestión de modelos.
+    \item \textbf{Base de datos}: almacenamiento de usuarios, conversaciones y metadatos.
 \end{itemize}
+
+Para el lector, lo importante es entender su papel dentro del proyecto: OpenWebUI aporta la experiencia de usuario, pero no constituye la inteligencia principal del sistema. Esa inteligencia se añade mediante el pipeline desarrollado en este TFG.
 
 \subsection{Por qué OpenWebUI}
 
-La elección de OpenWebUI como interfaz de usuario no fue casual. Durante la fase de diseño evalué varias alternativas y me decanté por OpenWebUI por las razones que detallo en la Tabla~\ref{tab:openwebui-comparativa}.
+La elección de OpenWebUI se justifica porque ya ofrece varias capacidades deseables en un entorno corporativo: interfaz madura, persistencia de conversaciones, compatibilidad con modelos locales y soporte de autenticación. Frente a hacer una interfaz propia, reduce tiempo de desarrollo y riesgo técnico.
 
 \begin{table}[H]
 \centering
@@ -46,54 +71,45 @@ Carga de archivos adjuntos   & \checkmark & \checkmark & \checkmark & Parcial \\
 \end{tabular}
 \end{table}
 
-El factor decisivo fue el \textbf{sistema de Pipelines}: un mecanismo de extensión que permite inyectar lógica personalizada de procesamiento entre el usuario y el modelo de lenguaje \textbf{sin necesidad de modificar el código fuente de OpenWebUI}. Esta capacidad fue la que hizo posible construir todo el agente JARVIS como un plugin externo que se conecta a OpenWebUI mediante una API HTTP estandarizada, convirtiendo una interfaz genérica de chat en un asistente corporativo inteligente con capacidades RAG, scraping, OCR, consulta legislativa y más.
+El factor decisivo es el sistema de Pipelines, porque permite insertar lógica personalizada sin modificar el núcleo de la herramienta. Gracias a ello, la interfaz sigue siendo una pieza reutilizada, pero el comportamiento final del asistente pasa a estar controlado por desarrollo propio.
 
 \subsection{Sistema de Pipelines de OpenWebUI}
 \label{subsec:pipelines}
 
-El sistema de Pipelines es el mecanismo central mediante el cual se extiende la funcionalidad de OpenWebUI. Funciona como un \textit{middleware} HTTP que intercepta los mensajes del usuario antes de que lleguen al modelo de lenguaje, permitiendo procesarlos, redirigirlos o transformarlos según la lógica definida por el desarrollador.
+El sistema de Pipelines es el mecanismo que convierte una interfaz genérica en un asistente especializado. Funciona como una capa intermedia entre el usuario y el modelo: recibe el mensaje, decide qué hacer con él y devuelve la respuesta final.
 
-Desde el punto de vista arquitectónico, un Pipeline se despliega como un \textbf{servicio independiente} (típicamente un contenedor Docker) que expone una API HTTP. OpenWebUI se configura para enviar los mensajes del usuario a este servicio en lugar de directamente al modelo. El Pipeline procesa el mensaje, ejecuta la lógica necesaria (búsqueda en bases de datos, llamadas a APIs externas, etc.) y devuelve la respuesta al usuario a través de OpenWebUI.
-
-El contrato que debe implementar un Pipeline se define mediante una clase Python con los siguientes métodos:
+Desde el punto de vista del proyecto, esta capacidad es clave porque permite:
 
 \begin{itemize}
-    \item \texttt{\_\_init\_\_()}: Inicialización del pipeline, definición de nombre, identificador y configuración (\textit{Valves}).
-    \item \texttt{on\_startup()}: Método ejecutado al arrancar el servicio (carga de recursos, conexiones).
-    \item \texttt{on\_shutdown()}: Método ejecutado al detener el servicio (liberación de recursos).
-    \item \texttt{pipe(user\_message, model\_id, messages, body)}: Método principal que recibe cada mensaje del usuario y devuelve la respuesta. Este es el \textbf{hook} central del sistema.
+    \item interceptar cada consulta antes de enviarla al modelo,
+    \item aplicar lógica de enrutamiento,
+    \item conectar con el backend propio,
+    \item y conservar la interfaz original sin reescribirla.
 \end{itemize}
 
-El parámetro \texttt{body} contiene metadatos adicionales como la información del usuario autenticado (email, nombre, rol, grupos), lo que permite implementar lógica de control de acceso personalizada.
-
-Adicionalmente, OpenWebUI introduce el concepto de \textbf{Valves}: una clase \texttt{Pydantic BaseModel} anidada dentro del Pipeline que define parámetros configurables. Estos parámetros se exponen automáticamente en la interfaz de administración de OpenWebUI, permitiendo modificar la configuración del pipeline (URLs de backend, modelos, umbrales, mapeos de departamentos) sin necesidad de editar código ni reiniciar el servicio.
-
-Este mecanismo de extensión fue la pieza clave que permitió construir todo el sistema JARVIS como una capa de inteligencia sobre OpenWebUI, manteniendo la interfaz de usuario intacta y delegando toda la lógica de negocio al pipeline y al backend propios.
+Este es uno de los mejores ejemplos de la filosofía del TFG: reutilizar una herramienta existente cuando ya resuelve bien una capa del problema y centrar el desarrollo propio en la parte que aporta valor diferencial.
 
 % ============================================================
-\section{Ollama: Ejecución Local de Modelos de Lenguaje}
+\section{Ollama: ejecución local de modelos}
 \label{sec:ollama}
 % ============================================================
 
-Ollama\footnote{\url{https://ollama.com/}} es un motor de ejecución de modelos de lenguaje diseñado para operar íntegramente en hardware local. Su función principal es gestionar la descarga, configuración, carga en memoria y ejecución de LLMs, exponiendo una API HTTP compatible con el estándar de OpenAI \cite{ollama2024docs}.
+Ollama\footnote{\url{https://ollama.com/}} es la herramienta externa utilizada para ejecutar modelos de lenguaje localmente. Su función es cargar modelos, servirlos por API y gestionar su uso en el hardware disponible \cite{ollama2024docs}.
 
 \subsection{Características técnicas}
 
-Las características que hicieron de Ollama la herramienta idónea para mi proyecto son:
+Se ha elegido Ollama por varias razones prácticas:
 
 \begin{itemize}
-    \item \textbf{Gestión dinámica de VRAM:} Ollama carga y descarga modelos de la GPU bajo demanda. Cuando la VRAM está ocupada por un modelo y se solicita otro, el primero se descarga automáticamente. Esta gestión resulta crítica cuando se operan simultáneamente modelos de texto, visión y embeddings en una única GPU con VRAM limitada.
-
-    \item \textbf{Soporte de cuantización GGUF:} Soporte nativo para modelos en formato GGUF con múltiples niveles de cuantización (Q4\_0, Q4\_K\_M, Q8\_0), permitiendo ejecutar modelos que en precisión completa requerirían GPUs de datacenter en hardware de consumo \cite{ggmlGgufSpec}.
-
-    \item \textbf{API compatible con OpenAI:} Expone endpoints de chat (\texttt{/v1/chat/completions}) y generación (\texttt{/api/generate}) compatibles con el formato de la API de OpenAI, lo que facilita su integración con herramientas del ecosistema.
-
-    \item \textbf{Contenedorización nativa:} Disponible como imagen Docker oficial con soporte para NVIDIA Container Toolkit, lo que permite desplegar el motor de inferencia como un contenedor más dentro de la orquestación Docker Compose del sistema.
+    \item \textbf{Facilita el despliegue de modelos locales}: evita construir una capa de inferencia propia desde cero.
+    \item \textbf{Gestiona la VRAM de manera operativa}: carga y descarga modelos según sea necesario.
+    \item \textbf{Expone una API sencilla}: esto simplifica mucho su integración con el resto del sistema.
+    \item \textbf{Encaja bien en contenedores}: puede desplegarse como un servicio más dentro de Docker Compose.
 \end{itemize}
 
 \subsection{Modelos desplegados}
 
-En el sistema he desplegado los siguientes modelos mediante Ollama:
+En el sistema se emplean varias familias de modelos ya existentes, cada una con una función concreta:
 
 \begin{table}[H]
 \centering
@@ -105,148 +121,201 @@ En el sistema he desplegado los siguientes modelos mediante Ollama:
 \midrule
 LLaMA 3.1 8B Instruct & Chat general y RAG & Q8\_0 & $\sim$8 GB \\
 LLaMA 3.1 8B Instruct & Resúmenes rápidos & Q4\_0 & $\sim$4 GB \\
-Qwen 2.5 (LoRA FT)    & RAG corporativo (fine-tuned) & --- & $\sim$5 GB \\
+Qwen 2.5 (LoRA FT)    & Variante adaptada al dominio & --- & $\sim$5 GB \\
 Qwen 2.5 VL 7B        & Análisis de imágenes & --- & $\sim$5 GB \\
-LLaVA 13B             & Visión/OCR (legacy) & --- & $\sim$8 GB \\
+LLaVA 13B             & Vía histórica para visión/OCR & --- & $\sim$8 GB \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+La tabla refuerza una idea importante: los modelos no se han creado en este TFG, pero sí se han \textbf{seleccionado, desplegado, probado y asignado a tareas concretas} dentro de una arquitectura coherente.
+
 % ============================================================
-\section{Qdrant: Base de Datos Vectorial}
+\section{Qdrant: base de datos vectorial}
 \label{sec:qdrant}
 % ============================================================
 
-Qdrant\footnote{\url{https://qdrant.tech/}} es un motor de búsqueda vectorial de código abierto (Apache 2.0) optimizado para operaciones de similitud sobre vectores de alta dimensionalidad. En el contexto de mi Trabajo de Fin de Grado, he utilizado Qdrant como el almacén principal de conocimiento del sistema RAG, donde indexo todos los fragmentos de documentos transformados en embeddings \cite{qdrant2024docs}.
+Qdrant\footnote{\url{https://qdrant.tech/}} es la base de datos vectorial empleada como almacén principal del conocimiento documental del sistema \cite{qdrant2024docs}. Es una herramienta externa, pero su estructura, colecciones y criterios de uso se definen dentro del proyecto.
 
 \subsection{Características utilizadas}
 
 \begin{itemize}
-    \item \textbf{Índice HNSW:} Qdrant utiliza el algoritmo HNSW (\textit{Hierarchical Navigable Small World}) para indexar vectores y realizar búsquedas de vecinos próximos de forma eficiente. Este índice permite consultas sub-lineales incluso en colecciones con millones de puntos \cite{malkov2016hnsw}.
-
-    \item \textbf{Búsqueda híbrida (Dense + Sparse):} Además de la búsqueda por similitud vectorial (densa), Qdrant soporta vectores dispersos que permiten implementar búsqueda léxica tipo BM25. La combinación de ambos enfoques constituye la estrategia de búsqueda híbrida del sistema, donde se recuperan fragmentos tanto por similitud semántica como por coincidencia exacta de términos \cite{qdrantHybridTutorial,qdrantSparseVectors}.
-
-    \item \textbf{Filtrado por metadatos:} Cada punto vectorial almacena un \textit{payload} JSON con metadatos (nombre de archivo, página, fuente, departamento). Qdrant permite filtrar la búsqueda por estos campos, lo que habilita el control de acceso departamental: cada usuario solo consulta los documentos de las colecciones a las que tiene acceso.
-
-    \item \textbf{Multi-colección:} El sistema define múltiples colecciones (\texttt{documents}, \texttt{documents\_CIVEX2}, \texttt{webs}) para organizar el conocimiento por origen y departamento, permitiendo búsquedas segmentadas.
+    \item \textbf{Índice HNSW}: permite búsquedas vectoriales rápidas sobre grandes volúmenes de fragmentos.
+    \item \textbf{Búsqueda híbrida}: combina similitud semántica y coincidencia léxica exacta.
+    \item \textbf{Filtrado por metadatos}: habilita segmentación por fuente, documento o departamento.
+    \item \textbf{Multi-colección}: permite separar documentos por contexto de uso.
 \end{itemize}
 
+Para el proyecto, esto significa que Qdrant no es solo un repositorio técnico, sino el componente que hace posible que el sistema encuentre evidencia relevante antes de responder.
+
 % ============================================================
-\section{FastAPI: Framework del Backend}
+\section{FastAPI: backend del sistema}
 \label{sec:fastapi}
 % ============================================================
 
-FastAPI\footnote{\url{https://fastapi.tiangolo.com/}} es un framework web de alto rendimiento para Python, basado en tipado estático y los estándares OpenAPI y JSON Schema. Lo seleccioné como base para desarrollar el backend de mi sistema por las siguientes razones \cite{fastapi2024docs}:
+FastAPI\footnote{\url{https://fastapi.tiangolo.com/}} es el framework seleccionado para construir los servicios backend en Python \cite{fastapi2024docs}. A diferencia de OpenWebUI, Ollama o Qdrant, que son herramientas reutilizadas, aquí sí aparece una parte importante de desarrollo propio: los servicios implementados con FastAPI contienen gran parte de la lógica central del sistema.
+
+Se ha elegido por tres motivos principales:
 
 \begin{itemize}
-    \item \textbf{Rendimiento asíncrono:} FastAPI se ejecuta sobre Uvicorn (servidor ASGI), lo que permite manejar peticiones concurrentes de forma nativa con \texttt{async/await}. Esto es especialmente relevante en un sistema donde las peticiones al LLM pueden tardar varios segundos.
-
-    \item \textbf{Validación con Pydantic:} Los modelos de datos de entrada y salida (\texttt{ChatRequest}, \texttt{ChatResponse}, \texttt{SearchRequest}) se definen como clases Pydantic, garantizando validación automática de tipos, serialización y documentación.
-
-    \item \textbf{Documentación OpenAPI automática:} FastAPI genera automáticamente documentación interactiva Swagger (\texttt{/docs}) y ReDoc (\texttt{/redoc}), facilitando la integración y depuración durante el desarrollo.
-
-    \item \textbf{Ecosistema Python:} La implementación en Python permite integrar de forma natural todas las librerías de IA (SentenceTransformers, PaddleOCR, MSAL, Playwright) en un único servicio.
+    \item \textbf{Facilidad para construir APIs tipadas y mantenibles}.
+    \item \textbf{Soporte asíncrono}: útil cuando el sistema depende de múltiples llamadas a servicios externos o internos.
+    \item \textbf{Integración natural con el ecosistema Python}: permite usar en el mismo entorno paquetes de IA, scraping, OCR y autenticación.
 \end{itemize}
 
+En este TFG, FastAPI sustenta el backend RAG, el indexador de documentos y parte de las integraciones auxiliares.
+
 % ============================================================
-\section{LiteLLM: Proxy Unificado de Modelos}
+\section{LiteLLM: proxy unificado de modelos}
 \label{sec:litellm}
 % ============================================================
 
-LiteLLM\footnote{\url{https://docs.litellm.ai/}} es un proxy de código abierto que unifica las APIs de múltiples proveedores de modelos de lenguaje bajo una interfaz compatible con el formato de OpenAI. En este proyecto, he configurado LiteLLM para actuar como intermediario entre el backend y Ollama, ya que me proporciona capacidades avanzadas de gestión \cite{litellm2024docs}:
+LiteLLM\footnote{\url{https://docs.litellm.ai/}} es una herramienta externa que se utiliza como capa intermedia entre los servicios propios y los modelos servidos por Ollama \cite{litellm2024docs}. Su utilidad está en unificar llamadas, aplicar alias de modelos, gestionar caché y simplificar el enrutamiento técnico.
 
-\begin{itemize}
-    \item \textbf{Abstracción multi-modelo:} Cada modelo de Ollama se registra en LiteLLM con un alias descriptivo (\texttt{llama3.1-8b}, \texttt{llava}, \texttt{JARVIS}). El backend solicita modelos por su alias sin conocer los detalles de despliegue subyacentes.
-
-    \item \textbf{Caché con Redis:} LiteLLM almacena en Redis las respuestas a consultas repetidas con un TTL configurable (1 hora), reduciendo la carga sobre la GPU y mejorando los tiempos de respuesta para consultas frecuentes.
-
-    \item \textbf{Fallbacks automáticos:} Si el modelo principal (Q8\_0) falla o está ocupado, LiteLLM redirige automáticamente la petición al modelo ligero (Q4\_0) configurado como fallback.
-
-    \item \textbf{Rate limiting:} Límites configurables por usuario y globales (solicitudes por minuto, tokens por minuto) para proteger los recursos de GPU.
-
-    \item \textbf{Compatibilidad OpenAI:} Al exponer una API compatible con OpenAI, cualquier cliente o librería diseñada para OpenAI funciona directamente contra LiteLLM sin modificaciones.
-\end{itemize}
+Desde la perspectiva del lector no técnico, su papel puede resumirse así: en lugar de que cada parte del sistema tenga que conocer todos los detalles de cada modelo, LiteLLM ofrece un punto único y homogéneo de acceso.
 
 % ============================================================
-\section{Docker y Orquestación de Contenedores}
+\section{Docker y orquestación de contenedores}
 \label{sec:docker}
 % ============================================================
 
-Docker\footnote{\url{https://www.docker.com/}} es la tecnología de contenedorización que he utilizado para empaquetar, desplegar y ejecutar todos los componentes de mi sistema de forma aislada y reproducible. Para facilitar la orquestación, utilizo Docker Compose, definiendo la totalidad de los 12 microservicios, sus dependencias, redes, volúmenes y recursos en un único fichero declarativo \texttt{docker-compose.yml}.
+Docker\footnote{\url{https://www.docker.com/}} y Docker Compose son la base del despliegue reproducible. Se utilizan para empaquetar todos los componentes y ponerlos en marcha como un conjunto coordinado.
 
 \subsection{Ventajas de la contenerización}
 
 \begin{itemize}
-    \item \textbf{Reproducibilidad:} El sistema completo se despliega ejecutando un único comando (\texttt{docker compose up -d}), garantizando que el entorno de producción sea idéntico al de desarrollo.
-
-    \item \textbf{Aislamiento:} Cada servicio opera en su propio contenedor con sus dependencias específicas, evitando conflictos entre librerías (por ejemplo, la versión de CUDA requerida por PaddleOCR no interfiere con la de SentenceTransformers).
-
-    \item \textbf{Red interna aislada:} Todos los servicios comparten una red Docker de tipo \textit{bridge} (\texttt{tfg-network}). Solo NGINX expone un puerto al exterior (8443), garantizando que servicios como PostgreSQL, Qdrant o Redis no sean accesibles desde fuera del servidor.
-
-    \item \textbf{GPU passthrough:} Los servicios que requieren aceleración por GPU (Ollama, PaddleOCR) utilizan la directiva \texttt{deploy.resources.reservations.devices} con el runtime \texttt{nvidia-container-toolkit} para acceder a la GPU del host desde dentro del contenedor.
+    \item \textbf{Reproducibilidad}: el mismo sistema puede desplegarse de forma controlada en distintos entornos.
+    \item \textbf{Aislamiento}: cada servicio mantiene sus dependencias separadas.
+    \item \textbf{Seguridad perimetral}: solo ciertos servicios se exponen al exterior.
+    \item \textbf{Acceso a GPU cuando es necesario}: se reserva aceleración solo para los servicios que la necesitan.
 \end{itemize}
 
+En el contexto del TFG, esto también es una parte de la contribución: no solo se han elegido tecnologías, sino que se han dejado integradas dentro de una arquitectura desplegable de forma repetible.
+
 % ============================================================
-\section{Herramientas de Procesamiento}
+\section{Herramientas de procesamiento documental y web}
 \label{sec:herramientas-procesamiento}
 % ============================================================
 
-\subsection{PaddleOCR: Reconocimiento Óptico de Caracteres}
+Esta sección reúne herramientas ya existentes que no han sido desarrolladas en el proyecto, pero que sí se han integrado y combinado para cubrir necesidades concretas del sistema.
 
-PaddleOCR\footnote{\url{https://github.com/PaddlePaddle/PaddleOCR}} es un motor de reconocimiento óptico de caracteres desarrollado por Baidu, capaz de detectar y transcribir texto en más de 80 idiomas. Se seleccionó para este proyecto por su rendimiento con aceleración GPU mediante CUDA, superando a alternativas como Tesseract en velocidad y precisión en documentos con layouts complejos \cite{paddleocr2024docs}.
+\subsection{PaddleOCR: reconocimiento óptico de caracteres}
 
-El motor se ejecuta dentro de un contenedor Docker con acceso a la GPU y lo he integrado en el pipeline de ingesta: cuando el sistema detecta un PDF escaneado (sin texto seleccionable), cada página se convierte a imagen y se procesa con PaddleOCR para extraer el texto que posteriormente troceo, vectorizo y guardo en Qdrant.
+PaddleOCR\footnote{\url{https://github.com/PaddlePaddle/PaddleOCR}} es un motor OCR externo utilizado para extraer texto de PDFs escaneados \cite{paddleocr2024docs}. No se ha implementado un OCR propio; el trabajo realizado aquí consiste en decidir cuándo usarlo, cómo integrarlo en la ingesta y cómo hacerlo convivir con el resto de componentes del sistema.
 
-\subsection{Playwright: Automatización de Navegadores}
+\subsection{Playwright: automatización de navegadores}
 
-Playwright\footnote{\url{https://playwright.dev/}} es un framework de automatización de navegadores desarrollado por Microsoft. A diferencia de soluciones basadas en peticiones HTTP simples, Playwright instancia un navegador Chromium completo en modo \textit{headless}, lo que permite renderizar páginas con JavaScript dinámico (React, Vue, Angular), resolver cargas diferidas (\textit{lazy loading}) y capturar el DOM final tras la ejecución de todos los scripts \cite{playwright2024docs}.
+Playwright\footnote{\url{https://playwright.dev/}} es una herramienta externa de automatización de navegador \cite{playwright2024docs}. Se utiliza porque muchas páginas web modernas dependen de JavaScript y no pueden procesarse correctamente con una simple petición HTTP. Su papel dentro del proyecto es permitir obtener el contenido real que ve el usuario en páginas dinámicas.
 
-\subsection{Trafilatura: Extracción de Contenido Web}
+\subsection{Trafilatura: extracción de contenido web}
 
-Trafilatura es una librería de procesamiento del lenguaje natural especializada en extraer el contenido principal de páginas web, eliminando automáticamente elementos no informativos como menús de navegación, cabeceras, pies de página, barras laterales y publicidad. Actúa como primera opción en la cadena de extracción del scraper, con Readability y BeautifulSoup como alternativas de respaldo (\textit{fallback}).
+Trafilatura es una biblioteca externa especializada en extraer el contenido principal de una página web, eliminando menús, barras laterales y ruido. En este TFG no se ha desarrollado un extractor propio de texto web desde cero; se ha integrado Trafilatura como primera opción dentro de una cadena de extracción con \textit{fallbacks}, porque resuelve bien el problema de aislar el contenido relevante.
 
-\subsection{SentenceTransformers: Generación de Embeddings}
+\subsection{SentenceTransformers: generación de embeddings}
 
-SentenceTransformers (Sentence-BERT) \cite{reimers2019sentence,sbertDocs} es la librería que utilizo para generar vectores densos de 384 dimensiones a partir de fragmentos de texto. El modelo específico que he empleado es \texttt{paraphrase-multilingual-MiniLM-L12-v2}, seleccionado por su soporte multilingüe (español e inglés), su tamaño moderado (420 MB) y su compatibilidad con ejecución en CPU. De esta forma, evito conflictos de VRAM con los modelos de IA generativa.
+SentenceTransformers \cite{reimers2019sentence,sbertDocs} es una biblioteca externa utilizada para generar embeddings. Se emplea el modelo \texttt{paraphrase-multilingual-MiniLM-L12-v2}, elegido por su equilibrio entre tamaño, soporte multilingüe y facilidad de despliegue. Aquí también es importante la distinción metodológica: el modelo y la librería ya existían; lo que aporta el proyecto es su integración en el pipeline RAG y su ajuste al caso de uso documental.
 
 % ============================================================
-\section{Stack de Monitorización}
+\section{Stack de monitorización}
 \label{sec:stack-monitorizacion}
 % ============================================================
 
-Para tener visibilidad sobre el funcionamiento del sistema, he integrado un stack completo de observabilidad compuesto por tres herramientas principales:
+Para operar un sistema de este tipo no basta con que funcione: también hay que entender cómo se comporta. Por ello se incorpora un stack de observabilidad formado por herramientas ya existentes, configuradas y conectadas dentro del proyecto.
 
 \subsection{Prometheus}
 
-Prometheus\footnote{\url{https://prometheus.io/}} es un sistema de monitorización y alertas que recopila métricas temporales mediante \textit{scraping} activo de endpoints HTTP. En este proyecto, Prometheus scrapea el endpoint \texttt{/metrics} del backend FastAPI cada 15 segundos, almacenando series temporales de latencia, throughput, errores, distribución de modos de operación y uso de recursos.
+Prometheus\footnote{\url{https://prometheus.io/}} recoge métricas temporales del backend y de otros servicios. Su utilidad en este TFG es permitir medir latencia, tasa de errores y patrones de uso en lugar de basar las decisiones de optimización en impresiones subjetivas.
 
 \subsection{Grafana}
 
-Grafana\footnote{\url{https://grafana.com/}} es la plataforma de visualización que consume las métricas almacenadas en Prometheus y las presenta en dashboards interactivos. Para este TFG, he diseñado y configurado tres dashboards principales:
-
-\begin{itemize}
-    \item \textbf{Dashboard de Backend:} Métricas de latencia (p50, p95, p99), peticiones por minuto, tasa de errores HTTP y distribución de modos de operación (RAG, chat, web search, scraping).
-    \item \textbf{Dashboard de GPU:} Consumo de VRAM en tiempo real, temperatura del chip, utilización de CUDA cores y potencia consumida, capturados mediante NVIDIA DCGM Exporter.
-    \item \textbf{Dashboard de Base de Datos:} Conexiones activas a PostgreSQL, queries por segundo y estadísticas de Qdrant.
-\end{itemize}
+Grafana\footnote{\url{https://grafana.com/}} visualiza las métricas recogidas por Prometheus mediante paneles comprensibles. En el proyecto se ha utilizado para construir paneles específicos de backend, GPU y bases de datos. Esto no debe entenderse como un desarrollo de una herramienta nueva, sino como el diseño de la capa de observación necesaria para operar el sistema con criterio.
 
 \subsection{NVIDIA DCGM Exporter}
 
-NVIDIA DCGM Exporter\footnote{\url{https://github.com/NVIDIA/dcgm-exporter}} es un exportador especializado que extrae métricas de rendimiento de las GPUs NVIDIA y las expone en formato compatible con Prometheus. Las métricas capturadas incluyen consumo de VRAM (GDDR6), utilización de los CUDA cores, temperatura del chip y potencia. Estas métricas son fundamentales para detectar cuellos de botella en la inferencia y gestionar la carga de modelos.
+NVIDIA DCGM Exporter\footnote{\url{https://github.com/NVIDIA/dcgm-exporter}} expone métricas de la GPU en formato compatible con Prometheus. Su presencia se justifica porque en un sistema que ejecuta modelos y OCR en local, la GPU es un recurso crítico y debe monitorizarse con el mismo nivel de detalle que el backend.
 
 % ============================================================
-\section{Otras Tecnologías del Ecosistema}
+\section{Otras tecnologías del ecosistema}
 \label{sec:otras-tecnologias}
 % ============================================================
 
 \begin{itemize}
-    \item \textbf{PostgreSQL 16 con pgvector:} Base de datos relacional que almacena usuarios, conversaciones, mensajes y metadatos de OpenWebUI. La extensión pgvector se mantiene instalada como capacidad futura para operaciones vectoriales secundarias.
-
-    \item \textbf{Redis 7:} Almacén en memoria utilizado como caché por LiteLLM para respuestas repetidas. Cada entrada tiene un TTL configurable tras el cual se invalida automáticamente.
-
-    \item \textbf{MinIO:} Servidor de almacenamiento de objetos compatible con Amazon S3. Preserva una réplica aislada de todos los documentos binarios del sistema, proporcionando un mecanismo de backup independiente de la base de datos.
-
-    \item \textbf{NGINX:} Proxy inverso que actúa como punto de entrada único del sistema. Gestiona la terminación TLS/SSL, la mejora de protocolo a WebSocket (necesaria para el streaming de tokens) y la redirección interna de peticiones a OpenWebUI.
-
-    \item \textbf{MSAL (Microsoft Authentication Library):} Librería de autenticación de Microsoft utilizada tanto para el flujo SSO con Azure AD (OpenID Connect) como para la conexión a SharePoint mediante el flujo de credenciales de cliente (\textit{Client Credentials}) de OAuth 2.0 \cite{msgraph2024docs}.
+    \item \textbf{PostgreSQL}: almacena usuarios, conversaciones y metadatos de OpenWebUI.
+    \item \textbf{Redis}: se emplea como caché de respuestas a través de LiteLLM.
+    \item \textbf{MinIO}: conserva documentos binarios como respaldo y fuente de reindexación.
+    \item \textbf{NGINX}: actúa como proxy inverso y punto único de entrada.
+    \item \textbf{MSAL}: permite autenticación con Azure AD y acceso autenticado a SharePoint mediante Microsoft Graph.
 \end{itemize}
+
+% ============================================================
+\section{Diagrama de flujo de tecnologías usadas}
+\label{sec:diagrama-flujo}
+% ============================================================
+
+La Figura~\ref{fig:flujo-tecnologias} resume cómo se conectan las tecnologías principales del sistema. No representa únicamente el recorrido de una consulta, sino también los componentes de soporte que permiten que el sistema funcione en un entorno real: autenticación, almacenamiento, caché y monitorización. Se incluye aquí porque ayuda a que un lector no especializado entienda de un vistazo qué piezas existen y cómo se relacionan.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.9cm and 0.8cm,
+    tech/.style={draw, rounded corners, align=center, minimum width=2.7cm, minimum height=0.9cm, fill=gray!10},
+    own/.style={tech, fill=blue!8},
+    ext/.style={tech, fill=green!8},
+    infra/.style={tech, fill=orange!10},
+    arrow/.style={-Latex, thick},
+    area/.style={draw, dashed, rounded corners, inner sep=0.35cm}
+]
+\node[ext] (user) {Usuario};
+\node[infra, below=of user] (nginx) {NGINX\\Proxy de entrada};
+\node[ext, below left=1.0cm and 1.3cm of nginx] (azure) {Azure AD / MSAL\\Autenticación};
+\node[ext, below=of nginx] (ui) {OpenWebUI\\Interfaz web};
+\node[own, below=of ui] (pipeline) {Pipeline JARVIS\\Python};
+\node[own, below left=1.4cm and 2.0cm of pipeline] (backend) {Backend RAG\\FastAPI};
+\node[own, below right=1.4cm and 2.0cm of pipeline] (indexer) {Indexer\\FastAPI};
+\node[own, right=of pipeline] (boe) {Servidor MCP /\\Integración BOE};
+
+\node[ext, below=of backend] (qdrant) {Qdrant\\Base vectorial};
+\node[ext, left=of qdrant] (litellm) {LiteLLM};
+\node[ext, left=of litellm] (ollama) {Ollama\\LLMs locales};
+\node[ext, right=of qdrant] (postgres) {PostgreSQL\\Usuarios y chats};
+\node[ext, below=of qdrant] (redis) {Redis\\Caché};
+\node[ext, right=of indexer] (sharepoint) {SharePoint\\Microsoft Graph};
+\node[ext, below=of indexer] (ocr) {PaddleOCR\\OCR};
+\node[ext, left=of indexer] (web) {Playwright +\\Trafilatura};
+\node[ext, below=of redis] (minio) {MinIO\\Documentos binarios};
+
+\node[infra, right=of postgres] (prom) {Prometheus\\Métricas};
+\node[infra, right=of prom] (grafana) {Grafana\\Dashboards};
+\node[infra, below=of prom] (dcgm) {NVIDIA DCGM\\GPU metrics};
+
+\draw[arrow] (user) -- (nginx);
+\draw[arrow] (nginx) -- (ui);
+\draw[arrow] (ui) -- (azure);
+\draw[arrow] (ui) -- (pipeline);
+\draw[arrow] (pipeline) -- (backend);
+\draw[arrow] (pipeline) -- (ui);
+\draw[arrow] (pipeline) -- (indexer);
+\draw[arrow] (pipeline) -- (boe);
+\draw[arrow] (backend) -- (qdrant);
+\draw[arrow] (backend) -- (litellm);
+\draw[arrow] (backend) -- (postgres);
+\draw[arrow] (backend) -- (redis);
+\draw[arrow] (backend) -- (minio);
+\draw[arrow] (litellm) -- (ollama);
+\draw[arrow] (indexer) -- (sharepoint);
+\draw[arrow] (indexer) -- (ocr);
+\draw[arrow] (indexer) -- (web);
+\draw[arrow] (indexer) -- (qdrant);
+\draw[arrow] (indexer) -- (minio);
+\draw[arrow] (backend) -- (prom);
+\draw[arrow] (dcgm) -- (prom);
+\draw[arrow] (prom) -- (grafana);
+
+\node[area, fit=(nginx)(azure)(ui)(pipeline)] {};
+\node[area, fit=(backend)(indexer)(boe)] {};
+\node[area, fit=(ollama)(litellm)(qdrant)(postgres)(redis)(minio)] {};
+\node[area, fit=(prom)(grafana)(dcgm)] {};
+\end{tikzpicture}
+\caption{Diagrama general de tecnologías usadas en el sistema. En azul se muestran los componentes desarrollados en el TFG, en verde las herramientas reutilizadas y en naranja la infraestructura de soporte y monitorización.}
+\label{fig:flujo-tecnologias}
+\end{figure}

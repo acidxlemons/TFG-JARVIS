@@ -31,7 +31,7 @@
 **Por qué lo usamos**:
 - **Reproducibilidad**: El mismo contenedor funciona igual en desarrollo y producción.
 - **Aislamiento**: Cada servicio tiene su propio entorno, sin conflictos.
-- **Orquestación**: Docker Compose gestiona los 14 microservicios con un solo comando.
+- **Orquestación**: Docker Compose gestiona los servicios principales del sistema y varios servicios auxiliares con un solo comando.
 
 **Archivos clave**:
 ```

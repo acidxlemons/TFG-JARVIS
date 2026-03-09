@@ -1,127 +1,121 @@
-\chapter{Sistemas Relacionados}
+\chapter{Sistemas relacionados y posicionamiento de la propuesta}
 \label{cap:sistemas}
 
-En este capítulo analizo el panorama actual de sistemas basados en modelos de lenguaje grandes (LLMs) orientados a la gestión empresarial. Estudio tanto las soluciones comerciales de las grandes tecnológicas como las alternativas de código abierto que persiguen objetivos similares a los de mi proyecto. Esto me permite situar el sistema que he desarrollado en su contexto adecuado y justificar las decisiones de diseño que he adoptado.
+Este capítulo sitúa el sistema desarrollado dentro del ecosistema actual. El objetivo no es comparar por comparar, sino mostrar qué soluciones existían antes de comenzar el proyecto, cuáles han aparecido o ganado relevancia durante los últimos meses y qué hueco intenta cubrir la propuesta de este TFG. Esta parte es especialmente importante porque el ámbito de los asistentes con LLM evoluciona muy rápido: herramientas que hace pocos meses no estaban maduras hoy ya compiten en funcionalidades concretas.
 
 % ============================================================
-\section{Asistentes Comerciales Basados en LLM}
+\section{Asistentes comerciales basados en LLM}
 % ============================================================
 
 \subsection{ChatGPT y GPT Enterprise (OpenAI)}
 
-ChatGPT es el asistente conversacional más conocido del mercado, desarrollado por OpenAI. Su versión empresarial, ChatGPT Enterprise, incorpora características orientadas al ámbito corporativo: cifrado en tránsito y en reposo, garantía de no utilización de datos para entrenamiento del modelo, panel de administración para gestión de usuarios y cumplimiento SOC~2.
+ChatGPT es el asistente conversacional más conocido del mercado. Su versión empresarial añade controles administrativos, garantías comerciales y mejores condiciones de tratamiento de datos. Aun así, sigue siendo un servicio en la nube: la organización no controla la infraestructura de inferencia ni puede modificar en profundidad la lógica del sistema.
 
-Sin embargo, ChatGPT Enterprise sigue siendo un servicio en la nube: todos los datos ---consultas, documentos subidos y respuestas--- se procesan en servidores de OpenAI. Aunque la compañía asegura que los datos empresariales no se utilizan para re-entrenamiento, el mero hecho de que la información salga del perímetro corporativo supone un riesgo inaceptable en muchos sectores regulados. Adicionalmente, el modelo de precios por token procesado puede escalar rápidamente en organizaciones con un uso intensivo.
+Para este TFG, el principal límite de esta familia de soluciones no es su calidad técnica, sino la pérdida de soberanía operativa: los documentos y consultas no se procesan dentro de una infraestructura propia.
 
 \subsection{Microsoft Copilot para Microsoft 365}
 
-Microsoft Copilot integra modelos GPT-4 de OpenAI directamente en las aplicaciones de Microsoft 365 (Word, Excel, Teams, SharePoint). Su ventaja principal es la integración nativa con el ecosistema Microsoft: accede a los documentos de SharePoint, los correos electrónicos de Outlook y los mensajes de Teams del usuario para contextualizar las respuestas.
+Microsoft Copilot destaca por su integración con SharePoint, Outlook, Teams y el resto del ecosistema Microsoft 365. Para organizaciones ya asentadas en ese entorno, su propuesta es muy atractiva porque reduce la fricción de adopción.
 
-No obstante, Copilot presenta varias limitaciones para un despliegue corporativo con requisitos de soberanía:
+Sin embargo, esa misma integración va asociada a varias restricciones relevantes para el enfoque de este trabajo:
 
 \begin{itemize}
-    \item \textbf{Dependencia de la nube de Microsoft:} Todo el procesamiento se realiza en Azure, sin opción de ejecución on-premise.
-    \item \textbf{Coste por usuario:} El precio de Copilot para Microsoft 365 es de 30 USD/usuario/mes, lo que resulta prohibitivo para organizaciones grandes.
-    \item \textbf{Caja negra:} No es posible modificar la lógica de enrutamiento, personalizar el comportamiento del agente ni integrar fuentes de información externas no contempladas por Microsoft.
-    \item \textbf{Sin control sobre el modelo:} No se puede elegir el modelo, ajustar parámetros de inferencia ni realizar fine-tuning.
+    \item procesamiento en nube, no en infraestructura propia;
+    \item coste por usuario recurrente;
+    \item escasa capacidad para modificar la lógica interna del asistente;
+    \item dependencia fuerte del ecosistema Microsoft.
 \end{itemize}
 
 \subsection{Google Gemini y Vertex AI}
 
-Google ofrece sus modelos Gemini tanto como producto de consumo (Gemini en Google Workspace) como plataforma de desarrollo empresarial (Vertex AI). Vertex AI permite desplegar modelos propios de Google junto con modelos de terceros, con opciones de RAG integradas a través de su servicio Vertex AI Search.
+Google ofrece Gemini como producto de productividad y Vertex AI como plataforma de desarrollo e integración. Su fortaleza está en la amplitud del ecosistema cloud y en la disponibilidad de servicios gestionados.
 
-Las mismas limitaciones fundamentales aplican: procesamiento en la nube de Google, dependencia de un proveedor, costes recurrentes por uso y ausencia de control total sobre los datos. Aunque Google ofrece opciones de localización de datos en regiones específicas, no soporta despliegue on-premise.
+Desde la perspectiva de este proyecto, la limitación vuelve a ser similar: son plataformas muy capaces, pero diseñadas principalmente para operar en la nube del proveedor, no para una arquitectura enteramente \textit{on-premise}.
 
 \subsection{Amazon Bedrock}
 
-Amazon Bedrock es la plataforma de AWS que ofrece acceso a modelos de lenguaje de múltiples proveedores (Anthropic Claude, Meta LLaMA, Mistral, Amazon Titan) mediante una API unificada. Incluye capacidades de RAG a través de Knowledge Bases y agentes con herramientas.
-
-Bedrock ofrece mayor flexibilidad que los productos de Microsoft o Google en cuanto a elección de modelo, pero sigue siendo un servicio en la nube con las mismas implicaciones de soberanía de datos y costes por uso.
+Amazon Bedrock proporciona acceso a varios modelos mediante una API unificada y ofrece piezas para agentes y RAG. Es una solución flexible dentro del ecosistema AWS, pero sigue respondiendo al paradigma de servicio gestionado en la nube.
 
 % ============================================================
-\section{Soluciones de Código Abierto para RAG}
+\section{Herramientas abiertas orientadas a RAG y asistentes privados}
 % ============================================================
 
 \subsection{PrivateGPT}
 
-PrivateGPT\footnote{\url{https://github.com/zylon-ai/private-gpt}} es un proyecto de código abierto que permite interactuar con documentos propios utilizando LLMs locales. Su enfoque es similar al de este proyecto en la filosofía de privacidad: todo se ejecuta en local sin enviar datos a servicios externos.
-
-Sin embargo, PrivateGPT se posiciona como una herramienta individual más que como un sistema empresarial: carece de gestión de usuarios, no ofrece autenticación corporativa (SSO), no incluye integración con SharePoint ni con fuentes legislativas, no dispone de monitorización de GPU y su capacidad de extensión es limitada.
-
-\subsection{LocalAI}
-
-LocalAI\footnote{\url{https://github.com/mudler/LocalAI}} es un servidor de API compatible con OpenAI que permite ejecutar modelos localmente. A diferencia de Ollama, LocalAI soporta una gama más amplia de backends (llama.cpp, GPT4All, Diffusers) pero con mayor complejidad de configuración.
-
-LocalAI se centra exclusivamente en la capa de servicio del modelo (equivalente a Ollama + LiteLLM); no incluye pipeline RAG, interfaz de usuario, sistema de ingesta ni agente enrutador, por lo que solo cubriría una fracción de las funcionalidades del sistema desarrollado.
+PrivateGPT\footnote{\url{https://github.com/zylon-ai/private-gpt}} representa una de las aproximaciones más conocidas a la idea de chat privado con documentos propios. Comparte con este TFG la filosofía de evitar servicios externos, pero está más orientado a un uso individual o de laboratorio que a un despliegue corporativo completo.
 
 \subsection{AnythingLLM}
 
-AnythingLLM\footnote{\url{https://github.com/Mintplex-Labs/anything-llm}} es una solución de código abierto que combina interfaz de chat, capacidad RAG y gestión de documentos en una aplicación unificada. Soporta múltiples proveedores de LLM (OpenAI, Ollama, LM Studio) y varias bases de datos vectoriales.
-
-Si bien AnythingLLM se acerca más a la visión integral del sistema desarrollado en este proyecto, presenta diferencias importantes: no dispone de agente enrutador inteligente (toda consulta se procesa de la misma forma), no incluye integración con SharePoint, no ofrece OCR para documentos escaneados, no integra búsqueda en internet ni consulta legislativa del BOE, y no incorpora monitorización de infraestructura.
+AnythingLLM\footnote{\url{https://github.com/Mintplex-Labs/anything-llm}} combina interfaz, RAG y gestión documental en una sola herramienta. Se acerca bastante a una solución práctica lista para usar, pero su comportamiento es más uniforme y menos controlable que el del sistema de este proyecto, donde existe un pipeline propio de enrutamiento e integración con fuentes específicas.
 
 \subsection{Danswer / Onyx}
 
-Danswer\footnote{\url{https://github.com/danswer-ai/danswer}} (recientemente renombrado a Onyx) es un sistema RAG empresarial de código abierto que se conecta a múltiples fuentes de información (Confluence, Slack, Google Drive, SharePoint). Incluye interfaz web, gestión de usuarios y capacidades de búsqueda.
+Danswer, renombrado posteriormente como Onyx, es una de las referencias más cercanas a un buscador corporativo con LLM y múltiples conectores. Su relevancia es alta porque demuestra que la necesidad que aborda este TFG no es académica, sino real y compartida por muchas organizaciones.
 
-Danswer es posiblemente el proyecto de código abierto más comparable al desarrollado en este TFG. Sin embargo, su arquitectura depende de APIs externas para la generación (por defecto OpenAI), no incluye ejecución local de modelos, y su personalización requiere modificar el código fuente del proyecto en lugar de utilizar un mecanismo de extensión limpio como los Pipelines de OpenWebUI.
+La diferencia principal es de enfoque: Onyx persigue un producto generalista para empresa; este TFG construye una arquitectura más controlada y personalizada alrededor de un caso concreto, con ejecución local, pipeline propio y mayor énfasis en componentes desplegables por separado.
+
+\subsection{OpenClaw y la aceleración reciente del ecosistema}
+
+Durante los últimos meses han aparecido o se han popularizado nuevas herramientas abiertas orientadas a agentes, automatización y uso local de modelos. Un ejemplo representativo es OpenClaw, que refleja una tendencia clara del sector: pasar de simples chats con documentos a sistemas más capaces de orquestar herramientas, navegar por información y ejecutar tareas más complejas.
+
+Su mención es importante por dos razones. La primera es temporal: muestra que el espacio tecnológico del proyecto se está moviendo muy deprisa y que algunas referencias actuales no estaban igual de maduras cuando se definió la primera versión del sistema. La segunda es conceptual: confirma que la línea seguida en este TFG, basada en integrar modelos con herramientas y fuentes externas, va en la misma dirección que la evolución reciente del ecosistema.
+
+\subsection{NotebookLM y asistentes centrados en conocimiento aportado por el usuario}
+
+NotebookLM representa otra línea de evolución distinta. En lugar de centrarse tanto en la infraestructura o la orquestación, pone el acento en trabajar sobre documentos aportados por el usuario y generar explicaciones, resúmenes y conexiones entre fuentes. Su utilidad como referencia está en recordar que no todos los asistentes documentales buscan resolver el mismo problema.
+
+Frente a NotebookLM, este TFG persigue un objetivo más orientado a entorno corporativo integrado: autenticación, documentos compartidos, actualización periódica, control de acceso y despliegue local. Por tanto, NotebookLM sirve como comparación funcional parcial, no como equivalente arquitectónico.
 
 \subsection{Frameworks: LangChain y LlamaIndex}
 
-LangChain\footnote{\url{https://langchain.com/}} \cite{langchainRetrievalDocs} y LlamaIndex\footnote{\url{https://www.llamaindex.ai/}} \cite{llamaindexRagDocs} son frameworks de desarrollo para construir aplicaciones con LLMs. No son productos finales, sino herramientas de programación que proporcionan abstracciones para tareas como retrieval, chunking, cadenas de procesamiento y agentes.
+LangChain\footnote{\url{https://langchain.com/}} \cite{langchainRetrievalDocs} y LlamaIndex\footnote{\url{https://www.llamaindex.ai/}} \cite{llamaindexRagDocs} son marcos de desarrollo, no productos finales. Ayudan a construir sistemas con LLMs, pero no resuelven por sí solos necesidades como autenticación corporativa, despliegue, observabilidad o interfaz completa.
 
-Estos frameworks son útiles como componentes dentro de un sistema mayor, pero por sí solos no constituyen una solución: no proporcionan interfaz de usuario, autenticación, ingesta automatizada, monitorización ni despliegue. En este proyecto, se utilizan selectivamente conceptos y patrones de LangChain sin adoptar el framework como dependencia completa, priorizando implementaciones directas con menor acoplamiento.
+Por eso, más que competidores directos, deben entenderse como piezas posibles dentro de un sistema mayor.
 
 % ============================================================
-\section{Análisis Comparativo}
+\section{Análisis comparativo}
 % ============================================================
 
-La Tabla~\ref{tab:comparativa-sistemas} presenta una comparación exhaustiva entre el sistema que he desarrollado y las alternativas actuales, evaluando las funcionalidades clave para un despliegue corporativo con requisitos de privacidad y autonomía.
+La Tabla~\ref{tab:comparativa-sistemas} resume la comparación entre la propuesta del TFG y varias alternativas representativas.
 
 \begin{table}[H]
 \centering
 \caption{Comparación del sistema JARVIS con soluciones alternativas.}
 \label{tab:comparativa-sistemas}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{lccccccc}
+\begin{tabular}{lcccccccc}
 \toprule
-\textbf{Característica} & \textbf{JARVIS} & \textbf{ChatGPT Ent.} & \textbf{Copilot 365} & \textbf{PrivateGPT} & \textbf{AnythingLLM} & \textbf{Danswer} & \textbf{LocalAI}\\
+\textbf{Característica} & \textbf{JARVIS} & \textbf{ChatGPT Ent.} & \textbf{Copilot 365} & \textbf{AnythingLLM} & \textbf{Onyx} & \textbf{PrivateGPT} & \textbf{NotebookLM} & \textbf{OpenClaw}\\
 \midrule
-On-Premise 100\%       & \checkmark & $\times$   & $\times$    & \checkmark & \checkmark & Parcial    & \checkmark \\
-Código abierto         & \checkmark & $\times$   & $\times$    & \checkmark & \checkmark & \checkmark & \checkmark \\
-UI conversacional      & \checkmark & \checkmark & \checkmark  & \checkmark & \checkmark & \checkmark & $\times$ \\
-Multi-fuente RAG       & \checkmark & Parcial    & Parcial     & Parcial    & Parcial    & \checkmark & $\times$ \\
-SharePoint             & \checkmark & $\times$   & \checkmark  & $\times$   & $\times$   & \checkmark & $\times$ \\
-OCR integrado (GPU)    & \checkmark & $\times$   & $\times$    & $\times$   & $\times$   & $\times$   & $\times$ \\
-Web Scraping           & \checkmark & $\times$   & Parcial     & $\times$   & $\times$   & $\times$   & $\times$ \\
-Búsqueda en Internet   & \checkmark & \checkmark & \checkmark  & $\times$   & $\times$   & $\times$   & $\times$ \\
-Agente enrutador       & \checkmark & Interno    & Interno     & $\times$   & $\times$   & $\times$   & $\times$ \\
-SSO corporativo        & \checkmark & \checkmark & \checkmark  & $\times$   & $\times$   & \checkmark & $\times$ \\
-Consulta legislativa   & \checkmark & $\times$   & $\times$    & $\times$   & $\times$   & $\times$   & $\times$ \\
-Monitorización GPU     & \checkmark & $\times$   & $\times$    & $\times$   & $\times$   & $\times$   & $\times$ \\
-Fine-tuning local      & \checkmark & $\times$   & $\times$    & $\times$   & $\times$   & $\times$   & Parcial \\
-Extensible (plugins)   & \checkmark & $\times$   & $\times$    & $\times$   & $\times$   & Parcial    & $\times$ \\
-Coste por token        & 0 \euro{}  & \$\$\$     & 30 \$/usr   & 0 \euro{}  & 0 \euro{}  & Variable   & 0 \euro{} \\
+On-Premise 100\%       & \checkmark & $\times$   & $\times$    & \checkmark & Parcial & \checkmark & $\times$ & \checkmark \\
+Código abierto         & \checkmark & $\times$   & $\times$    & \checkmark & \checkmark & \checkmark & $\times$ & \checkmark \\
+UI conversacional      & \checkmark & \checkmark & \checkmark  & \checkmark & \checkmark & \checkmark & \checkmark & Parcial \\
+RAG documental         & \checkmark & Parcial    & Parcial     & \checkmark & \checkmark & \checkmark & \checkmark & Parcial \\
+SharePoint             & \checkmark & $\times$   & \checkmark  & $\times$   & \checkmark & $\times$   & $\times$   & Parcial \\
+OCR integrado          & \checkmark & $\times$   & $\times$    & $\times$   & $\times$   & $\times$   & $\times$   & Parcial \\
+Web / herramientas     & \checkmark & Parcial    & Parcial     & Parcial    & Parcial    & $\times$   & $\times$   & \checkmark \\
+SSO corporativo        & \checkmark & \checkmark & \checkmark  & $\times$   & \checkmark & $\times$   & $\times$   & Parcial \\
+Monitorización propia  & \checkmark & $\times$   & $\times$    & $\times$   & Parcial    & $\times$   & $\times$   & Parcial \\
+Lógica extensible      & \checkmark & $\times$   & $\times$    & Limitada   & Parcial    & Limitada   & $\times$   & \checkmark \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
+La tabla no debe leerse como una clasificación absoluta, sino como una comparación respecto al objetivo concreto del TFG: asistente corporativo documental, desplegable en local, integrable con SharePoint y extensible mediante lógica propia.
+
 % ============================================================
-\section{Posicionamiento del Sistema Desarrollado}
+\section{Posicionamiento del sistema desarrollado}
 \label{sec:posicionamiento}
 % ============================================================
 
-Tras este análisis comparativo, concluyo que el sistema JARVIS que he construido ocupa un nicho diferenciado que no está cubierto por ninguna de las alternativas analizadas de forma individual:
+Tras este análisis, el sistema desarrollado ocupa una posición intermedia entre varias familias de soluciones:
 
 \begin{enumerate}
-    \item \textbf{Frente a soluciones comerciales} (ChatGPT Enterprise, Copilot, Vertex AI, Bedrock): el sistema ofrece la misma experiencia conversacional pero con soberanía total sobre los datos. Ningún documento, consulta o respuesta abandona el perímetro del servidor corporativo. El coste operativo se limita a la electricidad y el hardware, sin costes recurrentes por token procesado.
-
-    \item \textbf{Frente a soluciones de código abierto} (PrivateGPT, LocalAI, AnythingLLM): el sistema desarrollado ofrece un nivel de integración y funcionalidad significativamente superior. Mientras que estas alternativas se centran típicamente en una única capacidad (chat local, RAG básico), JARVIS integra múltiples fuentes de datos (SharePoint, web, BOE), múltiples modos de operación (RAG, scraping, OCR, búsqueda web, visión), autenticación corporativa, monitorización de infraestructura y un agente enrutador inteligente.
-
-    \item \textbf{Frente a Danswer/Onyx}: es la alternativa más comparable en ambición. Sin embargo, Danswer depende de APIs externas para la generación, mientras que el sistema desarrollado ejecuta todo localmente. Además, la extensibilidad mediante Pipelines de OpenWebUI ofrece un mecanismo más limpio de personalización que modificar directamente el código fuente de Danswer.
-
-    \item \textbf{Frente a frameworks} (LangChain, LlamaIndex): estos no son productos finales sino herramientas de desarrollo. El sistema JARVIS es un sistema desplegable llave en mano, con interfaz de usuario, autenticación, monitorización y documentación de despliegue incluidas de serie.
+    \item \textbf{Frente a soluciones comerciales}: sacrifica comodidad de servicio gestionado a cambio de soberanía del dato y capacidad de personalización.
+    \item \textbf{Frente a herramientas abiertas listas para usar}: añade más integración corporativa, más control sobre el flujo y más separación clara entre componentes.
+    \item \textbf{Frente a frameworks}: ofrece un sistema desplegable, no solo una base de desarrollo.
+    \item \textbf{Frente a herramientas recientes orientadas a agentes}: comparte la dirección de evolución, pero con un foco más concreto en consulta documental empresarial y trazabilidad.
 \end{enumerate}
 
-En resumen, la contribución principal de mi trabajo respecto al estado actual es ofrecer un \textbf{sistema RAG corporativo completo, on-premise, extensible y con múltiples fuentes de datos}, combinando la calidad de la experiencia de usuario de los productos comerciales con la privacidad y autonomía del código abierto.
+En resumen, la propuesta de este TFG no compite por ser el asistente más generalista del mercado, sino por resolver de forma sólida un problema muy específico: \textbf{consultar documentación corporativa cambiante con lenguaje natural, dentro de una infraestructura controlada y apoyándose en herramientas existentes correctamente integradas}.

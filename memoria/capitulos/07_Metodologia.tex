@@ -1,13 +1,13 @@
 \chapter{Metodología}
 \label{cap:metodologia}
 
-En este capítulo se describe el proceso de desarrollo seguido, las herramientas empleadas, el entorno hardware en el que se despliega el sistema y la estrategia de documentación adoptada.
+En este capítulo se describe el proceso de desarrollo seguido, el entorno hardware utilizado, los criterios de selección tecnológica y la estrategia de documentación adoptada. El objetivo es mostrar cómo se ha organizado el trabajo y con qué medios se ha llevado a cabo.
 
 % ============================================================
 \section{Proceso de Desarrollo}
 % ============================================================
 
-El diseño e implementación de este Trabajo de Fin de Grado se ha conducido siguiendo un marco de trabajo de desarrollo ágil (\textit{Agile}), caracterizado por entregas iterativas e incrementales. Dada la naturaleza cambiante y el rápido progreso tecnológico inherente a al campo de la Inteligencia Artificial y los Modelos de Lenguaje Grande (LLMs) durante el transcurso del tiempo del desarrollo, la flexibilidad para pivotar decisiones de enrutamiento o cambiar contenedores y versiones del modelo resultó crítica.
+El diseño e implementación de este Trabajo de Fin de Grado se ha conducido siguiendo un marco de trabajo ágil (\textit{Agile}), caracterizado por entregas iterativas e incrementales. Dada la naturaleza cambiante del ámbito de la Inteligencia Artificial y de los Modelos de Lenguaje Grande (LLMs), la flexibilidad para revisar decisiones técnicas, sustituir herramientas o ajustar el enrutamiento resultó especialmente importante durante el desarrollo.
 
 Se estableció un ciclo de vida con las siguientes fases:
 \begin{enumerate}
@@ -102,7 +102,7 @@ La GPU es el recurso más crítico del sistema, dado que los tres modelos de len
 \section{Stack Tecnológico}
 % ============================================================
 
-La selección de tecnologías priorizó tres criterios: licencia de código abierto, ejecutabilidad local sin dependencias de nube, y madurez del ecosistema. La Tabla~\ref{tab:stack} enumera la totalidad de tecnologías empleadas.
+La selección de tecnologías priorizó tres criterios: licencia de código abierto, ejecutabilidad local sin dependencias de nube y madurez del ecosistema. Conviene recordar que muchas de estas tecnologías son herramientas preexistentes reutilizadas en el proyecto, mientras que la lógica de integración y buena parte de los servicios que las conectan constituyen el desarrollo propio del TFG. La Tabla~\ref{tab:stack} enumera la totalidad de tecnologías empleadas.
 
 \begin{table}[H]
 \centering
@@ -147,7 +147,7 @@ Proxy Inverso       & NGINX        & Alpine \\
 % ============================================================
 \section{Herramientas y Control de Versiones}
 % ============================================================
-Para la correcta orquestación colaborativa del proyecto se utilizó el sistema de control de versiones Git, albergando el repositorio de código principal en GitHub\footnote{\url{https://github.com/acidxlemons/TFG-JARVIS}}. El seguimiento de incidencias, errores (\textit{bugs}) y nuevas características (\textit{features}) se coordinó siguiendo la metodología y ramificación \textit{Git Flow}, segregando los entornos de producción (\textit{main}) del trabajo en progreso con ramas independientes.
+Para la correcta organización del proyecto se utilizó el sistema de control de versiones Git, alojando el repositorio principal en GitHub\footnote{\url{https://github.com/acidxlemons/TFG-JARVIS}}. El seguimiento de incidencias, errores y nuevas características se realizó mediante trabajo por ramas, separando el código estable del trabajo en progreso.
 
 El entorno de desarrollo integrado (IDE) empleado primordialmente fue Visual Studio Code en Windows, acoplado al subsistema WSL o contenedores Docker en remoto para igualar la paridad funcional con el entorno de despliegue real Linux, evitando fricciones a nivel de sistema de archivos o librerías específicas compiladas para CUDA/NVIDIA.
 

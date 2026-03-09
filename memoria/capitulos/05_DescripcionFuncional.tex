@@ -1,7 +1,7 @@
 \chapter{Descripción Funcional del Sistema}
 \label{cap:funcional}
 
-En este capítulo describo el sistema que he desarrollado desde la perspectiva del usuario final. Detallo qué puede hacer el sistema, cómo se presenta la interfaz conversacional, qué funcionalidades están disponibles y cómo puede interactuar el usuario con cada una de ellas. Mi objetivo es ofrecer una visión completa y comprensible de las capacidades del sistema sin entrar todavía en los detalles de implementación técnica, que reservo para el Capítulo~\ref{cap:implementacion}.
+En este capítulo se describe el sistema desde la perspectiva del usuario final. Se detalla qué puede hacer, cómo se presenta la interfaz conversacional, qué funcionalidades están disponibles y cómo puede interactuar el usuario con cada una de ellas. El objetivo es ofrecer una visión completa y comprensible de las capacidades del sistema sin entrar todavía en los detalles de implementación técnica, que se reservan para el Capítulo~\ref{cap:implementacion}.
 
 % ============================================================
 \section{Visión General}
@@ -20,7 +20,7 @@ JARVIS (\textit{Just A Rather Very Intelligent System}) es un asistente conversa
     \item Listar los documentos disponibles en la base de conocimiento.
 \end{itemize}
 
-He diseñado el sistema para que \textbf{detecte automáticamente la intención del usuario} a partir del texto del mensaje, sin necesidad de comandos explícitos, menús ni modos manuales. El usuario simplemente escribe su pregunta o solicitud y el sistema decide internamente qué funcionalidad activar. Esta transparencia hace que la experiencia sea natural e intuitiva, similar a interactuar con un asistente humano.
+El sistema se ha diseñado para que \textbf{detecte automáticamente la intención del usuario} a partir del texto del mensaje, sin necesidad de comandos explícitos, menús ni modos manuales. El usuario simplemente escribe su pregunta o solicitud y el sistema decide internamente qué funcionalidad activar. Esta transparencia busca que la experiencia sea natural e intuitiva, similar a interactuar con un asistente humano.
 
 % ============================================================
 \section{Acceso al Sistema e Inicio de Sesión}
@@ -57,7 +57,7 @@ Las respuestas soportan formato enriquecido:
     \item \textbf{Bloques de código:} Con resaltado de sintaxis para múltiples lenguajes.
     \item \textbf{Tablas:} Para información estructurada.
     \item \textbf{Enlaces:} URLs clicables a fuentes externas o documentos referenciados.
-    \item \textbf{Emojis:} Para indicaciones visuales de modo de operación (📚 RAG, 🌐 Web, 🔍 Búsqueda, 🖼️ Visión).
+    \item \textbf{Indicadores visuales}: Etiquetas e iconos que ayudan a identificar el modo de operación activo.
 \end{itemize}
 
 \subsection{Panel Lateral de Conversaciones}
@@ -78,7 +78,7 @@ La interfaz permite adjuntar archivos directamente en el chat mediante un botón
 \label{sec:modos}
 % ============================================================
 
-A continuación describo los modos de operación fundamentales que he configurado en el sistema, vistos desde la perspectiva del usuario, con ejemplos de los tipos de consultas que activan cada modo.
+A continuación se describen los modos de operación fundamentales configurados en el sistema, vistos desde la perspectiva del usuario, con ejemplos de los tipos de consultas que activan cada modo.
 
 \subsection{Consulta de Documentos Internos (RAG)}
 \label{subsec:modo-rag}
@@ -141,7 +141,7 @@ El sistema integra la capacidad de consultar el Boletín Oficial del Estado (BOE
 
 \begin{itemize}
     \item \textbf{Ejemplo de consulta:} ``Busca en el BOE la ley de protección de datos''
-    \item \textbf{Comportamiento:} El sistema resuelve semánticamente el nombre coloquial de la ley a su identificador oficial del BOE, consulta la API de Datos Abiertos del BOE y devuelve un resumen estructurado de la ley solicitada.
+    \item \textbf{Comportamiento:} El sistema resuelve semánticamente el nombre coloquial de la ley a su identificador oficial del BOE, consulta la API de Datos Abiertos del BOE y devuelve un resumen estructurado de la ley solicitada. De forma complementaria, el proyecto incorpora un servidor MCP para este dominio, ya validado fuera de la interfaz principal.
     \item \textbf{Indicador visual:} 🏛️ \texttt{Consultando el BOE...}
 \end{itemize}
 
@@ -187,7 +187,7 @@ Si el mensaje del usuario no coincide con ninguno de los modos especializados an
 \label{sec:escenarios}
 % ============================================================
 
-Para ilustrar la experiencia del usuario de forma integral, describo a continuación tres escenarios de uso representativos de las capacidades que he integrando:
+Para ilustrar la experiencia del usuario de forma integral, se describen a continuación tres escenarios de uso representativos de las capacidades integradas:
 
 \subsection{Escenario 1: Consulta de un procedimiento corporativo}
 
